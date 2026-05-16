@@ -45,6 +45,7 @@ GameObject:
   - component: {fileID: 8038574115725618551}
   - component: {fileID: 8571186503948283667}
   - component: {fileID: 1037656559701031306}
+  - component: {fileID: 6290850186715018952}
   m_Layer: 6
   m_Name: Jebby
   m_TagString: Untagged
@@ -222,3 +223,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JebbyJump.Player.PlayerAnimator
   _motor: {fileID: 8571186503948283667}
   _animator: {fileID: 0}
+--- !u!114 &6290850186715018952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8296823959736851068}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef9ccec6b396e1d47b55fa1bbf63fb48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JebbyJump.Player.PlayerController
+  _input: {fileID: 11400000, guid: e7540ad45dbf5b144b91ed1de67d0d09, type: 2}
+  _motor: {fileID: 8571186503948283667}
