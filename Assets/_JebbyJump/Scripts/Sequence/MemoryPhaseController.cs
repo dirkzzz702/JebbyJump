@@ -40,7 +40,12 @@ namespace JebbyJump.Sequence
 
         private void Start()
         {
+            if (_sequenceManager == null || _spawner == null || _displayUI == null) return;
+
             _sequenceManager.GenerateSequence();
+
+            if (_sequenceManager.Sequence == null || _sequenceManager.Sequence.Count == 0) return;
+
             _spawner.SpawnPlatforms(_sequenceManager.Sequence);
             StartCoroutine(RunMemoryPhase());
         }

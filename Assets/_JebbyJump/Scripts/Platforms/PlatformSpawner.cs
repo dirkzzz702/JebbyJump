@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using JebbyJump.Core;
+using JebbyJump.Platforms;
 using UnityEngine;
 
 namespace JebbyJump.Level
@@ -43,7 +44,7 @@ namespace JebbyJump.Level
                     go.name = "Platform_Row" + row + "_" + colors[i];
                     go.transform.localScale = new Vector3(_config.PlatformWidth, _config.PlatformHeight, 1f);
 
-                    Platforms.Platform platform = go.GetComponent<Platforms.Platform>();
+                    Platform platform = go.GetComponent<Platform>();
                     if (platform == null)
                         Debug.LogError("[PlatformSpawner] Prefab has no Platform component.", go);
                     else
