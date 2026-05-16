@@ -15,6 +15,13 @@ namespace JebbyJump.Platforms
 
         private void OnValidate() => ApplyVisualColor();
 
+        public void Initialize(PlatformColor color, int rowIndex)
+        {
+            _color = color;
+            _rowIndex = rowIndex;
+            ApplyVisualColor();
+        }
+
         private void ApplyVisualColor()
         {
             var sr = GetComponent<SpriteRenderer>();

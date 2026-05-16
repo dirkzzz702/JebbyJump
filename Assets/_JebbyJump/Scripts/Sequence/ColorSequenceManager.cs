@@ -1,17 +1,18 @@
 using System;
 using System.Collections.Generic;
 using JebbyJump.Core;
+using JebbyJump.Level;
 using UnityEngine;
 
 namespace JebbyJump.Sequence
 {
     public class ColorSequenceManager : MonoBehaviour
     {
-        [SerializeField] private ColorSequenceConfig _config;
+        [SerializeField] private LevelConfig _config;
 
         public event Action SequenceComplete;
 
-        public ColorSequenceConfig Config => _config;
+        public LevelConfig Config => _config;
         public IReadOnlyList<PlatformColor> Sequence { get; private set; }
         public int CurrentStepIndex { get; private set; }
         public bool IsComplete => Sequence != null && CurrentStepIndex >= Sequence.Count;

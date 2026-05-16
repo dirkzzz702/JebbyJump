@@ -1,4 +1,5 @@
 using System.Collections;
+using JebbyJump.Level;
 using JebbyJump.Platforms;
 using JebbyJump.Player;
 using UnityEngine;
@@ -11,6 +12,7 @@ namespace JebbyJump.Sequence
         [SerializeField] private PlayerLandingDetector _landingDetector;
         [SerializeField] private SequenceDisplayUI _displayUI;
         [SerializeField] private PlayerController _playerController;
+        [SerializeField] private PlatformSpawner _spawner;
 
         private enum Phase { ShowingSequence, Playing, Completed }
         private Phase _phase;
@@ -21,6 +23,7 @@ namespace JebbyJump.Sequence
             if (_landingDetector == null) Debug.LogError("[MemoryPhaseController] LandingDetector not assigned.", this);
             if (_displayUI == null) Debug.LogError("[MemoryPhaseController] DisplayUI not assigned.", this);
             if (_playerController == null) Debug.LogError("[MemoryPhaseController] PlayerController not assigned.", this);
+            if (_spawner == null) Debug.LogError("[MemoryPhaseController] PlatformSpawner not assigned.", this);
         }
 
         private void OnEnable()
@@ -38,6 +41,7 @@ namespace JebbyJump.Sequence
         private void Start()
         {
             _sequenceManager.GenerateSequence();
+            _spawner.SpawnPlatforms(_sequenceManager.Sequence);
             StartCoroutine(RunMemoryPhase());
         }
 
