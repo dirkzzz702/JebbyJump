@@ -53,7 +53,15 @@ namespace JebbyJump.Sequence
         {
             if (_phase != Phase.Playing) return;
             if (_sequenceManager.IsComplete) return;
-            // Phase 6: advance on every landing for testing. Correct/wrong validation belongs to Phase 8.
+
+            // Row gating: only the platform whose row matches the current step index advances the sequence.
+            // Color correctness (expected vs got) is NOT validated here — that belongs to Phase 8.
+            if (platform.RowIndex != _sequenceManager.CurrentStepIndex)
+            {
+                Debug.Log($"[Sequence] Ignored Row {platform.RowIndex} — waiting for Row {_sequenceManager.CurrentStepIndex}");
+                return;
+            }
+
             Debug.Log($"[Sequence] Step {_sequenceManager.CurrentStepIndex + 1}/{_sequenceManager.Sequence.Count} — Expected: {_sequenceManager.ExpectedColor}, Got: {platform.Color}");
             _sequenceManager.AdvanceStep();
         }
