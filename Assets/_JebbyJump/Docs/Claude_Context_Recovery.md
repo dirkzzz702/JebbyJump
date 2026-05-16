@@ -30,7 +30,7 @@ Generated 2026-05-16. Use this to restore full project context after a repo move
 | **1** | Project foundation — folder structure, core enums | **Done** |
 | **2** | Packages + Input System setup | **Done** |
 | **3** | Rigidbody2D Player Controller | **Done** |
-| 4 | Cinemachine + test scene | Pending |
+| **4** | Cinemachine + test scene | **Done** |
 | 5 | Platform identity + landing detection | Pending |
 | 6 | Memory sequence system | Pending |
 | 7 | LevelConfig + platform row generation | Pending |
@@ -140,6 +140,18 @@ Assets/_JebbyJump/Scripts/Input/InputReader.cs                    ← Scriptable
 - `public event Action PauseEvent`
 - Namespace: `JebbyJump.Inputs`
 - Create asset: right-click `Settings/Input/` → Create → JebbyJump → InputReader
+
+---
+
+## Completed Work — Phase 4
+
+### Cinemachine installed
+`Packages/manifest.json`: `"com.unity.cinemachine": "3.1.3"`
+
+### Game scene camera setup
+- `Main Camera`: `CinemachineBrain` component added
+- `CM Camera` at (0, 0, -10): `CinemachineCamera` (Follow = Jebby, Lens.OrthographicSize = 7) + `CinemachinePositionComposer` (TargetOffset = (0,1,0), Damping = (1,1,0))
+- Scene saved; SetCMLens.cs temp Editor script deleted after use
 
 ---
 
