@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__coplay-mcp__set_property",
+      "mcp__coplay-mcp__get_game_object_info",
+      "mcp__coplay-mcp__remove_component",
+      "mcp__coplay-mcp__create_prefab",
+      "mcp__coplay-mcp__create_game_object",
+      "mcp__coplay-mcp__set_layer",
+      "mcp__coplay-mcp__add_component",
+      "mcp__coplay-mcp__save_scene",
+      "mcp__coplay-mcp__list_game_objects_in_hierarchy",
+      "Bash(git -C \"d:/Workspace/JebbyJump\" diff --stat \"Assets/_JebbyJump/Scenes/Game.unity\")",
+      "mcp__coplay-mcp__check_compile_errors",
+      "Bash(git -C \"d:/Workspace/JebbyJump\" status --short)",
+      "Bash(git commit -m ' *)",
+      "mcp__coplay-mcp__get_unity_logs",
+      "Bash(cp /tmp/pc_backup.cs \"d:/Workspace/JebbyJump/Assets/_JebbyJump/Scripts/Player/PlayerController.cs\" && echo \"Restored clean version\")"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
+    ]
+  }
+}

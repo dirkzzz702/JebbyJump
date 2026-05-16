@@ -17,10 +17,10 @@ MonoBehaviour:
   _groundDeceleration: 80
   _airAcceleration: 50
   _airDeceleration: 50
-  _jumpForce: 18
+  _jumpForce: 8
   _coyoteTime: 0.15
   _jumpBufferTime: 0.15
-  _fallGravityMultiplier: 2.5
-  _lowJumpGravityMultiplier: 2
+  _fallGravityMultiplier: 3.5
+  _lowJumpGravityMultiplier: 3
   _maxFallSpeed: 20
   _groundCheckRadius: 0.1
