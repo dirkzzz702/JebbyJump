@@ -4,7 +4,7 @@
 
 Jebby Jump is a production-ready Unity 2D memory platformer.
 
-The player controls Jebby, a cute Cavalier King Charles Spaniel dog, using real platformer controls. The player must memorize a color sequence, then physically jump upward through colored platforms in the correct order.
+The player controls Jebby, a Cavalier King Charles Spaniel-inspired humanoid fantasy color knight, using real platformer controls. Jebby is not a literal dog. The player must memorize a color sequence, then physically jump upward through colored platforms in the correct order.
 
 ## Development Standard
 
@@ -117,6 +117,100 @@ Prefer ScriptableObjects for local authoring and serializable DTO/JSON-ready str
 Do not hardcode level data inside gameplay systems.
 Do not hardcode item values inside item effects.
 Do not hardcode color/platform layouts in PlayerMotor or LevelManager.
+
+## Design Documents
+
+Current game design is defined in:
+
+`Assets/_JebbyJump/Docs/Design/Jebby_Jump_GDD.md`
+
+Current product roadmap is defined in:
+
+`Assets/_JebbyJump/Docs/Design/Jebby_Jump_Roadmap.md`
+
+Claude must follow these documents together with this `CLAUDE.md`.
+
+Implementation priority:
+
+1. `CLAUDE.md` defines working rules, constraints, and phase discipline.
+2. `Jebby_Jump_GDD.md` defines gameplay design and system intent.
+3. `Jebby_Jump_Roadmap.md` defines planned future scope and what is not part of MVP.
+4. `Jebby_Jump_Art_Bible.md` defines visual direction and locked character references.
+
+Claude must not implement future roadmap systems unless explicitly approved.
+
+Future roadmap systems that are not part of MVP include:
+- Wardrobe / outfit fragments
+- Shop
+- Monetization / IAP
+- Online leaderboard
+- Cloud save
+- Analytics
+- Addressables remote content
+- Seasonal events
+- Code hot update
+
+## Art Bible and Locked Visual References
+
+Current art direction is defined in:
+
+`Assets/_JebbyJump/Docs/Art/Jebby_Jump_Art_Bible.md`
+
+Locked visual references are stored in:
+
+`Assets/_JebbyJump/Docs/Art/References/`
+
+Required reference files:
+
+- `jebby_color_knight_character_sheet_v01.png`
+- `jebby_outfit_variations_board_v01.png`
+
+Jebby’s default character design is locked.
+
+Default Jebby must remain:
+- Jebby the Color Knight
+- Classic Cavalier as default identity
+- Cavalier-inspired humanoid fantasy color knight
+- Not a literal dog
+- Brown-and-ivory flowing ear-like hair
+- Large warm eyes
+- Small blue cape
+- Little boots
+- Rainbow gem badge
+- Brave, gentle, magical, child-friendly
+- Rainbow tower / color memory adventure theme
+
+Claude must not redesign Jebby’s default appearance unless explicitly approved.
+
+Future outfit designs may reference the outfit variation board, but they must preserve:
+- Jebby’s face identity
+- Chibi proportions
+- Warm eyes
+- Long ear-feather / hair silhouette
+- Rainbow gem motif
+- Friendly brave personality
+
+## Wardrobe / Outfit System Roadmap
+
+The wardrobe system is approved as a future product direction, but it is not part of MVP.
+
+Planned direction:
+
+- MVP: Default Jebby only.
+- V2: Basic outfit preview or 1–2 unlockable cosmetic outfits.
+- V3: Full `Jebby’s Wardrobe` system with outfit fragments.
+
+Future system concept:
+
+Players may collect outfit fragments. When all fragments of an outfit are collected, the outfit is unlocked.
+
+Initial future outfit candidates:
+- Forest Cavalier
+- Sunshine Knight
+- Aqua Knight
+- Silver Dreamer
+
+Outfits should be cosmetic first. Do not add gameplay advantages, wardrobe UI, skins, outfit fragments, cosmetic inventory, outfit economy, or outfit-related save data until explicitly approved.
 
 ## First Production MVP Features
 
