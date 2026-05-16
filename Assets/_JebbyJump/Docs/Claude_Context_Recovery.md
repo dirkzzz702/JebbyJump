@@ -32,7 +32,7 @@ Generated 2026-05-16. Use this to restore full project context after a repo move
 | **3** | Rigidbody2D Player Controller | **Done** |
 | **4** | Cinemachine + test scene | **Done** |
 | **5** | Platform identity + landing detection | **Done** |
-| 6 | Memory sequence system | Pending |
+| **6** | Memory sequence system | **Done** |
 | 7 | LevelConfig + platform row generation | Pending |
 | 8 | Lives / score / respawn / level complete | Pending |
 | 9 | Mobile virtual controls polish | Pending |
@@ -174,6 +174,23 @@ Assets/_JebbyJump/Scripts/Input/InputReader.cs                    ← Scriptable
 
 ### Jump height update
 `DefaultMovementConfig.asset`: `_jumpForce` 12 → 10 (max apex ≈ 5.1u; comfortably reaches one row, cannot skip a row at 3.5u spacing)
+
+---
+
+## Completed Work — Phase 6
+
+### Scripts created
+- `Scripts/Sequence/ColorSequenceConfig.cs` — ScriptableObject: sequenceLength, memoryTimeSeconds, availableColors
+- `Scripts/Sequence/ColorSequenceManager.cs` — Generates sequence, tracks CurrentStepIndex, exposes ExpectedColor + IsComplete, fires SequenceComplete event
+- `Scripts/Sequence/MemoryPhaseController.cs` — Coroutine: ShowingSequence → Playing → Completed; subscribes to PlayerLandingDetector; logs expected/got per landing; Phase 6 advances on every landing (validation in Phase 8)
+- `Scripts/Sequence/SequenceDisplayUI.cs` — Dynamically creates colored Image swatches in a HorizontalLayoutGroup; Show/Hide driven by MemoryPhaseController
+
+### Assets created
+- `Settings/Sequence/DefaultSequenceConfig.asset` — length=4, memoryTime=5s, colors=[Red, Blue, Yellow]
+
+### Scene setup (Game.unity)
+- `SequenceSystem` GameObject: ColorSequenceManager (config wired) + MemoryPhaseController (all references wired)
+- `SequenceCanvas` (Screen Space Overlay): SequenceDisplayUI + SequencePanel (HorizontalLayoutGroup, anchored top-center)
 
 ---
 
