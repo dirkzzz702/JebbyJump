@@ -47,8 +47,8 @@ namespace JebbyJump.Player
             if (!IsInsidePlatformBounds(groundCollider)) return;
 
             _currentPlatform = platform;
-            LandedOnPlatform?.Invoke(platform);
             Debug.Log($"Landed on platform: Row {platform.RowIndex}, Color {platform.Color}");
+            LandedOnPlatform?.Invoke(platform);
         }
 
         private bool IsInsidePlatformBounds(Collider2D platformCollider)
