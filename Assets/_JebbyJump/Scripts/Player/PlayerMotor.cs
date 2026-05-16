@@ -64,6 +64,12 @@ namespace JebbyJump.Player
             _jumpButtonHeld = false;
         }
 
+        public void ResetJump()
+        {
+            _jumpButtonHeld = false;
+            _jumpBufferTimer = 0f;
+        }
+
         private void UpdateGrounded()
         {
             IsGrounded = Physics2D.OverlapCircle(

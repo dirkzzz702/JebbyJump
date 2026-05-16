@@ -53,9 +53,18 @@ namespace JebbyJump.Player
             _motor.SetMoveInput(_input.Move.x);
         }
 
+        private bool _jumpEnabled = true;
+
+        public void SetJumpEnabled(bool enabled)
+        {
+            _jumpEnabled = enabled;
+            if (!enabled && _motor != null)
+                _motor.ResetJump();
+        }
+
         private void OnJumpStarted()
         {
-            if (_motor != null)
+            if (_motor != null && _jumpEnabled)
             {
                 _motor.RequestJump();
             }

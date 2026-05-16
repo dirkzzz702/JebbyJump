@@ -10,6 +10,7 @@ namespace JebbyJump.Sequence
         [SerializeField] private ColorSequenceManager _sequenceManager;
         [SerializeField] private PlayerLandingDetector _landingDetector;
         [SerializeField] private SequenceDisplayUI _displayUI;
+        [SerializeField] private PlayerController _playerController;
 
         private enum Phase { ShowingSequence, Playing, Completed }
         private Phase _phase;
@@ -19,6 +20,7 @@ namespace JebbyJump.Sequence
             if (_sequenceManager == null) Debug.LogError("[MemoryPhaseController] SequenceManager not assigned.", this);
             if (_landingDetector == null) Debug.LogError("[MemoryPhaseController] LandingDetector not assigned.", this);
             if (_displayUI == null) Debug.LogError("[MemoryPhaseController] DisplayUI not assigned.", this);
+            if (_playerController == null) Debug.LogError("[MemoryPhaseController] PlayerController not assigned.", this);
         }
 
         private void OnEnable()
@@ -42,10 +44,12 @@ namespace JebbyJump.Sequence
         private IEnumerator RunMemoryPhase()
         {
             _phase = Phase.ShowingSequence;
+            _playerController?.SetJumpEnabled(false);
             _displayUI.Show(_sequenceManager.Sequence);
             yield return new WaitForSeconds(_sequenceManager.Config.MemoryTimeSeconds);
             _displayUI.Hide();
             _phase = Phase.Playing;
+            _playerController?.SetJumpEnabled(true);
             Debug.Log("[MemoryPhaseController] Memory phase ended. Playing.");
         }
 

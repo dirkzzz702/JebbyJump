@@ -471,6 +471,7 @@ MonoBehaviour:
   _sequenceManager: {fileID: 1016044374}
   _landingDetector: {fileID: 8544086208314626328}
   _displayUI: {fileID: 650623852}
+  _playerController: {fileID: 8544086208314626329}
 --- !u!114 &1016044374
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -818,7 +819,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 6008755849024553855, guid: d0440e8857eb55c45bdf8508fee4ebdd, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.22, g: 0.75, b: 0.35, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -1550,6 +1551,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c161161a3cb81d4d83bfb7b22191e84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JebbyJump.Player.PlayerLandingDetector
+--- !u!114 &8544086208314626329 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6290850186715018952, guid: 618e94f4675bf3443a9241cb2bd91e84, type: 3}
+  m_PrefabInstance: {fileID: 8544086208314626325}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8544086208314626327}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef9ccec6b396e1d47b55fa1bbf63fb48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JebbyJump.Player.PlayerController
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
