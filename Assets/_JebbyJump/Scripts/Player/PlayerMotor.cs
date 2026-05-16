@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace JebbyJump.Player
@@ -9,6 +10,8 @@ namespace JebbyJump.Player
         [SerializeField] private Transform _groundCheck;
         [SerializeField] private LayerMask _groundMask;
 
+        public event Action<Collider2D> Landed;
+
         public bool IsGrounded { get; private set; }
         public Vector2 Velocity => _rb.linearVelocity;
 
@@ -18,6 +21,7 @@ namespace JebbyJump.Player
         private float _coyoteTimer;
         private float _jumpBufferTimer;
         private float _jumpMultiplier = 1f;
+        private bool _wasGrounded;
 
         private void Awake()
         {
@@ -78,10 +82,12 @@ namespace JebbyJump.Player
 
         private void UpdateGrounded()
         {
-            IsGrounded = Physics2D.OverlapCircle(
-                _groundCheck.position,
-                _config.GroundCheckRadius,
-                _groundMask);
+            _wasGrounded = IsGrounded;
+            var hit = Physics2D.OverlapCircle(
+                _groundCheck.position, _config.GroundCheckRadius, _groundMask);
+            IsGrounded = hit != null;
+            if (!_wasGrounded && IsGrounded)
+                Landed?.Invoke(hit);
         }
 
         private void UpdateCoyoteTime()
