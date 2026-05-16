@@ -31,7 +31,7 @@ Generated 2026-05-16. Use this to restore full project context after a repo move
 | **2** | Packages + Input System setup | **Done** |
 | **3** | Rigidbody2D Player Controller | **Done** |
 | **4** | Cinemachine + test scene | **Done** |
-| 5 | Platform identity + landing detection | Pending |
+| **5** | Platform identity + landing detection | **Done** |
 | 6 | Memory sequence system | Pending |
 | 7 | LevelConfig + platform row generation | Pending |
 | 8 | Lives / score / respawn / level complete | Pending |
@@ -152,6 +152,28 @@ Assets/_JebbyJump/Scripts/Input/InputReader.cs                    ← Scriptable
 - `Main Camera`: `CinemachineBrain` component added
 - `CM Camera` at (0, 0, -10): `CinemachineCamera` (Follow = Jebby, Lens.OrthographicSize = 7) + `CinemachinePositionComposer` (TargetOffset = (0,1,0), Damping = (1,1,0))
 - Scene saved; SetCMLens.cs temp Editor script deleted after use
+
+---
+
+## Completed Work — Phase 5
+
+### Scripts created
+- `Scripts/Platforms/Platform.cs` — MonoBehaviour; stores `PlatformColor` + `RowIndex`; applies sprite tint in `Awake` and `OnValidate` via `ApplyVisualColor()`
+- `Scripts/Platforms/PlatformColorPalette.cs` — static helper; converts `PlatformColor` enum to `UnityEngine.Color`
+- `Scripts/Player/PlayerLandingDetector.cs` — `[RequireComponent(Collider2D)]`; detects top-only landings via `OnCollisionEnter2D` (normal.y > 0.5); uses `GetComponentInParent<Platform>()`; fires `public event Action<Platform> LandedOnPlatform` and logs once per landing
+
+### Scene setup (Game.unity)
+- `PlayerLandingDetector` added to Jebby root GameObject
+- Three test platforms on Ground layer (7), each with SpriteRenderer + BoxCollider2D + Platform:
+
+| Name | Row | Color | Position |
+|---|---|---|---|
+| Platform_Row0_Red | 0 | Red (1) | (−2, 2, 0) |
+| Platform_Row1_Blue | 1 | Blue (2) | (0, 5.5, 0) |
+| Platform_Row2_Yellow | 2 | Yellow (4) | (2, 9, 0) |
+
+### Jump height update
+`DefaultMovementConfig.asset`: `_jumpForce` 12 → 10 (max apex ≈ 5.1u; comfortably reaches one row, cannot skip a row at 3.5u spacing)
 
 ---
 

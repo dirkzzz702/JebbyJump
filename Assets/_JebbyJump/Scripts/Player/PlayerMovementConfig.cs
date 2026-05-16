@@ -13,13 +13,13 @@ namespace JebbyJump.Player
         [SerializeField] private float _airDeceleration = 50f;
 
         [Header("Jump")]
-        [SerializeField] private float _jumpForce = 18f;
+        [SerializeField] private float _jumpForce = 10f;
         [SerializeField] private float _coyoteTime = 0.15f;
         [SerializeField] private float _jumpBufferTime = 0.15f;
 
         [Header("Gravity")]
-        [SerializeField] private float _fallGravityMultiplier = 2.5f;
-        [SerializeField] private float _lowJumpGravityMultiplier = 2.0f;
+        [SerializeField] private float _fallGravityMultiplier = 3.5f;
+        [SerializeField] private float _lowJumpGravityMultiplier = 3.0f;
         [SerializeField] private float _maxFallSpeed = 20f;
 
         [Header("Ground Detection")]
