@@ -21,12 +21,13 @@ namespace JebbyJump.Inputs
         {
             _actions?.Dispose();
             _actions = new JebbyInputActions();
-            _actions.Player.SetCallbacks(this);
+            _actions.Player.AddCallbacks(this);
             _actions.Player.Enable();
         }
 
         private void OnDisable()
         {
+            _actions.Player.RemoveCallbacks(this);
             _actions.Player.Disable();
             _actions.Dispose();
         }
