@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using JebbyJump.Platforms;
 using UnityEngine;
 
@@ -10,11 +9,15 @@ namespace JebbyJump.Player
     {
         public event Action<Platform> LandedOnPlatform;
 
-        private const float ConfirmationDelay = 0.1f;
+        [SerializeField] private float _horizontalMargin = 0.15f;
 
-        private Platform _currentPlatform;   // confirmed landing
-        private Platform _pendingPlatform;   // waiting for confirmation
-        private Coroutine _confirmationRoutine;
+        private Platform _currentPlatform;
+        private Collider2D _playerCollider;
+
+        private void Awake()
+        {
+            _playerCollider = GetComponent<Collider2D>();
+        }
 
         private void OnCollisionEnter2D(Collision2D collision)
         {
@@ -23,49 +26,29 @@ namespace JebbyJump.Player
             var platform = collision.collider.GetComponentInParent<Platform>();
             if (platform == null || platform == _currentPlatform) return;
 
-            // Cancel pending confirmation for a different platform
-            if (_confirmationRoutine != null)
-            {
-                StopCoroutine(_confirmationRoutine);
-                _confirmationRoutine = null;
-                _pendingPlatform = null;
-            }
+            if (!IsInsidePlatformBounds(collision.collider)) return;
 
-            _pendingPlatform = platform;
-            _confirmationRoutine = StartCoroutine(ConfirmLanding(platform));
+            _currentPlatform = platform;
+            LandedOnPlatform?.Invoke(platform);
+            Debug.Log($"Landed on platform: Row {platform.RowIndex}, Color {platform.Color}");
         }
 
         private void OnCollisionExit2D(Collision2D collision)
         {
             var platform = collision.collider.GetComponentInParent<Platform>();
-
-            if (platform == _pendingPlatform)
-            {
-                // Left before confirmation window closed — cancel
-                if (_confirmationRoutine != null)
-                {
-                    StopCoroutine(_confirmationRoutine);
-                    _confirmationRoutine = null;
-                }
-                _pendingPlatform = null;
-            }
-
             if (platform == _currentPlatform)
                 _currentPlatform = null;
         }
 
-        private IEnumerator ConfirmLanding(Platform platform)
+        private bool IsInsidePlatformBounds(Collider2D platformCollider)
         {
-            yield return new WaitForSeconds(ConfirmationDelay);
+            float playerX = _playerCollider != null
+                ? _playerCollider.bounds.center.x
+                : transform.position.x;
 
-            if (_pendingPlatform != platform) yield break;
-
-            _currentPlatform = platform;
-            _pendingPlatform = null;
-            _confirmationRoutine = null;
-
-            LandedOnPlatform?.Invoke(platform);
-            Debug.Log($"Landed on platform: Row {platform.RowIndex}, Color {platform.Color}");
+            Bounds bounds = platformCollider.bounds;
+            return playerX > bounds.min.x + _horizontalMargin
+                && playerX < bounds.max.x - _horizontalMargin;
         }
 
         private static bool IsTopContact(Collision2D collision)
