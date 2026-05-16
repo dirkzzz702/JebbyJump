@@ -44,12 +44,12 @@ namespace JebbyJump.Sequence
         private IEnumerator RunMemoryPhase()
         {
             _phase = Phase.ShowingSequence;
-            _playerController?.SetJumpEnabled(false);
+            _playerController?.SetJumpMultiplier(_sequenceManager.Config.MemoryPhaseJumpMultiplier);
             _displayUI.Show(_sequenceManager.Sequence);
             yield return new WaitForSeconds(_sequenceManager.Config.MemoryTimeSeconds);
             _displayUI.Hide();
             _phase = Phase.Playing;
-            _playerController?.SetJumpEnabled(true);
+            _playerController?.SetJumpMultiplier(1f);
             Debug.Log("[MemoryPhaseController] Memory phase ended. Playing.");
         }
 

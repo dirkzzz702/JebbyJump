@@ -62,6 +62,12 @@ namespace JebbyJump.Player
                 _motor.ResetJump();
         }
 
+        public void SetJumpMultiplier(float multiplier)
+        {
+            if (_motor != null)
+                _motor.SetJumpMultiplier(multiplier);
+        }
+
         private void OnJumpStarted()
         {
             if (_motor != null && _jumpEnabled)

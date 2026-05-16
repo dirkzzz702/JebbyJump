@@ -17,6 +17,7 @@ namespace JebbyJump.Player
         private bool _jumpButtonHeld;
         private float _coyoteTimer;
         private float _jumpBufferTimer;
+        private float _jumpMultiplier = 1f;
 
         private void Awake()
         {
@@ -70,6 +71,11 @@ namespace JebbyJump.Player
             _jumpBufferTimer = 0f;
         }
 
+        public void SetJumpMultiplier(float multiplier)
+        {
+            _jumpMultiplier = multiplier;
+        }
+
         private void UpdateGrounded()
         {
             IsGrounded = Physics2D.OverlapCircle(
@@ -105,7 +111,7 @@ namespace JebbyJump.Player
 
         private void PerformJump()
         {
-            _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _config.JumpForce);
+            _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _config.JumpForce * _jumpMultiplier);
             _coyoteTimer = 0f;
             _jumpBufferTimer = 0f;
         }
