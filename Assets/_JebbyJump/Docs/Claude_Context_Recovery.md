@@ -29,7 +29,7 @@ Generated 2026-05-16. Use this to restore full project context after a repo move
 |---|---|---|
 | **1** | Project foundation — folder structure, core enums | **Done** |
 | **2** | Packages + Input System setup | **Done** |
-| 3 | Rigidbody2D Player Controller | Pending |
+| **3** | Rigidbody2D Player Controller | **Done** |
 | 4 | Cinemachine + test scene | Pending |
 | 5 | Platform identity + landing detection | Pending |
 | 6 | Memory sequence system | Pending |
