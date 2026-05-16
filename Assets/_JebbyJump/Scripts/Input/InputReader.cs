@@ -29,7 +29,11 @@ namespace JebbyJump.Inputs
         {
             _actions.Player.RemoveCallbacks(this);
             _actions.Player.Disable();
-            _actions.Dispose();
+            if (Application.isPlaying)
+                _actions.Dispose();
+            else
+                UnityEngine.Object.DestroyImmediate(_actions.asset);
+            _actions = null;
         }
 
         void JebbyInputActions.IPlayerActions.OnMove(InputAction.CallbackContext ctx)
