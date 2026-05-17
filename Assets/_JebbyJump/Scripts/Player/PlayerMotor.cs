@@ -7,6 +7,7 @@ namespace JebbyJump.Player
     public class PlayerMotor : MonoBehaviour
     {
         [SerializeField] private PlayerMovementConfig _config;
+        [SerializeField] private PlayerStats _stats;
         [SerializeField] private Transform _groundCheck;
         [SerializeField] private LayerMask _groundMask;
 
@@ -127,7 +128,8 @@ namespace JebbyJump.Player
 
         private void PerformJump()
         {
-            _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _config.JumpForce * _jumpMultiplier);
+            float jumpForce = _stats != null ? _stats.JumpForce : _config.JumpForce;
+            _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForce * _jumpMultiplier);
             _coyoteTimer = 0f;
             _jumpBufferTimer = 0f;
         }
@@ -150,7 +152,7 @@ namespace JebbyJump.Player
 
         private void UpdateHorizontal()
         {
-            float targetSpeed = _moveInput * _config.MoveSpeed;
+            float targetSpeed = _moveInput * (_stats != null ? _stats.MoveSpeed : _config.MoveSpeed);
             float currentSpeed = _rb.linearVelocity.x;
 
             float acceleration;

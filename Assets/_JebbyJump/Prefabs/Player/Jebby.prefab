@@ -46,9 +46,10 @@ GameObject:
   - component: {fileID: 8571186503948283667}
   - component: {fileID: 1037656559701031306}
   - component: {fileID: 6290850186715018952}
+  - component: {fileID: 8449094507652424235}
   m_Layer: 6
   m_Name: Jebby
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -205,6 +206,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JebbyJump.Player.PlayerMotor
   _config: {fileID: 11400000, guid: 1736d3471e2f9744fb0140ef48d09505, type: 2}
+  _stats: {fileID: 8449094507652424235}
   _groundCheck: {fileID: 5266659150003947286}
   _groundMask:
     serializedVersion: 2
@@ -237,3 +239,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JebbyJump.Player.PlayerController
   _input: {fileID: 11400000, guid: e7540ad45dbf5b144b91ed1de67d0d09, type: 2}
   _motor: {fileID: 8571186503948283667}
+--- !u!114 &8449094507652424235
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8296823959736851068}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a811ea06e06d0346905b4676e6fbae5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JebbyJump.Player.PlayerStats
+  _config: {fileID: 11400000, guid: 1736d3471e2f9744fb0140ef48d09505, type: 2}

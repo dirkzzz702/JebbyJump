@@ -1,5 +1,6 @@
 using System.Collections;
 using JebbyJump.Level;
+using JebbyJump.Obstacles;
 using JebbyJump.Platforms;
 using JebbyJump.Player;
 using UnityEngine;
@@ -38,6 +39,7 @@ namespace JebbyJump.Sequence
                 _progressTracker.LifeLost += OnLifeLost;
                 _progressTracker.GameOver += OnGameOver;
             }
+            if (_spawner != null) _spawner.CactusHit += OnCactusHit;
         }
 
         private void OnDisable()
@@ -49,6 +51,7 @@ namespace JebbyJump.Sequence
                 _progressTracker.LifeLost -= OnLifeLost;
                 _progressTracker.GameOver -= OnGameOver;
             }
+            if (_spawner != null) _spawner.CactusHit -= OnCactusHit;
         }
 
         private void Start()
@@ -101,6 +104,12 @@ namespace JebbyJump.Sequence
                 Debug.Log("[Sequence] Step " + (_sequenceManager.CurrentStepIndex + 1) + "/" + _sequenceManager.Sequence.Count + " — Wrong: got " + platform.Color + ", expected " + _sequenceManager.ExpectedColor);
                 _progressTracker?.LoseLife();
             }
+        }
+
+        private void OnCactusHit()
+        {
+            if (_phase != Phase.Playing) return;
+            _progressTracker?.LoseLife();
         }
 
         private void OnLifeLost()

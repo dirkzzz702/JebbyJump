@@ -17,6 +17,9 @@ namespace JebbyJump.Level
             PlatformColor.Yellow, PlatformColor.Green,
         };
 
+        [Header("Obstacles")]
+        [SerializeField] private float _cactusSpawnChance = 0f;
+
         [Header("Platform Layout")]
         [SerializeField] private int _platformsPerRow = 2;
         [SerializeField] private float _rowVerticalSpacing = 3.5f;
@@ -31,6 +34,8 @@ namespace JebbyJump.Level
         public int StartingLives => _startingLives;
         public PlatformColor[] AvailableColors => _availableColors;
 
+        public float CactusSpawnChance => _cactusSpawnChance;
+
         public int PlatformsPerRow => _platformsPerRow;
         public float RowVerticalSpacing => _rowVerticalSpacing;
         public float RowStartY => _rowStartY;
@@ -44,6 +49,7 @@ namespace JebbyJump.Level
             _startingLives = Mathf.Max(1, _startingLives);
             _memoryTimeSeconds = Mathf.Max(0.1f, _memoryTimeSeconds);
             _memoryPhaseJumpMultiplier = Mathf.Clamp01(_memoryPhaseJumpMultiplier);
+            _cactusSpawnChance = Mathf.Clamp01(_cactusSpawnChance);
             _platformsPerRow = Mathf.Max(1, _platformsPerRow);
             _rowVerticalSpacing = Mathf.Max(0.1f, _rowVerticalSpacing);
             _platformWidth = Mathf.Max(0.1f, _platformWidth);

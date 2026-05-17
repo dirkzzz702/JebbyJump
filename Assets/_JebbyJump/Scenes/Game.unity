@@ -328,6 +328,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JebbyJump.Level.PlatformSpawner
   _config: {fileID: 11400000, guid: 5d9b9aa207955d745aecf980d5c854ef, type: 2}
   _platformPrefab: {fileID: 7316804333955289989, guid: 41a427ffa6887764ab3d1337e07a9737, type: 3}
+  _cactusPrefab: {fileID: 3386366353348504534, guid: 8217c4eb2111c8d419c478ee9f4c9355, type: 3}
 --- !u!4 &550179564
 Transform:
   m_ObjectHideFlags: 0

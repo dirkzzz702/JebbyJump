@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using JebbyJump.Core;
+using JebbyJump.Obstacles;
 using JebbyJump.Platforms;
 using UnityEngine;
 
@@ -9,6 +11,9 @@ namespace JebbyJump.Level
     {
         [SerializeField] private LevelConfig _config;
         [SerializeField] private GameObject _platformPrefab;
+        [SerializeField] private GameObject _cactusPrefab;
+
+        public event Action CactusHit;
 
         private readonly List<GameObject> _spawnedPlatforms = new List<GameObject>();
         private Transform _container;
@@ -38,6 +43,7 @@ namespace JebbyJump.Level
                 PlatformColor[] colors = BuildRowColors(sequence[row], _config.PlatformsPerRow, _config.AvailableColors);
                 Vector3[] positions = GetRowPositions(rowY, _config.PlatformsPerRow, _config.RowHorizontalSpread);
 
+                var distractors = new List<GameObject>();
                 for (int i = 0; i < _config.PlatformsPerRow; i++)
                 {
                     GameObject go = Instantiate(_platformPrefab, positions[i], Quaternion.identity, _container);
@@ -51,10 +57,29 @@ namespace JebbyJump.Level
                         platform.Initialize(colors[i], row);
 
                     _spawnedPlatforms.Add(go);
+
+                    if (colors[i] != sequence[row])
+                        distractors.Add(go);
                 }
+
+                TrySpawnCactus(distractors);
             }
 
             Debug.Log("[PlatformSpawner] Spawned " + sequence.Count + " rows x " + _config.PlatformsPerRow + " platforms.");
+        }
+
+        private void TrySpawnCactus(List<GameObject> distractors)
+        {
+            if (_cactusPrefab == null || _config.CactusSpawnChance <= 0f || distractors.Count == 0) return;
+            if (UnityEngine.Random.value >= _config.CactusSpawnChance) return;
+
+            var target = distractors[UnityEngine.Random.Range(0, distractors.Count)];
+            var cactusGO = Instantiate(_cactusPrefab, target.transform);
+            cactusGO.transform.localPosition = new Vector3(_config.PlatformWidth / 2f - 0.3f, 0.5f, 0f);
+
+            var cactus = cactusGO.GetComponent<CactusObstacle>();
+            if (cactus != null)
+                cactus.PlayerHit += () => CactusHit?.Invoke();
         }
 
         private static PlatformColor[] BuildRowColors(PlatformColor correct, int count, PlatformColor[] available)
