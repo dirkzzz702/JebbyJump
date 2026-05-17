@@ -109,6 +109,7 @@ namespace JebbyJump.Sequence
         private void OnCactusHit()
         {
             if (_phase != Phase.Playing) return;
+            Debug.Log("[MemoryPhaseController] Cactus hit. Losing life.");
             _progressTracker?.LoseLife();
         }
 

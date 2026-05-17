@@ -79,29 +79,26 @@ namespace JebbyJump.Level
 
         private void TrySpawnCactusOnPlatform(GameObject targetPlatform)
         {
-            var targetCollider = targetPlatform.GetComponent<Collider2D>();
-            if (targetCollider == null)
-            {
-                Debug.LogError("[PlatformSpawner] Target platform has no Collider2D.", targetPlatform);
-                return;
-            }
-
             // Spawn under container, not under the scaled platform, to avoid inheriting non-uniform scale.
             var cactusGO = Instantiate(_cactusPrefab, _container);
             cactusGO.name = "Cactus_" + targetPlatform.name;
 
-            var cactusCollider = cactusGO.GetComponent<Collider2D>();
-            Bounds platformBounds = targetCollider.bounds;
+            // Collider2D.bounds is stale in the same frame localScale is set — calculate edges directly.
+            float platformRightEdge = targetPlatform.transform.position.x + _config.PlatformWidth / 2f;
+            float platformTopEdge   = targetPlatform.transform.position.y + _config.PlatformHeight / 2f;
 
-            float cactusHalfWidth  = cactusCollider != null ? cactusCollider.bounds.extents.x : 0.2f;
-            float cactusHalfHeight = cactusCollider != null ? cactusCollider.bounds.extents.y : 0.4f;
-            const float edgeInset = 0.1f;
+            var cactusBox = cactusGO.GetComponent<BoxCollider2D>();
+            float cactusHalfWidth  = cactusBox != null ? cactusGO.transform.localScale.x * cactusBox.size.x / 2f : 0.4f;
+            float cactusHalfHeight = cactusBox != null ? cactusGO.transform.localScale.y * cactusBox.size.y / 2f : 0.6f;
+            const float edgeInset = 0.05f;
 
             cactusGO.transform.position = new Vector3(
-                platformBounds.max.x - cactusHalfWidth - edgeInset,
-                platformBounds.max.y + cactusHalfHeight,
+                platformRightEdge - cactusHalfWidth - edgeInset,
+                platformTopEdge + cactusHalfHeight,
                 0f
             );
+
+            Debug.Log($"[PlatformSpawner] Spawned cactus on {targetPlatform.name} at {cactusGO.transform.position} | platformRightEdge={platformRightEdge:F2} cactusHalfW={cactusHalfWidth:F2}");
 
             var cactus = cactusGO.GetComponent<CactusObstacle>();
             if (cactus != null)
