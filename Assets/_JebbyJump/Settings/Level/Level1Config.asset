@@ -15,7 +15,9 @@ MonoBehaviour:
   _sequenceLength: 4
   _memoryTimeSeconds: 5
   _memoryPhaseJumpMultiplier: 0.35
+  _startingLives: 3
   _availableColors: 01000000020000000400000003000000
+  _cactusSpawnChance: 0
   _platformsPerRow: 2
   _rowVerticalSpacing: 3.5
   _rowStartY: 2
