@@ -19,6 +19,7 @@ namespace JebbyJump.Level
             Lives = startingLives;
             Score = 0;
             LivesChanged?.Invoke(Lives);
+            ScoreChanged?.Invoke(Score);
             Debug.Log("[Progress] Lives: " + Lives + "  Score: " + Score);
         }
 
