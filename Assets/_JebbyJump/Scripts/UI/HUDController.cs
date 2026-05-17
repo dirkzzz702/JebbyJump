@@ -1,3 +1,4 @@
+using JebbyJump.Flow;
 using JebbyJump.Level;
 using JebbyJump.Sequence;
 using TMPro;
@@ -18,6 +19,8 @@ namespace JebbyJump.UI
         [SerializeField] private TextMeshProUGUI _levelCompleteScoreText;
         [SerializeField] private Button _gameOverRetryButton;
         [SerializeField] private Button _levelCompleteRetryButton;
+        [SerializeField] private Button _gameOverMenuButton;
+        [SerializeField] private Button _levelCompleteMenuButton;
 
         private void Awake()
         {
@@ -25,12 +28,16 @@ namespace JebbyJump.UI
             if (_levelCompletePanel != null) _levelCompletePanel.SetActive(false);
             if (_gameOverRetryButton != null) _gameOverRetryButton.onClick.AddListener(OnRetryClicked);
             if (_levelCompleteRetryButton != null) _levelCompleteRetryButton.onClick.AddListener(OnRetryClicked);
+            if (_gameOverMenuButton != null) _gameOverMenuButton.onClick.AddListener(SceneLoader.LoadMainMenu);
+            if (_levelCompleteMenuButton != null) _levelCompleteMenuButton.onClick.AddListener(SceneLoader.LoadMainMenu);
         }
 
         private void OnDestroy()
         {
             if (_gameOverRetryButton != null) _gameOverRetryButton.onClick.RemoveListener(OnRetryClicked);
             if (_levelCompleteRetryButton != null) _levelCompleteRetryButton.onClick.RemoveListener(OnRetryClicked);
+            if (_gameOverMenuButton != null) _gameOverMenuButton.onClick.RemoveListener(SceneLoader.LoadMainMenu);
+            if (_levelCompleteMenuButton != null) _levelCompleteMenuButton.onClick.RemoveListener(SceneLoader.LoadMainMenu);
         }
 
         private void OnEnable()
