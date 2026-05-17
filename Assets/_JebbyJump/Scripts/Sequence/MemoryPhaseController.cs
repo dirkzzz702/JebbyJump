@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using JebbyJump.Level;
 using JebbyJump.Obstacles;
@@ -15,6 +16,8 @@ namespace JebbyJump.Sequence
         [SerializeField] private PlayerController _playerController;
         [SerializeField] private PlatformSpawner _spawner;
         [SerializeField] private LevelProgressTracker _progressTracker;
+
+        public event Action LevelCompleted;
 
         private enum Phase { ShowingSequence, Playing, Completed }
         private Phase _phase;
@@ -137,6 +140,7 @@ namespace JebbyJump.Sequence
             int bonus = 50 + (_progressTracker != null ? _progressTracker.Lives * 20 : 0);
             _progressTracker?.AddScore(bonus);
             Debug.Log("[MemoryPhaseController] Level complete! Bonus: " + bonus);
+            LevelCompleted?.Invoke();
         }
     }
 }

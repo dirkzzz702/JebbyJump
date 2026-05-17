@@ -8,6 +8,7 @@ namespace JebbyJump.Level
         public event Action LifeLost;
         public event Action GameOver;
         public event Action<int> ScoreChanged;
+        public event Action<int> LivesChanged;
 
         public int Lives { get; private set; }
         public int Score { get; private set; }
@@ -17,6 +18,7 @@ namespace JebbyJump.Level
         {
             Lives = startingLives;
             Score = 0;
+            LivesChanged?.Invoke(Lives);
             Debug.Log("[Progress] Lives: " + Lives + "  Score: " + Score);
         }
 
@@ -32,6 +34,7 @@ namespace JebbyJump.Level
             if (IsGameOver) return;
             Lives--;
             Debug.Log("[Progress] Lives remaining: " + Lives);
+            LivesChanged?.Invoke(Lives);
             if (Lives <= 0)
                 GameOver?.Invoke();
             else
