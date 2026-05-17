@@ -2,6 +2,7 @@ using JebbyJump.Level;
 using JebbyJump.Sequence;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace JebbyJump.UI
 {
@@ -15,11 +16,21 @@ namespace JebbyJump.UI
         [SerializeField] private TextMeshProUGUI _gameOverScoreText;
         [SerializeField] private GameObject _levelCompletePanel;
         [SerializeField] private TextMeshProUGUI _levelCompleteScoreText;
+        [SerializeField] private Button _gameOverRetryButton;
+        [SerializeField] private Button _levelCompleteRetryButton;
 
         private void Awake()
         {
             if (_gameOverPanel != null) _gameOverPanel.SetActive(false);
             if (_levelCompletePanel != null) _levelCompletePanel.SetActive(false);
+            if (_gameOverRetryButton != null) _gameOverRetryButton.onClick.AddListener(OnRetryClicked);
+            if (_levelCompleteRetryButton != null) _levelCompleteRetryButton.onClick.AddListener(OnRetryClicked);
+        }
+
+        private void OnDestroy()
+        {
+            if (_gameOverRetryButton != null) _gameOverRetryButton.onClick.RemoveListener(OnRetryClicked);
+            if (_levelCompleteRetryButton != null) _levelCompleteRetryButton.onClick.RemoveListener(OnRetryClicked);
         }
 
         private void OnEnable()
@@ -82,6 +93,13 @@ namespace JebbyJump.UI
             if (_levelCompletePanel != null) _levelCompletePanel.SetActive(true);
             if (_levelCompleteScoreText != null && _tracker != null)
                 _levelCompleteScoreText.text = "Score: " + _tracker.Score;
+        }
+
+        private void OnRetryClicked()
+        {
+            if (_gameOverPanel != null) _gameOverPanel.SetActive(false);
+            if (_levelCompletePanel != null) _levelCompletePanel.SetActive(false);
+            _phaseController?.RestartLevel();
         }
     }
 }

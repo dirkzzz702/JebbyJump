@@ -33,8 +33,9 @@ namespace JebbyJump.Level
             if (_platformPrefab == null) { Debug.LogError("[PlatformSpawner] Cannot spawn - prefab not assigned.", this); return; }
             if (sequence == null || sequence.Count == 0) { Debug.LogError("[PlatformSpawner] Cannot spawn - sequence is null or empty.", this); return; }
 
-            foreach (var p in _spawnedPlatforms)
-                if (p != null) Destroy(p);
+            if (_container != null)
+                for (int i = _container.childCount - 1; i >= 0; i--)
+                    Destroy(_container.GetChild(i).gameObject);
             _spawnedPlatforms.Clear();
 
             for (int row = 0; row < sequence.Count; row++)

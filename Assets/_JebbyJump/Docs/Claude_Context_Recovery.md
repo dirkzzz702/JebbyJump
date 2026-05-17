@@ -38,6 +38,7 @@ Generated 2026-05-16. Use this to restore full project context after a repo move
 | **9** | Mobile virtual controls polish | **Done** |
 | **10** | Cactus obstacle + item-ready player stats | **Done** |
 | **11** | In-game HUD + game over / level complete panels | **Done** |
+| **12** | Retry / restart level flow | **Done** |
 
 ---
 
