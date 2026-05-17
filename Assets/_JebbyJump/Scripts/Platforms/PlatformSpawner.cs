@@ -74,8 +74,34 @@ namespace JebbyJump.Level
             if (UnityEngine.Random.value >= _config.CactusSpawnChance) return;
 
             var target = distractors[UnityEngine.Random.Range(0, distractors.Count)];
-            var cactusGO = Instantiate(_cactusPrefab, target.transform);
-            cactusGO.transform.localPosition = new Vector3(_config.PlatformWidth / 2f - 0.3f, 0.5f, 0f);
+            TrySpawnCactusOnPlatform(target);
+        }
+
+        private void TrySpawnCactusOnPlatform(GameObject targetPlatform)
+        {
+            var targetCollider = targetPlatform.GetComponent<Collider2D>();
+            if (targetCollider == null)
+            {
+                Debug.LogError("[PlatformSpawner] Target platform has no Collider2D.", targetPlatform);
+                return;
+            }
+
+            // Spawn under container, not under the scaled platform, to avoid inheriting non-uniform scale.
+            var cactusGO = Instantiate(_cactusPrefab, _container);
+            cactusGO.name = "Cactus_" + targetPlatform.name;
+
+            var cactusCollider = cactusGO.GetComponent<Collider2D>();
+            Bounds platformBounds = targetCollider.bounds;
+
+            float cactusHalfWidth  = cactusCollider != null ? cactusCollider.bounds.extents.x : 0.2f;
+            float cactusHalfHeight = cactusCollider != null ? cactusCollider.bounds.extents.y : 0.4f;
+            const float edgeInset = 0.1f;
+
+            cactusGO.transform.position = new Vector3(
+                platformBounds.max.x - cactusHalfWidth - edgeInset,
+                platformBounds.max.y + cactusHalfHeight,
+                0f
+            );
 
             var cactus = cactusGO.GetComponent<CactusObstacle>();
             if (cactus != null)
