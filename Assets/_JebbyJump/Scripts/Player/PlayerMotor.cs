@@ -12,6 +12,7 @@ namespace JebbyJump.Player
         [SerializeField] private LayerMask _groundMask;
 
         public event Action<Collider2D> Landed;
+        public event Action Jumped;
 
         public bool IsGrounded { get; private set; }
         public Vector2 Velocity => _rb.linearVelocity;
@@ -132,6 +133,7 @@ namespace JebbyJump.Player
             _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForce * _jumpMultiplier);
             _coyoteTimer = 0f;
             _jumpBufferTimer = 0f;
+            Jumped?.Invoke();
         }
 
         private void UpdateGravity()

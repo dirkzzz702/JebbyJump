@@ -40,6 +40,7 @@ Generated 2026-05-16. Use this to restore full project context after a repo move
 | **11** | In-game HUD + game over / level complete panels | **Done** |
 | **12** | Retry / restart level flow | **Done** |
 | **13** | Boot + Main Menu + scene flow foundation | **Done** |
+| **14** | Basic audio feedback (SFX) | **Done** |
 
 ---
 

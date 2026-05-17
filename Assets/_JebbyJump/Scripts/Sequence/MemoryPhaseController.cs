@@ -18,6 +18,8 @@ namespace JebbyJump.Sequence
         [SerializeField] private LevelProgressTracker _progressTracker;
 
         public event Action LevelCompleted;
+        public event Action CorrectLanding;
+        public event Action WrongLanding;
 
         private enum Phase { ShowingSequence, Playing, Completed }
         private Phase _phase;
@@ -100,11 +102,13 @@ namespace JebbyJump.Sequence
             {
                 Debug.Log("[Sequence] Step " + (_sequenceManager.CurrentStepIndex + 1) + "/" + _sequenceManager.Sequence.Count + " — Correct: " + platform.Color);
                 _progressTracker?.AddScore(10);
+                CorrectLanding?.Invoke();
                 _sequenceManager.AdvanceStep();
             }
             else
             {
                 Debug.Log("[Sequence] Step " + (_sequenceManager.CurrentStepIndex + 1) + "/" + _sequenceManager.Sequence.Count + " — Wrong: got " + platform.Color + ", expected " + _sequenceManager.ExpectedColor);
+                WrongLanding?.Invoke();
                 _progressTracker?.LoseLife();
             }
         }
