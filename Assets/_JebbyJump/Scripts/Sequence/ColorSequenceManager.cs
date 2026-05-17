@@ -50,6 +50,12 @@ namespace JebbyJump.Sequence
             Debug.Log($"[ColorSequenceManager] Sequence: {string.Join(" → ", list)}");
         }
 
+        public void ResetProgress()
+        {
+            CurrentStepIndex = 0;
+            Debug.Log("[ColorSequenceManager] Sequence progress reset.");
+        }
+
         public void AdvanceStep()
         {
             if (IsComplete) return;

@@ -33,6 +33,11 @@ namespace JebbyJump.Player
             if (_motor != null) _motor.Landed -= OnMotorLanded;
         }
 
+        public void ResetCurrentPlatform()
+        {
+            _currentPlatform = null;
+        }
+
         private void OnCollisionExit2D(Collision2D collision)
         {
             var platform = collision.collider.GetComponentInParent<Platform>();

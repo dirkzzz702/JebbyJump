@@ -34,7 +34,7 @@ Generated 2026-05-16. Use this to restore full project context after a repo move
 | **5** | Platform identity + landing detection | **Done** |
 | **6** | Memory sequence system | **Done** |
 | **7** | LevelConfig + platform row generation | **Done** |
-| 8 | Lives / score / respawn / level complete | Pending |
+| **8** | Lives / score / respawn / level complete | **Done** |
 | 9 | Mobile virtual controls polish | Pending |
 | 10 | Cactus obstacle + item-ready player stats | Pending |
 

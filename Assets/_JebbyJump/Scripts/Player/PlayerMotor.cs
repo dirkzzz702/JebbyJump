@@ -75,6 +75,16 @@ namespace JebbyJump.Player
             _jumpBufferTimer = 0f;
         }
 
+        public void Respawn(Vector3 position)
+        {
+            transform.position = position;
+            _rb.linearVelocity = Vector2.zero;
+            _rb.gravityScale = 1f;
+            _coyoteTimer = 0f;
+            _wasGrounded = false;
+            ResetJump();
+        }
+
         public void SetJumpMultiplier(float multiplier)
         {
             _jumpMultiplier = multiplier;

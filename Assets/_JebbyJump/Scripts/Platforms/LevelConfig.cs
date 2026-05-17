@@ -10,6 +10,7 @@ namespace JebbyJump.Level
         [SerializeField] private int _sequenceLength = 4;
         [SerializeField] private float _memoryTimeSeconds = 5f;
         [SerializeField] private float _memoryPhaseJumpMultiplier = 0.35f;
+        [SerializeField] private int _startingLives = 3;
         [SerializeField] private PlatformColor[] _availableColors =
         {
             PlatformColor.Red, PlatformColor.Blue,
@@ -27,6 +28,7 @@ namespace JebbyJump.Level
         public int SequenceLength => _sequenceLength;
         public float MemoryTimeSeconds => _memoryTimeSeconds;
         public float MemoryPhaseJumpMultiplier => _memoryPhaseJumpMultiplier;
+        public int StartingLives => _startingLives;
         public PlatformColor[] AvailableColors => _availableColors;
 
         public int PlatformsPerRow => _platformsPerRow;
@@ -39,6 +41,7 @@ namespace JebbyJump.Level
         private void OnValidate()
         {
             _sequenceLength = Mathf.Max(1, _sequenceLength);
+            _startingLives = Mathf.Max(1, _startingLives);
             _memoryTimeSeconds = Mathf.Max(0.1f, _memoryTimeSeconds);
             _memoryPhaseJumpMultiplier = Mathf.Clamp01(_memoryPhaseJumpMultiplier);
             _platformsPerRow = Mathf.Max(1, _platformsPerRow);

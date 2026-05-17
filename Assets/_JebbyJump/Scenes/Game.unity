@@ -495,6 +495,7 @@ GameObject:
   - component: {fileID: 1016044375}
   - component: {fileID: 1016044374}
   - component: {fileID: 1016044373}
+  - component: {fileID: 1016044376}
   m_Layer: 0
   m_Name: SequenceSystem
   m_TagString: Untagged
@@ -519,6 +520,7 @@ MonoBehaviour:
   _displayUI: {fileID: 650623852}
   _playerController: {fileID: 8544086208314626329}
   _spawner: {fileID: 550179563}
+  _progressTracker: {fileID: 1016044376}
 --- !u!114 &1016044374
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -547,6 +549,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1016044376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1016044372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cda1eeb42135fe4db1ca5ab1d1a322e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JebbyJump.Level.LevelProgressTracker
 --- !u!1 &1072977009
 GameObject:
   m_ObjectHideFlags: 0
