@@ -2163,14 +2163,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JebbyJump.Audio.AudioFeedbackController
   _audioSource: {fileID: 1142078558}
-  _jumpClip: {fileID: 8300000, guid: 40e0e68b56f82a540b199766db0f45c1, type: 2}
-  _landClip: {fileID: 8300000, guid: d87624b237c6def41a0adaa222bc2ccf, type: 2}
-  _correctClip: {fileID: 8300000, guid: 8dcadf99b3632474286091e495eef575, type: 2}
-  _wrongClip: {fileID: 8300000, guid: 6a9b8b2f8afba5a4489d1c6794564360, type: 2}
-  _cactusHitClip: {fileID: 8300000, guid: de14490941bf4374398938aaf5925ac7, type: 2}
-  _levelCompleteClip: {fileID: 8300000, guid: dd5e8d39880d5a542a730ea43576728a, type: 2}
-  _gameOverClip: {fileID: 8300000, guid: eae7bcd5ec92b9643aa6b9c33517385e, type: 2}
-  _buttonClickClip: {fileID: 8300000, guid: 3b958c679dc99fd4c8c10f13ead06b34, type: 2}
+  _jumpClip: {fileID: 8300000, guid: 51fdc64b933cdcb49b3396a493843627, type: 3}
+  _landClip: {fileID: 8300000, guid: 76ecb144a62a0424d83033b4675b0470, type: 3}
+  _correctClip: {fileID: 8300000, guid: 2839dd3b4009b9c41a8cf8b5e3aac4fa, type: 3}
+  _wrongClip: {fileID: 8300000, guid: a00a0eb21642b0c4aa93165343d87acb, type: 3}
+  _cactusHitClip: {fileID: 8300000, guid: 30e12f805af1138419c396efaaedd4f8, type: 3}
+  _levelCompleteClip: {fileID: 8300000, guid: a7f875bba9f12d248b22bf570a4b22b6, type: 3}
+  _gameOverClip: {fileID: 8300000, guid: ac73eddc5c05ee94995c21b9df38484c, type: 3}
+  _buttonClickClip: {fileID: 8300000, guid: 2c2b615ff892ffa479d7e076bd76b265, type: 3}
   _playerMotor: {fileID: 8544086208314626330}
   _phaseController: {fileID: 1016044373}
   _progressTracker: {fileID: 1016044376}

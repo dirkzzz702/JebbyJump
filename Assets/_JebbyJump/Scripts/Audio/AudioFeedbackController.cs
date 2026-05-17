@@ -92,7 +92,11 @@ namespace JebbyJump.Audio
         }
 
         private void OnJumped()                     => Play(_jumpClip);
-        private void OnLanded(Collider2D _)         => Play(_landClip);
+        private void OnLanded(Collider2D _)
+        {
+            if (_playerMotor != null && _playerMotor.Velocity.y > 0f) return;
+            Play(_landClip);
+        }
         private void OnCorrect()                    => Play(_correctClip);
         private void OnWrong()                      => Play(_wrongClip);
         private void OnCactusHit()                  => Play(_cactusHitClip);
