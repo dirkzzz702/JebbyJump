@@ -56,7 +56,7 @@ Desktop:
 
 - A / D or Left / Right = move
 - Space = jump
-- Shift or J = use equipped active skill
+- Shift or J = use equipped skill
 - Esc = pause
 
 Mobile:
@@ -64,7 +64,7 @@ Mobile:
 - Left virtual button
 - Right virtual button
 - Jump virtual button
-- Active skill button later
+- Equipped skill button later
 
 Use one input abstraction so gameplay code does not care whether input comes from keyboard or mobile UI.
 
@@ -99,6 +99,7 @@ Do not use fake transform-only jumping for the player controller.
 - Do not add online leaderboard.
 - Do not add shop UI until explicitly approved.
 - Do not add inventory/equipment UI until explicitly approved.
+- Do not add skill slot UI until explicitly approved.
 - Do not add external packages beyond Unity Input System and Cinemachine unless approved.
 
 ## Live Update Strategy
@@ -111,7 +112,8 @@ Content that should be updateable later without an app release:
 
 - Level configs
 - Difficulty settings
-- Equipment / active skill values later
+- Equipped skill values later
+- Cooldown values later
 - Obstacle spawn rules
 - Shop offers later
 - Tutorial text
@@ -121,7 +123,7 @@ Content that should be updateable later without an app release:
 Prefer ScriptableObjects for local authoring and serializable DTO/JSON-ready structures for remote config later.
 
 Do not hardcode level data inside gameplay systems.  
-Do not hardcode equipment/skill values inside movement code.  
+Do not hardcode skill values inside movement code.  
 Do not hardcode color/platform layouts in PlayerMotor or a god manager.
 
 ## Design Documents
@@ -213,7 +215,7 @@ Planned direction:
 
 Outfits should be cosmetic first. Do not add gameplay advantages, wardrobe UI, skins, outfit fragments, cosmetic inventory, outfit economy, or outfit-related save data until explicitly approved.
 
-## Platform Layout and Equipment / Active Skill Guardrails
+## Platform Layout and Equipped Skill Guardrails
 
 Current row progression rule:
 
@@ -236,15 +238,30 @@ Y position does not define the sequence step.
 
 Items should not be implemented as random scene pickups by default.
 
-Long-term item model:
+Long-term skill model:
 
 ```text
-Jebby can equip gear and active skills before a level.
-Active skills may be placed into limited active skill slots, e.g. 3 slots.
-Active skills may be one-use-per-level, limited charges, or cooldown-based.
+Jebby can equip skills before a level.
+Equipped skills occupy active skill slots, e.g. 3 slots.
 ```
 
-Rocket Boots should be an equipped active skill / gear prototype, not a random scene pickup.
+There are two equipped skill types:
+
+```text
+1. Equipment Skill
+   - granted by an equipment item, such as Rocket Boots
+   - occupies one active skill slot
+   - reusable when cooldown is ready
+
+2. Consumable / One-time-use Skill Item
+   - equipped into one active skill slot
+   - limited use / one-time use / consumed later when inventory exists
+   - also has cooldown to prevent spam or accidental double use
+```
+
+Both skill types should support cooldown.
+
+Rocket Boots should be an equipment-granted active skill prototype, not a random scene pickup.
 
 Rocket Boots must not be designed as a row-skipping power-up.
 
@@ -284,7 +301,7 @@ Rocket Boots must not:
 - Basic cactus obstacle
 - Item-ready player stats architecture
 - Same-row platform layout variation
-- Rocket Boots equipped active skill prototype, when explicitly approved
+- Rocket Boots equipment skill prototype, when explicitly approved
 
 ## Claude Working Rules
 
@@ -323,14 +340,14 @@ Current approved phase order:
 17. Visual readability + UX feedback
 18. Basic tutorial / onboarding
 19. Advanced platform layout foundation
-20. Rocket Boots equipped active skill prototype
+20. Equipped skill foundation + Rocket Boots equipment skill prototype
 
 Do not skip phases or pull work from later phases into the current one without approval.
 
 Current next recommended phase:
 
 ```text
-Phase 20: Rocket Boots Equipped Active Skill Prototype
+Phase 20: Equipped Skill Foundation + Rocket Boots Equipment Skill Prototype
 ```
 
 Do not create RocketBootsPickup or scene pickup objects for Phase 20 unless explicitly approved.
@@ -390,9 +407,9 @@ For player movement code, ensure:
 
 Playable with real controls first.  
 Polish second.  
-Equipment and active skills later.  
+Equipped skills later.  
 Shop / inventory / wardrobe much later.
 
 Memory tells the player where to go.  
 Skill decides whether they can get there.  
-Equipment and active skills help the player survive or recover, but must not bypass the memory sequence.
+Equipped skills help the player survive or recover, but must not bypass the memory sequence.

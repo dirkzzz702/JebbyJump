@@ -12,12 +12,14 @@ namespace JebbyJump.Items
         [SerializeField] private GameFeedbackUI _feedbackUI;
         [SerializeField] private float _jumpMultiplier      = 1.15f;
         [SerializeField] private float _moveSpeedMultiplier = 1.20f;
-        [SerializeField] private float _durationSeconds     = 5f;
+        [SerializeField] private float _durationSeconds     = 4f;
 
         private float _storedJumpForce;
         private float _storedMoveSpeed;
         private bool _isActive;
         private Coroutine _effectRoutine;
+
+        public bool IsActive => _isActive;
 
         public void Activate()
         {

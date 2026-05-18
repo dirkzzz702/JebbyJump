@@ -1,4 +1,4 @@
-# Jebby Jump｜Game Design Document v0.4
+# Jebby Jump｜Game Design Document v0.5
 
 ## 1. Overview
 
@@ -9,18 +9,24 @@
 **Core Character:** Jebby the Color Knight  
 **Target Platforms:** Windows for development/testing, Android/mobile later, WebGL demo later, iOS later if needed
 
+---
+
 ## 2. One-line Pitch
 
 **Jebby Jump** is a colorful 2D memory platformer where players memorize a color sequence, then physically control Jebby to jump upward through colored platforms in the correct order.
+
+---
 
 ## 3. Core Design Statement
 
 ```text
 Memory tells the player where to go.
 Skill decides whether they can get there.
-Equipment and active skills help the player recover, reposition, or solve harder layouts.
-Equipment and active skills must not bypass the memory sequence.
+Equipped skills help the player recover, reposition, or solve harder layouts.
+Equipped skills must not bypass the memory sequence.
 ```
+
+---
 
 ## 4. Character Direction
 
@@ -53,6 +59,8 @@ Assets/_JebbyJump/Docs/Art/References/jebby_color_knight_character_sheet_v01.png
 Assets/_JebbyJump/Docs/Art/References/jebby_outfit_variations_board_v01.png
 ```
 
+---
+
 ## 5. Target Experience
 
 The player should feel:
@@ -60,11 +68,13 @@ The player should feel:
 - “I remembered the sequence.”
 - “I made the jump.”
 - “I climbed higher than before.”
-- “I used Jebby’s gear at the right moment.”
+- “I used Jebby’s skill at the right moment.”
 - “I want one more try.”
 - “Jebby feels brave, cute, and worth helping.”
 
-The game should be child-safe but not boring. It should be simple enough for kids and casual players, but later deep enough through timing, layout variation, obstacles, equipment, and active skill choices.
+The game should be child-safe but not boring. It should be simple enough for kids and casual players, but later deep enough through timing, layout variation, obstacles, equipment skills, consumable skills, and active skill choices.
+
+---
 
 ## 6. Core Gameplay Loop
 
@@ -78,9 +88,12 @@ The game should be child-safe but not boring. It should be simple enough for kid
 8. Landing on the wrong color at the current expected row costs a life.
 9. Landing on a future row before the expected step costs a life.
 10. Landing on a completed / lower row is ignored.
-11. Completing the full sequence clears the level.
-12. Losing all lives triggers game over.
-13. Later: player may equip gear / active skills before a level and unlock cosmetics.
+11. Player may use equipped active skills at the right moment.
+12. Completing the full sequence clears the level.
+13. Losing all lives triggers game over.
+14. Later: player may configure equipment skills / consumable skills before a level and unlock cosmetics.
+
+---
 
 ## 7. Core Mechanics
 
@@ -153,6 +166,8 @@ Wrong landing:
 - Respawn to start/floor
 - If lives reach 0, game over
 
+---
+
 ## 8. Controls
 
 ### Desktop
@@ -174,6 +189,8 @@ Active skill button = use equipped active skill later
 ```
 
 Gameplay code must read through the input abstraction. Gameplay scripts must not directly depend on keyboard-only input.
+
+---
 
 ## 9. MVP Scope
 
@@ -199,8 +216,9 @@ Gameplay code must read through the input abstraction. Gameplay scripts must not
 - Basic audio feedback
 - Basic UX feedback and tutorial hints
 - Cactus obstacle
-- Item-ready player stats architecture
+- PlayerStats foundation
 - Advanced same-row platform layout foundation
+- First equipped skill prototype
 
 ### MVP Should Not Include
 
@@ -218,6 +236,9 @@ Gameplay code must read through the input abstraction. Gameplay scripts must not
 - Addressables remote content
 - Full inventory / equipment screen
 - Persistent active skill loadout save
+- Full skill slot UI beyond minimal debug/status feedback
+
+---
 
 ## 10. Level Design
 
@@ -241,6 +262,8 @@ Difficulty can increase by:
 - More decoys per row
 - Staggered platform Y positions within the same row
 - Later: moving / disappearing / slippery platforms
+
+---
 
 ## 11. Platform System
 
@@ -311,6 +334,8 @@ maxHorizontalGap
 layoutDifficulty
 ```
 
+---
+
 ## 12. Obstacles
 
 ### First Obstacle: Cactus
@@ -332,7 +357,9 @@ Correct platforms may become partially unsafe after landing zones exist.
 
 Do not add landing zones until explicitly approved.
 
-## 13. Equipment and Active Skill System
+---
+
+## 13. Equipped Skill System
 
 Items should not be random pickups scattered in levels by default.
 
@@ -340,59 +367,83 @@ The long-term model is:
 
 ```text
 Jebby has a build / loadout.
-Some items are equipment.
-Some items are active skills placed into limited active skill slots.
+The player equips skills before a level.
+Equipped skills occupy active skill slots.
 ```
-
-### Item Categories
-
-#### Equipment
-
-Equipment can be passive or always equipped.
-
-Possible future equipment slots:
-
-```text
-Boots
-Cape
-Badge / charm
-```
-
-Examples:
-
-- Mobility boots
-- Protective cape
-- Score badge
-- Memory charm
-
-#### Active Skills
-
-Active skills are manually triggered during gameplay.
 
 Future model:
 
 ```text
 3 active skill slots
-Slot 1: Rocket Boots
-Slot 2: Bubble Shield
-Slot 3: Color Echo
+Slot 1: Equipment Skill
+Slot 2: Consumable Skill
+Slot 3: Any equipped active skill
 ```
 
-Active skills may be balanced as:
+### 13.1 Skill Types
+
+#### Type A — Equipment Skill
+
+An equipment skill is granted by an equipped gear item.
+
+Examples:
 
 ```text
-one-time use per level
-limited charges per level
-cooldown-based
+Rocket Boots equipment → Rocket Boost skill
+Magic Cape equipment → Slow Fall skill
+Memory Charm equipment → Color Echo skill
 ```
 
-For MVP prototypes, prefer **one use per level** unless cooldown is explicitly approved.
+Rules:
 
-### Core Item Rule
+- The equipment item grants the skill.
+- The granted skill occupies one active skill slot.
+- It is reusable during a level if cooldown allows.
+- It should usually not be consumed.
+- It should feel like part of Jebby’s build.
 
-Equipment and active skills must help the player solve harder movement or memory situations. They must not bypass the sequence.
+Rocket Boots belongs to this category.
 
-Items may support:
+#### Type B — Consumable / One-time Use Skill Item
+
+A consumable skill item is also equipped into an active skill slot, but has limited uses.
+
+Examples:
+
+```text
+Health Potion → restore one heart
+Bubble Shield → block one mistake
+Color Flash → briefly reveal next color
+```
+
+Rules:
+
+- It occupies one active skill slot.
+- It can be one-time use per level, limited charges, or consumed later when inventory exists.
+- It still has cooldown to avoid instant repeat use / accidental double activation.
+- It is not randomly picked up mid-level by default.
+
+### 13.2 Cooldown Rule
+
+Both skill types should support cooldown.
+
+```text
+Equipment skills: cooldown-based reusable abilities.
+Consumable skills: limited-use abilities with cooldown protection.
+```
+
+For MVP prototypes:
+
+```text
+Use simple cooldown first.
+Avoid full inventory, save data, and skill-slot UI.
+```
+
+### 13.3 Core Skill Rule
+
+Equipped skills must help the player solve harder movement or memory situations. They must not bypass the sequence.
+
+Skills may support:
 
 - Same-row mobility
 - Recovery from poor positioning
@@ -402,7 +453,7 @@ Items may support:
 - Defensive recovery from one mistake
 - Memory assistance
 
-Items must not support:
+Skills must not support:
 
 ```text
 Skipping required sequence rows
@@ -412,12 +463,12 @@ Breaking row progression
 Random scene pickup dependency for core strategy
 ```
 
-### Rocket Boots Design Direction
+### 13.4 Rocket Boots Design Direction
 
 Rocket Boots should be implemented as:
 
 ```text
-equipped gear / active skill
+equipment-granted active skill
 ```
 
 not as:
@@ -428,7 +479,7 @@ random scene pickup
 
 Rocket Boots are intended as a same-row mobility assist.
 
-Rocket Boots should eventually help with:
+Rocket Boots should help with:
 
 - Staggered platforms within the same RowIndex
 - Larger horizontal gaps within the same row
@@ -448,13 +499,15 @@ Recommended Rocket Boots prototype direction:
 
 ```text
 equipped by default for prototype
-activated by Use Item input
-one use per level
+activated by Use Item / Skill input
+occupies Skill Slot 1 conceptually
+cooldown-based
 short duration
 small jump assist
 small move speed / air-control assist
 no pickup object
 no inventory UI
+no equipment UI
 no shop
 no save data
 ```
@@ -464,17 +517,21 @@ Suggested future tuning:
 ```text
 jumpMultiplier: about 1.10–1.20
 moveSpeed or air-control assist: about 1.10–1.25
-duration: about 5 seconds
+duration: about 3–5 seconds
+cooldown: about 8–12 seconds
 ```
 
-### Future Active Skills
+### 13.5 Future Active Skills
 
 Potential future active skills:
 
-- Rocket Boots: mobility assist for same-row layout challenges
-- Bullet Time: temporary air-control / reaction-time assist
-- Bubble Shield: protects from one mistake or hazard
-- Color Echo: briefly reminds next/remaining colors
+- Rocket Boots: equipment skill, mobility assist for same-row layout challenges
+- Bullet Time: equipment or consumable skill, temporary air-control / reaction-time assist
+- Bubble Shield: consumable skill, protects from one mistake or hazard
+- Color Echo: consumable or equipment skill, briefly reminds next/remaining colors
+- Health Potion: consumable skill, restores one heart
+
+---
 
 ## 14. Scoring and Lives
 
@@ -492,6 +549,8 @@ MVP default:
 startingLives = 3
 ```
 
+---
+
 ## 15. Wardrobe / Outfit System
 
 Wardrobe is approved as a future product direction, but **not MVP**.
@@ -505,6 +564,8 @@ V3: Full Jebby’s Wardrobe system with outfit fragments
 ```
 
 Outfits are cosmetic first. Do not add gameplay advantages, wardrobe UI, skins, outfit fragments, cosmetic inventory, outfit economy, or outfit-related save data until explicitly approved.
+
+---
 
 ## 16. Art Direction
 
@@ -523,6 +584,8 @@ Key style:
 - Soft fantasy
 - Premium indie
 - Clear gameplay readability
+
+---
 
 ## 17. Technical Direction
 
@@ -543,28 +606,34 @@ MVP does not implement code hot update. Use config-driven architecture for value
 
 - Level configs
 - Difficulty settings
-- Equipment / active skill values later
+- Equipment skill / consumable skill values later
+- Cooldown values later
 - Obstacle rules
 - Tutorial/localization text later
 - Addressable assets later
 
 No Lua / HybridCLR / ILRuntime for MVP.
 
+---
+
 ## 18. Current Phase Direction
 
 The next recommended gameplay phase is:
 
 ```text
-Phase 20: Rocket Boots Equipped Active Skill Prototype
+Phase 20: Equipped Skill Foundation + Rocket Boots Equipment Skill Prototype
 ```
 
 Purpose:
 
 ```text
-Prototype the first active skill as character equipment, not as a random scene pickup.
+Prototype the first equipment-granted active skill.
+Establish the rule that active skills are equipped, not random scene pickups.
 ```
 
-Do not add inventory, shop, equipment UI, save data, or additional skills yet.
+Do not add inventory, shop, equipment UI, skill slot UI, save data, or additional skills yet.
+
+---
 
 ## 19. MVP Completion Criteria
 
@@ -579,4 +648,4 @@ The MVP is complete when:
 - The game validates correct/wrong color order.
 - The player can win, lose, retry, and return to menu.
 - Basic HUD, audio, feedback, and tutorial hints exist.
-- The codebase supports future obstacles, platform layouts, equipment, active skills, and wardrobe without major rewrites.
+- The codebase supports future obstacles, platform layouts, equipped skills, consumable skills, and wardrobe without major rewrites.

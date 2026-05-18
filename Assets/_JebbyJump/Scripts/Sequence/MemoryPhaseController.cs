@@ -20,8 +20,7 @@ namespace JebbyJump.Sequence
         [SerializeField] private LevelProgressTracker _progressTracker;
         [SerializeField] private LevelSessionController _levelSession;
         [SerializeField] private GameFeedbackUI _feedbackUI;
-        [SerializeField] private RocketBootsEffect _rocketBoots;
-        [SerializeField] private RocketBootsPickup _rocketBootsPickup;
+        [SerializeField] private ActiveSkillController _activeSkillController;
 
         public event Action LevelCompleted;
         public event Action CorrectLanding;
@@ -85,6 +84,7 @@ namespace JebbyJump.Sequence
         private IEnumerator RunMemoryPhase()
         {
             _phase = Phase.ShowingSequence;
+            _activeSkillController?.SetCanUseSkill(false);
             _playerController?.SetJumpMultiplier(_sequenceManager.Config.MemoryPhaseJumpMultiplier);
             _displayUI.Show(_sequenceManager.Sequence);
             MemoryPhaseStarted?.Invoke();
@@ -93,6 +93,7 @@ namespace JebbyJump.Sequence
             _displayUI.Hide();
             _feedbackUI?.ShowMessage("Go!", 1f);
             _phase = Phase.Playing;
+            _activeSkillController?.SetCanUseSkill(true);
             _playerController?.SetJumpMultiplier(1f);
             Debug.Log("[MemoryPhaseController] Memory phase ended. Playing.");
         }
@@ -146,19 +147,18 @@ namespace JebbyJump.Sequence
 
         private void OnLifeLost()
         {
-            _rocketBoots?.CancelEffect();   // pickup stays disabled for this attempt
+            _activeSkillController?.CancelActiveSkill();  // cooldown stays spent
             _phase = Phase.Playing;
             _sequenceManager.ResetProgress();
             _landingDetector?.ResetCurrentPlatform();
             _playerController?.SetJumpMultiplier(1f);
             _playerController?.Respawn(_spawnPosition);
-            // Design note: Row 0 must remain reachable from _spawnPosition.
-            // Checkpoint/platform regeneration can be revisited in a later phase.
             Debug.Log("[MemoryPhaseController] Life lost. Respawning to start.");
         }
 
         private void OnGameOver()
         {
+            _activeSkillController?.SetCanUseSkill(false);
             _phase = Phase.Completed;
             Debug.Log("[MemoryPhaseController] Game over!");
         }
@@ -183,8 +183,7 @@ namespace JebbyJump.Sequence
         {
             if (_sequenceManager == null || _spawner == null || _progressTracker == null) return;
 
-            _rocketBoots?.CancelEffect();
-            _rocketBootsPickup?.ResetPickup();  // re-enable on retry / next level
+            _activeSkillController?.ResetForLevel();  // cancel effect + reset cooldown
             StopAllCoroutines();
             _phase = Phase.ShowingSequence;
 
@@ -205,6 +204,7 @@ namespace JebbyJump.Sequence
 
         private void OnSequenceComplete()
         {
+            _activeSkillController?.SetCanUseSkill(false);
             _phase = Phase.Completed;
             int bonus = 50 + (_progressTracker != null ? _progressTracker.Lives * 20 : 0);
             _progressTracker?.AddScore(bonus);

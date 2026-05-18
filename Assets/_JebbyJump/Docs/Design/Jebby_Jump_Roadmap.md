@@ -1,4 +1,4 @@
-# Jebby Jump｜Product Roadmap v0.4
+# Jebby Jump｜Product Roadmap v0.5
 
 ## 1. Roadmap Purpose
 
@@ -11,7 +11,7 @@ It separates:
 - Future systems
 - Long-term product expansion
 
-The goal is to avoid scope creep while preserving future ideas such as advanced platform layouts, obstacles, equipment, active skills, wardrobe, and content updates.
+The goal is to avoid scope creep while preserving future ideas such as advanced platform layouts, obstacles, equipped skills, consumable skills, wardrobe, and content updates.
 
 ---
 
@@ -44,14 +44,17 @@ Phase 19: Advanced platform layout foundation
 Current / Next:
 
 ```text
-Phase 20: Rocket Boots Equipped Active Skill Prototype
+Phase 20: Equipped Skill Foundation + Rocket Boots Equipment Skill Prototype
 ```
 
 Important design update:
 
 ```text
-Items should be equipment or active skills, not random scene pickups by default.
-Rocket Boots must not be a row-skipping power-up.
+Items should be equipped skills, not random scene pickups by default.
+There are two skill types:
+1. Equipment skills
+2. Consumable / one-time-use skill items
+Both should support cooldown.
 ```
 
 ---
@@ -59,95 +62,96 @@ Rocket Boots must not be a row-skipping power-up.
 ## 3. MVP Development Phases
 
 ### Phase 1 — Project Foundation ✅
-
 Create the clean Unity project base.
 
 ### Phase 2 — Input System Setup ✅
-
 Create unified input abstraction.
 
 ### Phase 3 — Rigidbody2D Player Controller ✅
-
 Create production-quality 2D platformer movement.
 
 ### Phase 4 — Cinemachine + Test Scene ✅
-
 Add smooth camera follow.
 
 ### Phase 5 — Platform Identity + Landing Detection ✅
-
 Detect landing platform row/color and support one-way platforms.
 
 ### Phase 6 — Memory Sequence System ✅
-
 Generate, display, hide, and progress through the sequence.
 
 ### Phase 7 — LevelConfig + Platform Row Generation ✅
-
 Generate playable rows from level data.
 
 ### Phase 8 — Lives / Score / Respawn / Level Complete ✅
-
 Complete the core gameplay loop.
 
 ### Phase 9 — Mobile Virtual Controls ✅
-
 Support mobile-friendly left/right/jump controls.
 
 ### Phase 10 — Cactus Obstacle + Item-ready Stats ✅
-
 Add cactus hazard and player stats foundation.
 
 ### Phase 11 — In-game HUD + Result Screens ✅
-
 Add lives, score, game over, and level complete UI.
 
 ### Phase 12 — Retry / Restart Level Flow ✅
-
 Add retry buttons and clean current-level restart.
 
 ### Phase 13 — Menu / Scene Flow Foundation ✅
-
 Add Boot → MainMenu → Game flow.
 
 ### Phase 14 — Basic Audio Feedback ✅
-
 Add event-driven SFX.
 
 ### Phase 15 — MVP Level Set + Session Progression ✅
-
 Add Level 1–3, Next Level, and MVP Complete state.
 
 ### Phase 16 — Playability Tuning ✅
-
 Tune MVP difficulty/readability.
 
 ### Phase 17 — Visual Readability + UX Feedback ✅
-
 Add lightweight moment-to-moment UI feedback.
 
 ### Phase 18 — Basic Tutorial / Onboarding ✅
-
 Add simple tutorial hints without save data.
 
 ### Phase 19 — Advanced Platform Layout Foundation ✅
-
 Add optional same-row vertical jitter to create future same-row mobility challenges.
 
 ---
 
 ## 4. Next Approved Direction
 
-### Phase 20 — Rocket Boots Equipped Active Skill Prototype
+### Phase 20 — Equipped Skill Foundation + Rocket Boots Equipment Skill Prototype
 
 Goal:
 
-Add Rocket Boots as the first character-equipped active skill prototype.
+Add Rocket Boots as the first equipment-granted active skill prototype.
 
 Purpose:
 
 ```text
-Test the active-skill model without building inventory, shop, save data, or equipment UI.
+Test the equipped skill model without building inventory, shop, save data, or skill-slot UI.
+```
+
+Core item model:
+
+```text
+Active skill slots can contain:
+1. Equipment skills
+2. Consumable / one-time-use skill items
+
+Both should support cooldown.
+```
+
+Rocket Boots classification:
+
+```text
+Type: Equipment Skill
+Source: Rocket Boots equipment
+Granted active skill: Rocket Boost
+Slot usage: occupies one active skill slot conceptually
+Cooldown: yes
 ```
 
 Core rule:
@@ -162,14 +166,15 @@ Expected design:
 
 ```text
 Rocket Boots equipped by default for prototype
-Use Item input activates it
-one use per level
+Use Item input activates Rocket Boost
+cooldown-based
 short duration
 small jump boost
 small movement / air-control assist
 no pickup object
 no shop
 no inventory
+no equipment UI
 no save data
 ```
 
@@ -178,6 +183,7 @@ Done when:
 ```text
 Player can activate Rocket Boots during Playing.
 Boost is useful but controlled.
+Cooldown prevents repeated spam.
 Effect cancels/resets on life loss, retry, and next level as designed.
 Future-row landing while boosted still loses life.
 No inventory/shop/save systems are added.
@@ -187,7 +193,7 @@ No inventory/shop/save systems are added.
 
 ## 5. Later MVP / Post-MVP Phases
 
-### Phase 21 — Basic Active Skill HUD / Charges
+### Phase 21 — Basic Active Skill HUD / Cooldown Indicator
 
 Only after Phase 20 works.
 
@@ -195,14 +201,30 @@ Possible additions:
 
 ```text
 small active skill indicator
-charge count
+cooldown progress
 ready/unavailable feedback
 mobile active skill button
 ```
 
 No inventory or shop yet.
 
-### Phase 22 — MVP Art Replacement Pass
+### Phase 22 — Second Skill Prototype: Consumable Skill Item
+
+Add the first consumable / one-time-use skill item.
+
+Recommended candidate:
+
+```text
+Health Potion
+- restores 1 heart
+- occupies one active skill slot conceptually
+- one use per level or limited charge
+- has cooldown to prevent accidental double use
+```
+
+No inventory UI yet.
+
+### Phase 23 — MVP Art Replacement Pass
 
 Replace placeholder visuals with first-pass production-style assets:
 
@@ -217,7 +239,7 @@ app/menu visuals
 
 Follow the Art Bible.
 
-### Phase 23 — Basic Level Select / Local Progress
+### Phase 24 — Basic Level Select / Local Progress
 
 Only after the 3-level MVP flow is stable.
 
@@ -231,7 +253,7 @@ simple best score
 
 No cloud save.
 
-### Phase 24 — Basic Settings
+### Phase 25 — Basic Settings
 
 Possible additions:
 
@@ -278,17 +300,31 @@ pre-level loadout
 basic local unlock state later
 ```
 
-Potential active skills:
+Skill types:
+
+```text
+Equipment skill:
+- granted by equipped gear
+- reusable with cooldown
+
+Consumable skill item:
+- equipped into a slot
+- limited use / one-time use / consumed later
+- also has cooldown
+```
+
+Potential skills:
 
 - Rocket Boots
 - Bullet Time
 - Bubble Shield
 - Color Echo
+- Health Potion
 
 Rules:
 
 ```text
-Equipment and active skills help but do not replace memory.
+Equipped skills help but do not replace memory.
 They must not bypass sequence validation.
 They should support harder layouts, not trivialize them.
 ```
@@ -425,11 +461,13 @@ Lua / HybridCLR / ILRuntime
 Seasonal events
 ```
 
-Specific equipment / skill guardrail:
+Specific equipped skill guardrail:
 
 ```text
 Do not implement random scene pickups as the default item model.
-Items should be equipment or active skills.
+Items should be equipped skills.
+There are two skill types: equipment skills and consumable skill items.
+Both support cooldown.
 Do not design Rocket Boots as a row-skipping power-up.
 ```
 
@@ -442,15 +480,15 @@ Each phase must be planned, reviewed, approved, implemented, verified, and commi
 Next approved focus:
 
 ```text
-Phase 20: Rocket Boots Equipped Active Skill Prototype
+Phase 20: Equipped Skill Foundation + Rocket Boots Equipment Skill Prototype
 ```
 
 Expected Phase 20 output:
 
 ```text
 RocketBootsEffect on Jebby
-basic active-skill activation through Use Item input
-one use per level
+basic active skill activation through Use Item input
+cooldown-based Rocket Boost
 controlled mobility boost
 no pickup object
 no inventory/shop/save systems
