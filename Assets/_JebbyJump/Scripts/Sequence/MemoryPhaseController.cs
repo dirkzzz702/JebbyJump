@@ -23,6 +23,7 @@ namespace JebbyJump.Sequence
         public event Action LevelCompleted;
         public event Action CorrectLanding;
         public event Action WrongLanding;
+        public event Action MemoryPhaseStarted;
 
         private enum Phase { ShowingSequence, Playing, Completed }
         private Phase _phase;
@@ -83,6 +84,7 @@ namespace JebbyJump.Sequence
             _phase = Phase.ShowingSequence;
             _playerController?.SetJumpMultiplier(_sequenceManager.Config.MemoryPhaseJumpMultiplier);
             _displayUI.Show(_sequenceManager.Sequence);
+            MemoryPhaseStarted?.Invoke();
             _feedbackUI?.ShowMessage("Remember the colors!", _sequenceManager.Config.MemoryTimeSeconds);
             yield return new WaitForSeconds(_sequenceManager.Config.MemoryTimeSeconds);
             _displayUI.Hide();
