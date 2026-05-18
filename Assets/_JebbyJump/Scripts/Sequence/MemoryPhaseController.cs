@@ -4,6 +4,7 @@ using JebbyJump.Level;
 using JebbyJump.Obstacles;
 using JebbyJump.Platforms;
 using JebbyJump.Player;
+using JebbyJump.UI;
 using UnityEngine;
 
 namespace JebbyJump.Sequence
@@ -17,6 +18,7 @@ namespace JebbyJump.Sequence
         [SerializeField] private PlatformSpawner _spawner;
         [SerializeField] private LevelProgressTracker _progressTracker;
         [SerializeField] private LevelSessionController _levelSession;
+        [SerializeField] private GameFeedbackUI _feedbackUI;
 
         public event Action LevelCompleted;
         public event Action CorrectLanding;
@@ -81,8 +83,10 @@ namespace JebbyJump.Sequence
             _phase = Phase.ShowingSequence;
             _playerController?.SetJumpMultiplier(_sequenceManager.Config.MemoryPhaseJumpMultiplier);
             _displayUI.Show(_sequenceManager.Sequence);
+            _feedbackUI?.ShowMessage("Remember the colors!", _sequenceManager.Config.MemoryTimeSeconds);
             yield return new WaitForSeconds(_sequenceManager.Config.MemoryTimeSeconds);
             _displayUI.Hide();
+            _feedbackUI?.ShowMessage("Go!", 1f);
             _phase = Phase.Playing;
             _playerController?.SetJumpMultiplier(1f);
             Debug.Log("[MemoryPhaseController] Memory phase ended. Playing.");
@@ -103,6 +107,7 @@ namespace JebbyJump.Sequence
             {
                 // Jumped ahead of the expected row — treat as wrong landing.
                 Debug.Log("[Sequence] Skipped to Row " + platform.RowIndex + " — expected Row " + _sequenceManager.CurrentStepIndex + ". Wrong.");
+                _feedbackUI?.ShowMessage("Wrong color!", 0.9f);
                 WrongLanding?.Invoke();
                 _progressTracker?.LoseLife();
                 return;
@@ -112,6 +117,7 @@ namespace JebbyJump.Sequence
             if (correct)
             {
                 Debug.Log("[Sequence] Step " + (_sequenceManager.CurrentStepIndex + 1) + "/" + _sequenceManager.Sequence.Count + " — Correct: " + platform.Color);
+                _feedbackUI?.ShowMessage("Correct!", 0.7f);
                 _progressTracker?.AddScore(10);
                 CorrectLanding?.Invoke();
                 _sequenceManager.AdvanceStep();
@@ -119,6 +125,7 @@ namespace JebbyJump.Sequence
             else
             {
                 Debug.Log("[Sequence] Step " + (_sequenceManager.CurrentStepIndex + 1) + "/" + _sequenceManager.Sequence.Count + " — Wrong: got " + platform.Color + ", expected " + _sequenceManager.ExpectedColor);
+                _feedbackUI?.ShowMessage("Wrong color!", 0.9f);
                 WrongLanding?.Invoke();
                 _progressTracker?.LoseLife();
             }
@@ -128,6 +135,7 @@ namespace JebbyJump.Sequence
         {
             if (_phase != Phase.Playing) return;
             Debug.Log("[MemoryPhaseController] Cactus hit. Losing life.");
+            _feedbackUI?.ShowMessage("Ouch! Cactus!", 0.9f);
             _progressTracker?.LoseLife();
         }
 
