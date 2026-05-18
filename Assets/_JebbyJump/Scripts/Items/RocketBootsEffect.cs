@@ -53,7 +53,7 @@ namespace JebbyJump.Items
             _isActive = true;
             _stats.JumpForce = _storedJumpForce * _jumpMultiplier;
             _stats.MoveSpeed = _storedMoveSpeed * _moveSpeedMultiplier;
-            Debug.Log($"[RocketBoots] Activated for {_durationSeconds}s. JumpForce: {_storedJumpForce:F1}→{_stats.JumpForce:F1}  MoveSpeed: {_storedMoveSpeed:F1}→{_stats.MoveSpeed:F1}");
+            Debug.Log($"[RocketBoots] Activated for {_durationSeconds}s. JumpForce: {_storedJumpForce:F1}->{_stats.JumpForce:F1}, MoveSpeed: {_storedMoveSpeed:F1}->{_stats.MoveSpeed:F1}");
             _feedbackUI?.ShowMessage("Rocket Boots!", 1.5f);
             yield return new WaitForSeconds(_durationSeconds);
             RestoreStats();
