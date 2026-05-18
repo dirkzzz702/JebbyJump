@@ -15,7 +15,11 @@ namespace JebbyJump.Items
         private float _cooldownTimer;
         private bool _canUseSkill;
 
-        public bool IsCooldownReady => _cooldownTimer <= 0f;
+        public bool  IsCooldownReady    => _cooldownTimer <= 0f;
+        public bool  CanUseSkill        => _canUseSkill;
+        public float CooldownRemaining  => Mathf.Max(0f, _cooldownTimer);
+        public float CooldownSeconds    => _cooldownSeconds;
+        public bool  IsSkillActive      => _rocketBoots != null && _rocketBoots.IsActive;
 
         private void OnEnable()
         {
