@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using JebbyJump.Items;
 using JebbyJump.Level;
 using JebbyJump.Obstacles;
 using JebbyJump.Platforms;
@@ -20,8 +19,6 @@ namespace JebbyJump.Sequence
         [SerializeField] private LevelProgressTracker _progressTracker;
         [SerializeField] private LevelSessionController _levelSession;
         [SerializeField] private GameFeedbackUI _feedbackUI;
-        [SerializeField] private RocketBootsEffect _rocketBoots;
-        [SerializeField] private RocketBootsPickup _rocketBootsPickup;
 
         public event Action LevelCompleted;
         public event Action CorrectLanding;
@@ -146,7 +143,6 @@ namespace JebbyJump.Sequence
 
         private void OnLifeLost()
         {
-            _rocketBoots?.CancelEffect();   // pickup stays disabled for this attempt
             _phase = Phase.Playing;
             _sequenceManager.ResetProgress();
             _landingDetector?.ResetCurrentPlatform();
@@ -183,8 +179,6 @@ namespace JebbyJump.Sequence
         {
             if (_sequenceManager == null || _spawner == null || _progressTracker == null) return;
 
-            _rocketBoots?.CancelEffect();
-            _rocketBootsPickup?.ResetPickup();  // re-enable pickup on retry / next level
             StopAllCoroutines();
             _phase = Phase.ShowingSequence;
 
