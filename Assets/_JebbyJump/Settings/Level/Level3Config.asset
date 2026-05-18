@@ -24,3 +24,4 @@ MonoBehaviour:
   _platformWidth: 3.4
   _platformHeight: 0.5
   _rowHorizontalSpread: 9
+  _rowVerticalJitter: 0.3

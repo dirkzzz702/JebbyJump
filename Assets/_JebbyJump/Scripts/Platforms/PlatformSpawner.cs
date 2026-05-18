@@ -48,7 +48,7 @@ namespace JebbyJump.Level
             {
                 float rowY = _config.RowStartY + row * _config.RowVerticalSpacing;
                 PlatformColor[] colors = BuildRowColors(sequence[row], _config.PlatformsPerRow, _config.AvailableColors);
-                Vector3[] positions = GetRowPositions(rowY, _config.PlatformsPerRow, _config.RowHorizontalSpread);
+                Vector3[] positions = GetRowPositions(rowY, _config.PlatformsPerRow, _config.RowHorizontalSpread, _config.RowVerticalJitter);
 
                 var distractors = new List<GameObject>();
                 for (int i = 0; i < _config.PlatformsPerRow; i++)
@@ -138,7 +138,7 @@ namespace JebbyJump.Level
             return colors;
         }
 
-        private static Vector3[] GetRowPositions(float y, int count, float spread)
+        private static Vector3[] GetRowPositions(float y, int count, float spread, float jitter)
         {
             Vector3[] positions = new Vector3[count];
             if (count == 1)
@@ -148,7 +148,10 @@ namespace JebbyJump.Level
             }
             float step = spread / (count - 1);
             for (int i = 0; i < count; i++)
-                positions[i] = new Vector3(-spread / 2f + i * step, y, 0f);
+            {
+                float yOffset = jitter > 0f ? UnityEngine.Random.Range(-jitter, jitter) : 0f;
+                positions[i] = new Vector3(-spread / 2f + i * step, y + yOffset, 0f);
+            }
             return positions;
         }
     }

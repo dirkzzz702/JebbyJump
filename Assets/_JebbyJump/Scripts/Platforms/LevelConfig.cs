@@ -27,6 +27,7 @@ namespace JebbyJump.Level
         [SerializeField] private float _platformWidth = 4f;
         [SerializeField] private float _platformHeight = 0.5f;
         [SerializeField] private float _rowHorizontalSpread = 8f;
+        [SerializeField] private float _rowVerticalJitter = 0f;
 
         public int SequenceLength => _sequenceLength;
         public float MemoryTimeSeconds => _memoryTimeSeconds;
@@ -42,6 +43,7 @@ namespace JebbyJump.Level
         public float PlatformWidth => _platformWidth;
         public float PlatformHeight => _platformHeight;
         public float RowHorizontalSpread => _rowHorizontalSpread;
+        public float RowVerticalJitter => _rowVerticalJitter;
 
         private void OnValidate()
         {
@@ -54,6 +56,7 @@ namespace JebbyJump.Level
             _rowVerticalSpacing = Mathf.Max(0.1f, _rowVerticalSpacing);
             _platformWidth = Mathf.Max(0.1f, _platformWidth);
             _platformHeight = Mathf.Max(0.1f, _platformHeight);
+            _rowVerticalJitter = Mathf.Clamp(_rowVerticalJitter, 0f, 1f);
         }
     }
 }
