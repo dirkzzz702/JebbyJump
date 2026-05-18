@@ -47,7 +47,7 @@ namespace JebbyJump.Player
 
         private void OnMotorLanded(Collider2D groundCollider)
         {
-            if (_motor != null && _motor.Velocity.y > 0f) return;
+            if (_motor != null && _motor.Velocity.y > -0.1f) return;
             var platform = groundCollider.GetComponentInParent<Platform>();
             if (platform == null || platform == _currentPlatform) return;
             if (!IsInsidePlatformBounds(groundCollider)) return;
