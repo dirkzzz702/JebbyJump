@@ -93,9 +93,18 @@ namespace JebbyJump.Sequence
             if (_phase != Phase.Playing) return;
             if (_sequenceManager.IsComplete) return;
 
-            if (platform.RowIndex != _sequenceManager.CurrentStepIndex)
+            if (platform.RowIndex < _sequenceManager.CurrentStepIndex)
             {
-                Debug.Log("[Sequence] Ignored Row " + platform.RowIndex + " — waiting for Row " + _sequenceManager.CurrentStepIndex);
+                // Already-completed row — player still standing on it, ignore.
+                return;
+            }
+
+            if (platform.RowIndex > _sequenceManager.CurrentStepIndex)
+            {
+                // Jumped ahead of the expected row — treat as wrong landing.
+                Debug.Log("[Sequence] Skipped to Row " + platform.RowIndex + " — expected Row " + _sequenceManager.CurrentStepIndex + ". Wrong.");
+                WrongLanding?.Invoke();
+                _progressTracker?.LoseLife();
                 return;
             }
 
