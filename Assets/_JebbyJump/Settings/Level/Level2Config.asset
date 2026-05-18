@@ -18,7 +18,7 @@ MonoBehaviour:
   _startingLives: 3
   _availableColors: 01000000020000000400000003000000
   _cactusSpawnChance: 0.25
-  _platformsPerRow: 3
+  _platformsPerRow: 2
   _rowVerticalSpacing: 3.7
   _rowStartY: 2
   _platformWidth: 3.6
