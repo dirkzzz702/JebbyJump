@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Level3Config
   m_EditorClassIdentifier: Assembly-CSharp::JebbyJump.Level.LevelConfig
   _sequenceLength: 6
-  _memoryTimeSeconds: 4
+  _memoryTimeSeconds: 5
   _memoryPhaseJumpMultiplier: 0.35
   _startingLives: 3
   _availableColors: 010000000200000004000000030000000500000006000000
