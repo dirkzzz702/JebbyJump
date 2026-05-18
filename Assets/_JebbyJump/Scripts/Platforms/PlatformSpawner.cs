@@ -15,6 +15,12 @@ namespace JebbyJump.Level
 
         public event Action CactusHit;
 
+        public void SetConfig(LevelConfig config)
+        {
+            if (config == null) { Debug.LogError("[PlatformSpawner] SetConfig called with null config.", this); return; }
+            _config = config;
+        }
+
         private readonly List<GameObject> _spawnedPlatforms = new List<GameObject>();
         private Transform _container;
 

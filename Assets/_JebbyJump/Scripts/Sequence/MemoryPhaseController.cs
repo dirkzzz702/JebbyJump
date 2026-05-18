@@ -16,6 +16,7 @@ namespace JebbyJump.Sequence
         [SerializeField] private PlayerController _playerController;
         [SerializeField] private PlatformSpawner _spawner;
         [SerializeField] private LevelProgressTracker _progressTracker;
+        [SerializeField] private LevelSessionController _levelSession;
 
         public event Action LevelCompleted;
         public event Action CorrectLanding;
@@ -64,6 +65,7 @@ namespace JebbyJump.Sequence
             if (_sequenceManager == null || _spawner == null || _displayUI == null) return;
 
             _spawnPosition = _playerController != null ? _playerController.transform.position : Vector3.zero;
+            ApplySessionConfig();
             _progressTracker?.Initialize(_sequenceManager.Config.StartingLives);
 
             _sequenceManager.GenerateSequence();
@@ -138,6 +140,22 @@ namespace JebbyJump.Sequence
             Debug.Log("[MemoryPhaseController] Game over!");
         }
 
+        private void ApplySessionConfig()
+        {
+            if (_levelSession == null) return;
+            var config = _levelSession.CurrentConfig;
+            if (config == null) { Debug.LogError("[MemoryPhaseController] No active LevelConfig in session.", this); return; }
+            _sequenceManager.SetConfig(config);
+            _spawner.SetConfig(config);
+        }
+
+        public void StartNextLevel()
+        {
+            if (_levelSession == null || _levelSession.IsFinalLevel) return;
+            _levelSession.AdvanceToNextLevel();
+            RestartLevel();
+        }
+
         public void RestartLevel()
         {
             if (_sequenceManager == null || _spawner == null || _progressTracker == null) return;
@@ -145,6 +163,7 @@ namespace JebbyJump.Sequence
             StopAllCoroutines();
             _phase = Phase.ShowingSequence;
 
+            ApplySessionConfig();
             _progressTracker.Initialize(_sequenceManager.Config.StartingLives);
             _sequenceManager.GenerateSequence();
 

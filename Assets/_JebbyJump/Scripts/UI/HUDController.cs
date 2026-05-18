@@ -21,6 +21,10 @@ namespace JebbyJump.UI
         [SerializeField] private Button _levelCompleteRetryButton;
         [SerializeField] private Button _gameOverMenuButton;
         [SerializeField] private Button _levelCompleteMenuButton;
+        [SerializeField] private Button _levelCompleteNextButton;
+        [SerializeField] private LevelSessionController _levelSession;
+        [SerializeField] private TextMeshProUGUI _levelText;
+        [SerializeField] private TextMeshProUGUI _levelCompleteTitleText;
 
         private void Awake()
         {
@@ -30,6 +34,7 @@ namespace JebbyJump.UI
             if (_levelCompleteRetryButton != null) _levelCompleteRetryButton.onClick.AddListener(OnRetryClicked);
             if (_gameOverMenuButton != null) _gameOverMenuButton.onClick.AddListener(SceneLoader.LoadMainMenu);
             if (_levelCompleteMenuButton != null) _levelCompleteMenuButton.onClick.AddListener(SceneLoader.LoadMainMenu);
+            if (_levelCompleteNextButton != null) _levelCompleteNextButton.onClick.AddListener(OnNextLevelClicked);
         }
 
         private void OnDestroy()
@@ -38,6 +43,7 @@ namespace JebbyJump.UI
             if (_levelCompleteRetryButton != null) _levelCompleteRetryButton.onClick.RemoveListener(OnRetryClicked);
             if (_gameOverMenuButton != null) _gameOverMenuButton.onClick.RemoveListener(SceneLoader.LoadMainMenu);
             if (_levelCompleteMenuButton != null) _levelCompleteMenuButton.onClick.RemoveListener(SceneLoader.LoadMainMenu);
+            if (_levelCompleteNextButton != null) _levelCompleteNextButton.onClick.RemoveListener(OnNextLevelClicked);
         }
 
         private void OnEnable()
@@ -50,6 +56,8 @@ namespace JebbyJump.UI
             }
             if (_phaseController != null)
                 _phaseController.LevelCompleted += OnLevelCompleted;
+            if (_levelSession != null)
+                _levelSession.LevelChanged += RefreshLevelText;
         }
 
         private void OnDisable()
@@ -62,6 +70,8 @@ namespace JebbyJump.UI
             }
             if (_phaseController != null)
                 _phaseController.LevelCompleted -= OnLevelCompleted;
+            if (_levelSession != null)
+                _levelSession.LevelChanged -= RefreshLevelText;
         }
 
         private void Start()
@@ -71,6 +81,13 @@ namespace JebbyJump.UI
                 RefreshLives(_tracker.Lives);
                 RefreshScore(_tracker.Score);
             }
+            RefreshLevelText();
+        }
+
+        private void RefreshLevelText()
+        {
+            if (_levelText != null && _levelSession != null)
+                _levelText.text = "Level " + (_levelSession.CurrentLevelIndex + 1);
         }
 
         private void OnLivesChanged(int lives) => RefreshLives(lives);
@@ -100,6 +117,11 @@ namespace JebbyJump.UI
             if (_levelCompletePanel != null) _levelCompletePanel.SetActive(true);
             if (_levelCompleteScoreText != null && _tracker != null)
                 _levelCompleteScoreText.text = "Score: " + _tracker.Score;
+
+            bool isFinal = _levelSession != null && _levelSession.IsFinalLevel;
+            if (_levelCompleteNextButton != null) _levelCompleteNextButton.gameObject.SetActive(!isFinal);
+            if (_levelCompleteTitleText != null)
+                _levelCompleteTitleText.text = isFinal ? "MVP Complete!" : "Level Complete!";
         }
 
         private void OnRetryClicked()
@@ -107,6 +129,13 @@ namespace JebbyJump.UI
             if (_gameOverPanel != null) _gameOverPanel.SetActive(false);
             if (_levelCompletePanel != null) _levelCompletePanel.SetActive(false);
             _phaseController?.RestartLevel();
+        }
+
+        private void OnNextLevelClicked()
+        {
+            if (_gameOverPanel != null) _gameOverPanel.SetActive(false);
+            if (_levelCompletePanel != null) _levelCompletePanel.SetActive(false);
+            _phaseController?.StartNextLevel();
         }
     }
 }

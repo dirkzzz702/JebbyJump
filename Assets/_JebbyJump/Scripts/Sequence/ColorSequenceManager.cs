@@ -50,6 +50,12 @@ namespace JebbyJump.Sequence
             Debug.Log($"[ColorSequenceManager] Sequence: {string.Join(" → ", list)}");
         }
 
+        public void SetConfig(LevelConfig config)
+        {
+            if (config == null) { Debug.LogError("[ColorSequenceManager] SetConfig called with null config.", this); return; }
+            _config = config;
+        }
+
         public void ResetProgress()
         {
             CurrentStepIndex = 0;
