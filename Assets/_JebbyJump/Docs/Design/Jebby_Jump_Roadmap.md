@@ -1,4 +1,4 @@
-# Jebby Jump｜Product Roadmap v0.3
+# Jebby Jump｜Product Roadmap v0.4
 
 ## 1. Roadmap Purpose
 
@@ -7,46 +7,51 @@ This roadmap defines the planned development path for **Jebby Jump**.
 It separates:
 
 - MVP work
-- Post-MVP polish
+- MVP polish
 - Future systems
 - Long-term product expansion
 
-The goal is to avoid scope creep while preserving important future ideas such as items, obstacles, wardrobe, and live content.
+The goal is to avoid scope creep while preserving future ideas such as advanced platform layouts, obstacles, equipment, active skills, wardrobe, and content updates.
 
 ---
 
 ## 2. Current Development Status
 
-Completed:
+Completed / implemented through the current repo direction:
 
 ```text
-Phase 1:  Project foundation
-Phase 2:  Packages + Input System setup
-Phase 3:  Rigidbody2D Player Controller
-Phase 4:  Cinemachine + test scene
-Phase 5:  Platform identity + landing detection
-Phase 6:  Memory sequence system
-Phase 7:  LevelConfig + platform row generation
-Phase 8:  Lives / score / respawn / level complete
-Phase 9:  Mobile virtual controls polish
+Phase 1: Project foundation
+Phase 2: Packages + Input System setup
+Phase 3: Rigidbody2D Player Controller
+Phase 4: Cinemachine + test scene
+Phase 5: Platform identity + landing detection
+Phase 6: Memory sequence system
+Phase 7: LevelConfig + platform row generation
+Phase 8: Lives / score / respawn / level complete
+Phase 9: Mobile virtual controls
 Phase 10: Cactus obstacle + item-ready player stats
-Phase 11: In-game HUD + game over / level complete panels
+Phase 11: HUD + result panels
 Phase 12: Retry / restart level flow
-Phase 13: Boot + Main Menu + scene flow foundation
-Phase 14: Basic audio feedback (SFX)
-Phase 15: MVP level set + session level progression
-Phase 16: Playability tuning / MVP balance pass
-Phase 17: MVP polish — visual readability + UX feedback
-Phase 18: Basic tutorial / first-time onboarding
-Phase 19: Advanced platform layout foundation (_rowVerticalJitter)
+Phase 13: Boot / MainMenu / Game scene flow
+Phase 14: Basic audio feedback
+Phase 15: MVP level set + session progression
+Phase 16: Playability tuning
+Phase 17: Visual readability + UX feedback
+Phase 18: Basic tutorial / onboarding
+Phase 19: Advanced platform layout foundation
 ```
 
 Current / Next:
 
 ```text
-Phase 20: Rocket Boots Prototype
-  Only after Phase 19 advanced platform layouts create a meaningful
-  same-row mobility challenge.
+Phase 20: Rocket Boots Equipped Active Skill Prototype
+```
+
+Important design update:
+
+```text
+Items should be equipment or active skills, not random scene pickups by default.
+Rocket Boots must not be a row-skipping power-up.
 ```
 
 ---
@@ -55,481 +60,238 @@ Phase 20: Rocket Boots Prototype
 
 ### Phase 1 — Project Foundation ✅
 
-Goal:
-
 Create the clean Unity project base.
-
-Includes:
-
-- Unity 6 LTS
-- URP 2D
-- `Assets/_JebbyJump/` structure
-- Boot / MainMenu / Game scenes
-- Core enums
-- `CLAUDE.md`
-- Basic docs
-
-Done when:
-
-- Project opens with no compile errors.
-- Folder structure is clean.
-- Scenes exist and are in build order.
-
----
 
 ### Phase 2 — Input System Setup ✅
 
-Goal:
-
-Create a unified input abstraction.
-
-Includes:
-
-- `JebbyInputActions.inputactions`
-- Generated `JebbyInputActions.cs`
-- `InputReader` ScriptableObject
-- Move, Jump, UseItem, Pause actions
-
-Done when:
-
-- InputReader asset exists.
-- Unity compiles.
-- Gameplay code can read input without touching `Keyboard.current`.
-
----
+Create unified input abstraction.
 
 ### Phase 3 — Rigidbody2D Player Controller ✅
 
-Goal:
-
 Create production-quality 2D platformer movement.
-
-Includes:
-
-- `PlayerMovementConfig`
-- `PlayerMotor`
-- `PlayerController`
-- `PlayerAnimator`
-- Jebby prefab
-- GroundCheck child
-- Test floor
-- Player/Ground layers
-
-Done when:
-
-- Jebby falls and lands.
-- A/D or arrows move.
-- Space jumps.
-- Tap/hold jump height differs.
-- No missing scripts or console errors.
-
----
 
 ### Phase 4 — Cinemachine + Test Scene ✅
 
-Goal:
-
 Add smooth camera follow.
-
-Includes:
-
-- Cinemachine package
-- CinemachineBrain on Main Camera
-- CinemachineCamera following Jebby
-- Orthographic size 7
-- Follow damping
-- Slight upward target offset
-
-Done when:
-
-- Camera smoothly follows Jebby.
-- Test scene remains playable.
-- No custom camera script required.
-
----
 
 ### Phase 5 — Platform Identity + Landing Detection ✅
 
-Goal:
-
-Let the game know which platform Jebby landed on.
-
-Includes:
-
-- `Platform.cs`
-- `PlatformColorPalette.cs`
-- `PlayerLandingDetector.cs`
-- Test colored platforms
-- One-way platform collision for default colored platforms
-- Landing event or debug log
-
-Rules:
-
-- Default colored test platforms should be one-way.
-- Use `PlatformEffector2D` with `BoxCollider2D.usedByEffector = true`.
-- Jebby should be able to jump through platforms from below and land on top.
-- Detect landing from above only.
-- Ignore side/head collisions.
-- Avoid repeated spam while standing still.
-- No memory sequence yet.
-- No correctness validation yet.
-
-Done when:
-
-```text
-Landing on top of a platform logs:
-Row X, Color Y
-```
-
----
+Detect landing platform row/color and support one-way platforms.
 
 ### Phase 6 — Memory Sequence System ✅
 
-Goal:
-
-Create and display the color memory challenge.
-
-Includes:
-
-- `ColorSequenceGenerator`
-- `MemoryPhaseController`
-- Simple memory UI
-- Countdown
-- Hide sequence after memory phase
-
-Rules:
-
-- No platform row generation yet unless explicitly approved.
-- No score/lives yet unless approved.
-- No UI polish beyond functional display.
-
-Done when:
-
-- Game generates a color sequence.
-- Player sees it for a configurable duration.
-- Sequence hides.
-- Game transitions to playing phase.
-
----
+Generate, display, hide, and progress through the sequence.
 
 ### Phase 7 — LevelConfig + Platform Row Generation ✅
 
-Goal:
-
-Generate playable platform rows from level data.
-
-Includes:
-
-- `LevelConfig` ScriptableObject
-- Platform row generator
-- Available colors
-- Sequence length
-- Row spacing
-- Platform count per row
-- Conservative reachable layouts
-
-Rules:
-
-- Each row must contain the required sequence color.
-- Other platforms act as decoys.
-- Do not generate impossible jumps.
-- No complex procedural difficulty yet.
-
-Done when:
-
-- A level can generate rows based on a sequence.
-- Jebby can physically climb through generated rows.
-
----
+Generate playable rows from level data.
 
 ### Phase 8 — Lives / Score / Respawn / Level Complete ✅
 
-Goal:
+Complete the core gameplay loop.
 
-Complete the MVP gameplay loop.
+### Phase 9 — Mobile Virtual Controls ✅
 
-Includes:
-
-- Correct/wrong landing validation
-- Lives
-- Score
-- Respawn
-- Level complete
-- Game over
-- Basic result screens
-
-Done when:
-
-- Correct platform advances the sequence.
-- Wrong platform costs a life.
-- Lives reaching zero triggers game over.
-- Finishing the sequence clears the level.
-
----
-
-### Phase 9 — Mobile Virtual Controls Polish ✅
-
-Goal:
-
-Support mobile-friendly touch controls.
-
-Includes:
-
-- Left/right virtual buttons
-- Jump button
-- UseItem placeholder button
-- Safe area consideration
-- Same InputReader path
-
-Rules:
-
-- Do not duplicate movement logic.
-- Mobile input must feed into same input system.
-
-Done when:
-
-- Player can control Jebby on mobile/touch simulation.
-- Keyboard controls still work.
-
----
+Support mobile-friendly left/right/jump controls.
 
 ### Phase 10 — Cactus Obstacle + Item-ready Stats ✅
 
-Goal:
+Add cactus hazard and player stats foundation.
 
-Add first obstacle and prepare item architecture.
+### Phase 11 — In-game HUD + Result Screens ✅
 
-Includes:
-
-- Cactus obstacle
-- Damage/hazard handling
-- Runtime stat modifier foundation
-- Rocket Boots-ready stats
-- Bullet Time-ready ability path
-
-Rules:
-
-- Cactus should be a separate child obstacle object with its own collider.
-- Do not make cactus part of the platform's one-way collider.
-- First cactus version may use a trigger hazard collider.
-- Later versions may add left / center / right landing zones.
-- No full shop yet.
-- No monetization.
-- No complex inventory.
-- Keep item architecture minimal and extensible.
-
-Done when:
-
-- Cactus can harm or block Jebby.
-- Player stats can be modified cleanly later.
-
----
-
-### Phase 11 — In-game HUD + Game Over / Level Complete Panels ✅
-
-Goal: Add lives display, score display, and result panels.
-
----
+Add lives, score, game over, and level complete UI.
 
 ### Phase 12 — Retry / Restart Level Flow ✅
 
-Goal: Retry button restarts current level with score and lives reset.
+Add retry buttons and clean current-level restart.
 
----
+### Phase 13 — Menu / Scene Flow Foundation ✅
 
-### Phase 13 — Boot + Main Menu + Scene Flow Foundation ✅
+Add Boot → MainMenu → Game flow.
 
-Goal: Boot scene → Main Menu → Game → back to Main Menu flow.
+### Phase 14 — Basic Audio Feedback ✅
 
----
+Add event-driven SFX.
 
-### Phase 14 — Basic Audio Feedback (SFX) ✅
+### Phase 15 — MVP Level Set + Session Progression ✅
 
-Goal: Jump, land, correct, wrong, cactus, level complete, game over sounds.
+Add Level 1–3, Next Level, and MVP Complete state.
 
----
+### Phase 16 — Playability Tuning ✅
 
-### Phase 15 — MVP Level Set + Session Level Progression ✅
+Tune MVP difficulty/readability.
 
-Goal: Three playable MVP levels with Next Level flow and MVP Complete state.
+### Phase 17 — Visual Readability + UX Feedback ✅
 
----
+Add lightweight moment-to-moment UI feedback.
 
-### Phase 16 — Playability Tuning / MVP Balance Pass ✅
+### Phase 18 — Basic Tutorial / Onboarding ✅
 
-Goal: Tune level configs, platform spacing, memory timing for fair feel.
-
----
-
-### Phase 17 — MVP Polish — Visual Readability + UX Feedback ✅
-
-Goal: Transient feedback text (Correct / Wrong / Go / Cactus), result panel layout fix.
-
----
-
-### Phase 18 — Basic Tutorial / First-time Onboarding ✅
-
-Goal: Session-only tutorial hints for Level 1 (memory phase, wrong color, cactus).
-
----
+Add simple tutorial hints without save data.
 
 ### Phase 19 — Advanced Platform Layout Foundation ✅
 
-Goal: Add same-row vertical jitter as layout variation foundation.
+Add optional same-row vertical jitter to create future same-row mobility challenges.
 
-Includes:
+---
 
-- `LevelConfig._rowVerticalJitter` (float, default 0, clamped 0–1)
-- `PlatformSpawner` applies per-platform Random Y offset within a row
-- Level 3 set to `_rowVerticalJitter = 0.3`
+## 4. Next Approved Direction
 
-Rules:
+### Phase 20 — Rocket Boots Equipped Active Skill Prototype
 
-- RowIndex is assigned from the row loop counter, not from Y position.
-- Y position does not define the sequence step.
-- All platforms in the same logical row share the same RowIndex.
-- Cactus placement reads actual platform transform position — no changes needed.
-- Row validation logic unchanged.
+Goal:
+
+Add Rocket Boots as the first character-equipped active skill prototype.
+
+Purpose:
+
+```text
+Test the active-skill model without building inventory, shop, save data, or equipment UI.
+```
+
+Core rule:
+
+```text
+Rocket Boots help with same-row mobility, recovery, and cactus avoidance.
+Rocket Boots must not allow intentional sequence-row skipping.
+Row > CurrentStepIndex remains wrong / lose life.
+```
+
+Expected design:
+
+```text
+Rocket Boots equipped by default for prototype
+Use Item input activates it
+one use per level
+short duration
+small jump boost
+small movement / air-control assist
+no pickup object
+no shop
+no inventory
+no save data
+```
 
 Done when:
 
-- Level 1/2 remain flat (jitter = 0).
-- Level 3 shows small same-row stagger.
-- Row validation and cactus still work correctly.
-
----
-
-### Phase 20 — Rocket Boots Prototype (next, pending Phase 19 review)
-
-Goal: First item prototype — temporary same-row mobility boost.
-
-**Prerequisite:** Phase 19 must create a meaningful same-row layout challenge before Rocket Boots has a clear purpose.
-
-Rules:
-
-- Rocket Boots must NOT be a row-skipping power-up.
-- Rocket Boots must NOT bypass row validation.
-- Rocket Boots may assist same-row mobility, wider gaps, cactus avoidance.
-- Do not add shop, inventory, economy, or wardrobe.
-
----
-
-## 4. MVP Release Target
-
-MVP should include:
-
 ```text
-Real movement
-Memory sequence
-Colored platforms
-Correct/wrong validation
-Lives
-Score
-Respawn
-3 playable levels
-Basic UI
-Basic test visuals
-```
-
-MVP should not include:
-
-```text
-Wardrobe
-Shop
-IAP
-Online leaderboard
-Cloud save
-Analytics
-Full art production
-Seasonal events
-Remote content update
+Player can activate Rocket Boots during Playing.
+Boost is useful but controlled.
+Effect cancels/resets on life loss, retry, and next level as designed.
+Future-row landing while boosted still loses life.
+No inventory/shop/save systems are added.
 ```
 
 ---
 
-## 5. Post-MVP Roadmap
+## 5. Later MVP / Post-MVP Phases
 
-### V1.1 — Playability Polish
+### Phase 21 — Basic Active Skill HUD / Charges
 
-Focus:
+Only after Phase 20 works.
 
-- Better jump tuning
-- Better camera feel
-- Basic sound effects
-- Correct/wrong feedback
-- Small landing effects
-- Simple background
-- Better platform visuals
+Possible additions:
 
-### V1.2 — MVP Art Pass
+```text
+small active skill indicator
+charge count
+ready/unavailable feedback
+mobile active skill button
+```
 
-Focus:
+No inventory or shop yet.
 
-- Default Jebby sprite
-- Basic Jebby animation
-- Colored platform sprites
-- Simple sky background
-- UI buttons
-- Life/score icons
-- Memory sequence icons
+### Phase 22 — MVP Art Replacement Pass
 
-### V1.3 — Mobile Build Readiness
+Replace placeholder visuals with first-pass production-style assets:
 
-Focus:
+```text
+default Jebby sprite
+platform sprites
+cactus sprite
+skill/equipment icons
+simple background
+app/menu visuals
+```
 
-- Android build
-- Touch control polish
-- Resolution/safe area checks
-- Basic performance check
-- Build profile setup
+Follow the Art Bible.
+
+### Phase 23 — Basic Level Select / Local Progress
+
+Only after the 3-level MVP flow is stable.
+
+Possible additions:
+
+```text
+local current-session level select
+optional local save unlocks
+simple best score
+```
+
+No cloud save.
+
+### Phase 24 — Basic Settings
+
+Possible additions:
+
+```text
+sound on/off
+music on/off if music exists
+control visibility options
+```
 
 ---
 
 ## 6. V2 Roadmap
 
-### V2.0 — Obstacles
+### V2.0 — Advanced Obstacles and Landing Zones
 
 Add:
 
-- Cactus
+- Landing zones: left / center / right
+- Cactus can mark specific zones unsafe
 - Ice platform
 - Cracked platform
 - Cloud platform
 - Moving platform
 
-Obstacle + one-way platform compatibility:
+Rules:
 
-Default colored platforms remain one-way. Obstacles such as cactus are separate child objects with their own hazard colliders.
+```text
+Default colored platforms remain one-way.
+Obstacles are separate hazard objects.
+Correct color + safe zone succeeds.
+Correct color + unsafe zone damages.
+```
 
-First cactus version:
+### V2.1 — Equipment and Active Skill System
 
-- Cactus is a trigger hazard.
-- Touching cactus causes damage.
-- Platform one-way behavior remains unchanged.
-
-Later advanced version:
-
-- Add platform landing zones: left, center, right.
-- Obstacles can mark specific landing zones unsafe.
-- Correct color plus safe zone succeeds.
-- Correct color plus unsafe zone causes damage.
-
-### V2.1 — First Items
-
-**Prerequisite for Rocket Boots:** Advanced same-row platform layouts (Phase 19+) must create a meaningful horizontal mobility challenge before Rocket Boots is implemented.
+Expand the Phase 20 prototype into a small real system.
 
 Add:
 
-- Rocket Boots — same-row mobility boost only, must NOT bypass row validation
+```text
+equipment slots
+3 active skill slots
+pre-level loadout
+basic local unlock state later
+```
+
+Potential active skills:
+
+- Rocket Boots
 - Bullet Time
 - Bubble Shield
 - Color Echo
 
 Rules:
 
-- Items help but do not replace memory.
-- Keep item usage limited.
-- Balance around fun, not monetization.
+```text
+Equipment and active skills help but do not replace memory.
+They must not bypass sequence validation.
+They should support harder layouts, not trivialize them.
+```
 
 ### V2.2 — Simple Rewards
 
@@ -546,7 +308,7 @@ No IAP yet.
 
 ## 7. V3 Roadmap
 
-### V3.0 — Jebby's Wardrobe
+### V3.0 — Jebby’s Wardrobe
 
 Approved as future product direction.
 
@@ -651,7 +413,8 @@ Specifically do not add early:
 Wardrobe
 Outfit fragments
 Shop
-Item inventory
+Inventory / equipment UI
+Skill slot UI
 IAP
 Analytics
 Cloud save
@@ -660,7 +423,14 @@ Networking
 Addressables
 Lua / HybridCLR / ILRuntime
 Seasonal events
-Rocket Boots before Phase 19 creates a meaningful same-row mobility challenge
+```
+
+Specific equipment / skill guardrail:
+
+```text
+Do not implement random scene pickups as the default item model.
+Items should be equipment or active skills.
+Do not design Rocket Boots as a row-skipping power-up.
 ```
 
 Each phase must be planned, reviewed, approved, implemented, verified, and committed before moving to the next phase.
@@ -672,26 +442,16 @@ Each phase must be planned, reviewed, approved, implemented, verified, and commi
 Next approved focus:
 
 ```text
-Phase 20: Rocket Boots Prototype
-```
-
-Prerequisite:
-
-```text
-Phase 19 (Advanced Platform Layout Foundation) must create a meaningful
-same-row mobility challenge before Rocket Boots is implemented.
-
-Rocket Boots must NOT be designed as a row-skipping power-up.
-Rocket Boots must NOT bypass row validation or allow sequence shortcuts.
+Phase 20: Rocket Boots Equipped Active Skill Prototype
 ```
 
 Expected Phase 20 output:
 
 ```text
-RocketBootsEffect.cs — temporary jump boost via PlayerStats
-RocketBootsPickup.cs — trigger pickup in scene
-LevelConfig integration if pickup spawning becomes config-driven
-Effect expires after duration; cancels on life loss / retry / next level
-GameFeedbackUI: "Rocket Boots!" on activation
-No shop, inventory, save data, or economy
+RocketBootsEffect on Jebby
+basic active-skill activation through Use Item input
+one use per level
+controlled mobility boost
+no pickup object
+no inventory/shop/save systems
 ```

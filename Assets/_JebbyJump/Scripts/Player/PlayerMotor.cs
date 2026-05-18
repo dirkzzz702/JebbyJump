@@ -97,7 +97,10 @@ namespace JebbyJump.Player
             _wasGrounded = IsGrounded;
             var hit = Physics2D.OverlapCircle(
                 _groundCheck.position, _config.GroundCheckRadius, _groundMask);
-            IsGrounded = hit != null;
+            // Reject upward contact to prevent false grounded state when passing through
+            // a one-way platform from below. Without this, _wasGrounded=true from the
+            // pass-through detection consumes the rising edge needed for the real landing.
+            IsGrounded = hit != null && _rb.linearVelocity.y <= 0.1f;
             if (!_wasGrounded && IsGrounded)
                 Landed?.Invoke(hit);
         }

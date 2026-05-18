@@ -4,15 +4,16 @@
 
 Jebby Jump is a production-ready Unity 2D memory platformer.
 
-The player controls Jebby, a Cavalier King Charles Spaniel-inspired humanoid fantasy color knight, using real platformer controls. Jebby is not a literal dog. The player must memorize a color sequence, then physically jump upward through colored platforms in the correct order.
+The player controls Jebby, a Cavalier King Charles Spaniel-inspired humanoid fantasy color knight, using real platformer controls. Jebby is not a literal dog.
+
+The player must memorize a color sequence, then physically jump upward through colored platforms in the correct order.
 
 ## Development Standard
 
-This is not a throwaway prototype.
-
-Build a production-quality MVP foundation from the beginning.
+This is not a throwaway prototype. Build a production-quality MVP foundation from the beginning.
 
 MVP means:
+
 - Small feature scope
 - Clean architecture
 - Real movement
@@ -25,12 +26,13 @@ Do not build fake click-to-jump gameplay.
 ## Engine Direction
 
 Use:
+
 - Unity 2D
 - Rigidbody2D physics
 - Unity Input System
 - Cinemachine 2D
 - ScriptableObjects for configs
-- UGUI for MVP UI
+- UGUI / TMP for MVP UI
 - Config-driven architecture for future live updates
 
 ## MVP Core Loop
@@ -41,24 +43,28 @@ Use:
 4. Sequence is hidden.
 5. Player controls Jebby with keyboard or mobile controls.
 6. Jebby jumps upward through colored platforms.
-7. Landing on the correct color advances the sequence.
-8. Landing on the wrong color costs a life.
-9. Completing the full sequence clears the level.
-10. Losing all lives triggers game over.
+7. Landing on the correct color at the current expected row advances the sequence.
+8. Landing on the wrong color at the current expected row costs a life.
+9. Landing on a future row before the expected step costs a life.
+10. Landing on a completed / lower row is ignored.
+11. Completing the full sequence clears the level.
+12. Losing all lives triggers game over.
 
 ## Required Input
 
 Desktop:
+
 - A / D or Left / Right = move
 - Space = jump
-- Shift or J = use item later
+- Shift or J = use equipped active skill
 - Esc = pause
 
 Mobile:
+
 - Left virtual button
 - Right virtual button
 - Jump virtual button
-- Item virtual button later
+- Active skill button later
 
 Use one input abstraction so gameplay code does not care whether input comes from keyboard or mobile UI.
 
@@ -91,7 +97,8 @@ Do not use fake transform-only jumping for the player controller.
 - Do not add IAP.
 - Do not add analytics.
 - Do not add online leaderboard.
-- Do not add shop UI until the core loop is complete.
+- Do not add shop UI until explicitly approved.
+- Do not add inventory/equipment UI until explicitly approved.
 - Do not add external packages beyond Unity Input System and Cinemachine unless approved.
 
 ## Live Update Strategy
@@ -100,12 +107,11 @@ For MVP, do not implement Lua, HybridCLR, ILRuntime, or downloaded-code hot upda
 
 Use config-driven architecture.
 
-Core gameplay systems should be stable C# code shipped with the app.
-
 Content that should be updateable later without an app release:
+
 - Level configs
 - Difficulty settings
-- Item values
+- Equipment / active skill values later
 - Obstacle spawn rules
 - Shop offers later
 - Tutorial text
@@ -114,19 +120,23 @@ Content that should be updateable later without an app release:
 
 Prefer ScriptableObjects for local authoring and serializable DTO/JSON-ready structures for remote config later.
 
-Do not hardcode level data inside gameplay systems.
-Do not hardcode item values inside item effects.
-Do not hardcode color/platform layouts in PlayerMotor or LevelManager.
+Do not hardcode level data inside gameplay systems.  
+Do not hardcode equipment/skill values inside movement code.  
+Do not hardcode color/platform layouts in PlayerMotor or a god manager.
 
 ## Design Documents
 
 Current game design is defined in:
 
-`Assets/_JebbyJump/Docs/Design/Jebby_Jump_GDD.md`
+```text
+Assets/_JebbyJump/Docs/Design/Jebby_Jump_GDD.md
+```
 
 Current product roadmap is defined in:
 
-`Assets/_JebbyJump/Docs/Design/Jebby_Jump_Roadmap.md`
+```text
+Assets/_JebbyJump/Docs/Design/Jebby_Jump_Roadmap.md
+```
 
 Claude must follow these documents together with this `CLAUDE.md`.
 
@@ -139,7 +149,8 @@ Implementation priority:
 
 Claude must not implement future roadmap systems unless explicitly approved.
 
-Future roadmap systems that are not part of MVP include:
+Future roadmap systems that are not part of current approved work include:
+
 - Wardrobe / outfit fragments
 - Shop
 - Monetization / IAP
@@ -149,25 +160,33 @@ Future roadmap systems that are not part of MVP include:
 - Addressables remote content
 - Seasonal events
 - Code hot update
+- Inventory / equipment UI
+- Skill slot UI
+- Save data / persistent unlocks unless approved
 
 ## Art Bible and Locked Visual References
 
 Current art direction is defined in:
 
-`Assets/_JebbyJump/Docs/Art/Jebby_Jump_Art_Bible.md`
+```text
+Assets/_JebbyJump/Docs/Art/Jebby_Jump_Art_Bible.md
+```
 
 Locked visual references are stored in:
 
-`Assets/_JebbyJump/Docs/Art/References/`
+```text
+Assets/_JebbyJump/Docs/Art/References/
+```
 
 Required reference files:
 
 - `jebby_color_knight_character_sheet_v01.png`
 - `jebby_outfit_variations_board_v01.png`
 
-Jebby's default character design is locked.
+Jebby’s default character design is locked.
 
 Default Jebby must remain:
+
 - Jebby the Color Knight
 - Classic Cavalier as default identity
 - Cavalier-inspired humanoid fantasy color knight
@@ -180,15 +199,7 @@ Default Jebby must remain:
 - Brave, gentle, magical, child-friendly
 - Rainbow tower / color memory adventure theme
 
-Claude must not redesign Jebby's default appearance unless explicitly approved.
-
-Future outfit designs may reference the outfit variation board, but they must preserve:
-- Jebby's face identity
-- Chibi proportions
-- Warm eyes
-- Long ear-feather / hair silhouette
-- Rainbow gem motif
-- Friendly brave personality
+Claude must not redesign Jebby’s default appearance unless explicitly approved.
 
 ## Wardrobe / Outfit System Roadmap
 
@@ -198,56 +209,59 @@ Planned direction:
 
 - MVP: Default Jebby only.
 - V2: Basic outfit preview or 1–2 unlockable cosmetic outfits.
-- V3: Full `Jebby's Wardrobe` system with outfit fragments.
-
-Future system concept:
-
-Players may collect outfit fragments. When all fragments of an outfit are collected, the outfit is unlocked.
-
-Initial future outfit candidates:
-- Forest Cavalier
-- Sunshine Knight
-- Aqua Knight
-- Silver Dreamer
+- V3: Full `Jebby’s Wardrobe` system with outfit fragments.
 
 Outfits should be cosmetic first. Do not add gameplay advantages, wardrobe UI, skins, outfit fragments, cosmetic inventory, outfit economy, or outfit-related save data until explicitly approved.
 
-## Platform Layout Rules
+## Platform Layout and Equipment / Active Skill Guardrails
 
-RowIndex defines the sequence step.
-Y position (vertical jitter) does not define the sequence step.
-
-Platforms in the same logical row share the same RowIndex regardless of their Y offset. Validation, color matching, and row-skip punishment are all based on RowIndex, not on world Y position.
-
-Row validation rule:
+Current row progression rule:
 
 ```text
-Row < CurrentStepIndex  → ignore (already-completed row)
+Row < CurrentStepIndex  → ignore
 Row == CurrentStepIndex → validate color
 Row > CurrentStepIndex  → wrong landing / lose life
 ```
 
-Same-row vertical jitter (`LevelConfig._rowVerticalJitter`) applies a random Y offset per platform within a row. RowIndex is assigned from the loop counter and is unaffected by jitter. The cactus spawner reads the actual platform transform position, so it tracks staggered platforms correctly.
+Do not undo this rule unless explicitly approved.
 
-## Rocket Boots Guardrail
+Future advanced layouts may support staggered platform Y positions within the same logical row.
 
-Rocket Boots must NOT be designed or implemented as a row-skipping power-up.
+Important rule:
 
-Rocket Boots should only be implemented AFTER advanced same-row platform layouts create a meaningful mobility challenge (e.g. wider same-row gaps, same-row vertical jitter, staggered platforms requiring horizontal reach).
+```text
+RowIndex defines the sequence step.
+Y position does not define the sequence step.
+```
 
-Rocket Boots may assist:
-- Same-row mobility
-- Recovery from poor positioning
-- Wider same-row gaps
-- Cactus avoidance
+Items should not be implemented as random scene pickups by default.
 
-Rocket Boots must NOT:
-- Bypass row validation
-- Allow intentional sequence-row skipping
-- Ignore wrong-color validation
-- Function as a shortcut around the memory sequence
+Long-term item model:
 
-Current approved order: Phase 19 (Advanced Platform Layout Foundation) must be complete before Phase 20 (Rocket Boots Prototype).
+```text
+Jebby can equip gear and active skills before a level.
+Active skills may be placed into limited active skill slots, e.g. 3 slots.
+Active skills may be one-use-per-level, limited charges, or cooldown-based.
+```
+
+Rocket Boots should be an equipped active skill / gear prototype, not a random scene pickup.
+
+Rocket Boots must not be designed as a row-skipping power-up.
+
+Rocket Boots may only assist:
+
+- same-row mobility
+- recovery from poor positioning
+- reaching wider horizontal gaps
+- reaching slightly staggered same-row platforms
+- cactus avoidance
+
+Rocket Boots must not:
+
+- bypass row validation
+- allow intentional sequence-row skipping
+- ignore wrong-color validation
+- function as a shortcut around the memory sequence
 
 ## First Production MVP Features
 
@@ -262,9 +276,15 @@ Current approved order: Phase 19 (Advanced Platform Layout Foundation) must be c
 - Landing validation
 - Lives and score
 - Game over / level complete
+- Retry / menu flow
 - 3 MVP levels
+- HUD and result panels
+- Basic audio feedback
+- Basic tutorial / UX feedback
 - Basic cactus obstacle
 - Item-ready player stats architecture
+- Same-row platform layout variation
+- Rocket Boots equipped active skill prototype, when explicitly approved
 
 ## Claude Working Rules
 
@@ -294,24 +314,33 @@ Current approved phase order:
 8. Lives / score / respawn / level complete
 9. Mobile virtual controls polish
 10. Cactus obstacle + item-ready player stats
-11. In-game HUD + game over / level complete panels
+11. HUD + result panels
 12. Retry / restart level flow
-13. Boot + Main Menu + scene flow foundation
-14. Basic audio feedback (SFX)
-15. MVP level set + session level progression
-16. Playability tuning / MVP balance pass
-17. MVP polish — visual readability + UX feedback
-18. Basic tutorial / first-time onboarding
-19. Advanced platform layout foundation (_rowVerticalJitter)
-20. Rocket Boots Prototype — only after Phase 19 creates a meaningful same-row mobility challenge
+13. Menu / scene flow foundation
+14. Basic audio feedback
+15. MVP level set + session progression
+16. Playability tuning
+17. Visual readability + UX feedback
+18. Basic tutorial / onboarding
+19. Advanced platform layout foundation
+20. Rocket Boots equipped active skill prototype
 
 Do not skip phases or pull work from later phases into the current one without approval.
+
+Current next recommended phase:
+
+```text
+Phase 20: Rocket Boots Equipped Active Skill Prototype
+```
+
+Do not create RocketBootsPickup or scene pickup objects for Phase 20 unless explicitly approved.
 
 ## Coplay MCP / Unity Editor Automation Rules
 
 Coplay MCP may be used only for controlled Unity Editor setup tasks.
 
 Allowed MCP tasks:
+
 - Create ScriptableObject assets.
 - Create simple prefabs.
 - Add Unity components.
@@ -321,6 +350,7 @@ Allowed MCP tasks:
 - Create folders or assets under `Assets/_JebbyJump/`.
 
 Not allowed without explicit approval:
+
 - Change ProjectSettings broadly.
 - Import packages.
 - Modify generated InputActions code directly.
@@ -328,11 +358,6 @@ Not allowed without explicit approval:
 - Create gameplay architecture.
 - Add monetization, analytics, networking, cloud save, online leaderboard, or IAP.
 - Modify files outside `Assets/_JebbyJump/`, except clearly required Unity project files that were explicitly approved.
-
-For Phase 3:
-- Implement C# scripts first without MCP.
-- After code review, MCP may be used only to create/wire the Jebby prefab, movement config asset, GroundCheck child, Player/Ground layers, and temporary test floor.
-- Stop after Phase 3 setup. Do not proceed to Phase 4.
 
 ## Unity Editor Setup Safety Rules
 
@@ -363,10 +388,11 @@ For player movement code, ensure:
 
 ## Key Principle
 
-Playable with real controls first.
-Polish second.
-Items and shop third.
+Playable with real controls first.  
+Polish second.  
+Equipment and active skills later.  
+Shop / inventory / wardrobe much later.
 
-Memory tells the player where to go.
-Skill decides whether they can get there.
-Items give clever ways to survive.
+Memory tells the player where to go.  
+Skill decides whether they can get there.  
+Equipment and active skills help the player survive or recover, but must not bypass the memory sequence.

@@ -1,4 +1,4 @@
-# Jebby Jump｜Game Design Document v0.3
+# Jebby Jump｜Game Design Document v0.4
 
 ## 1. Overview
 
@@ -11,14 +11,15 @@
 
 ## 2. One-line Pitch
 
-**Jebby Jump** is a colorful 2D memory platformer where players memorize a sequence of colors, then physically control Jebby to jump upward through colored platforms in the correct order.
+**Jebby Jump** is a colorful 2D memory platformer where players memorize a color sequence, then physically control Jebby to jump upward through colored platforms in the correct order.
 
 ## 3. Core Design Statement
 
 ```text
 Memory tells the player where to go.
 Skill decides whether they can get there.
-Items give clever ways to survive.
+Equipment and active skills help the player recover, reposition, or solve harder layouts.
+Equipment and active skills must not bypass the memory sequence.
 ```
 
 ## 4. Character Direction
@@ -56,13 +57,14 @@ Assets/_JebbyJump/Docs/Art/References/jebby_outfit_variations_board_v01.png
 
 The player should feel:
 
-- "I remembered the sequence."
-- "I made the jump."
-- "I climbed higher than before."
-- "I want one more try."
-- "Jebby feels brave, cute, and worth helping."
+- “I remembered the sequence.”
+- “I made the jump.”
+- “I climbed higher than before.”
+- “I used Jebby’s gear at the right moment.”
+- “I want one more try.”
+- “Jebby feels brave, cute, and worth helping.”
 
-The game should be child-safe but not boring. It should be simple enough for kids and casual players, but later deep enough through timing, obstacles, and item choices.
+The game should be child-safe but not boring. It should be simple enough for kids and casual players, but later deep enough through timing, layout variation, obstacles, equipment, and active skill choices.
 
 ## 6. Core Gameplay Loop
 
@@ -72,11 +74,13 @@ The game should be child-safe but not boring. It should be simple enough for kid
 4. Sequence is hidden.
 5. Player controls Jebby with real platformer controls.
 6. Jebby jumps upward through colored platforms.
-7. Landing on the correct color advances the sequence.
-8. Landing on the wrong color costs a life.
-9. Completing the full sequence clears the level.
-10. Losing all lives triggers game over.
-11. Later: player earns rewards and may unlock outfits/items.
+7. Landing on the correct color at the current expected row advances the sequence.
+8. Landing on the wrong color at the current expected row costs a life.
+9. Landing on a future row before the expected step costs a life.
+10. Landing on a completed / lower row is ignored.
+11. Completing the full sequence clears the level.
+12. Losing all lives triggers game over.
+13. Later: player may equip gear / active skills before a level and unlock cosmetics.
 
 ## 7. Core Mechanics
 
@@ -92,7 +96,7 @@ The player must remember the order.
 
 ### 7.2 Physical Platforming
 
-Unlike click-to-jump games, Jebby uses real Rigidbody2D platformer movement:
+Jebby uses Rigidbody2D platformer movement:
 
 - Horizontal movement
 - Jump
@@ -109,49 +113,44 @@ Unlike click-to-jump games, Jebby uses real Rigidbody2D platformer movement:
 
 Each platform has identity:
 
-- `PlatformColor`
-- `RowIndex`
-
-Example:
-
 ```text
-Row 0: Red
-Row 1: Blue
-Row 2: Yellow
+PlatformColor color
+int rowIndex
 ```
 
-### 7.4 Landing Detection
+`RowIndex` defines the logical sequence step. It does not have to be identical to the platform’s exact Y position in advanced layouts.
 
-When Jebby lands on a platform, the system should know:
+### 7.4 Row Progression Rule
 
-- Which platform
-- Which color
-- Which row index
-- Whether landing was from above
+Current gameplay rule:
 
-Phase 5 introduces this system without correctness validation.
+```text
+Row < CurrentStepIndex  → ignore
+Row == CurrentStepIndex → validate platform color
+Row > CurrentStepIndex  → wrong landing / lose life
+```
+
+This rule must be preserved unless explicitly redesigned.
 
 ### 7.5 Correctness Validation
 
-Row validation rule:
+When landing on the current expected row, the game validates:
 
 ```text
-Row < CurrentStepIndex  → ignore (already-completed row, player still standing on it)
-Row == CurrentStepIndex → validate color
-Row > CurrentStepIndex  → wrong landing / lose life
+landed platform color == expected sequence color
 ```
 
 Correct landing:
 
-- Advance sequence index
 - Add score
+- Advance sequence index
 - Continue upward
 
 Wrong landing:
 
-- Lose life
-- Reset sequence progress
-- Respawn to start
+- Lose one life
+- Reset sequence progress to step 0
+- Respawn to start/floor
 - If lives reach 0, game over
 
 ## 8. Controls
@@ -161,30 +160,30 @@ Wrong landing:
 ```text
 A / D or Left / Right = move
 Space = jump
-Shift or J = use item later
+Shift or J = use equipped active skill
 Esc = pause
 ```
 
-### Mobile Later
+### Mobile
 
 ```text
 Left virtual button = move left
 Right virtual button = move right
 Jump virtual button = jump
-Item virtual button = use item later
+Active skill button = use equipped active skill later
 ```
 
-Gameplay code must read through `InputReader`, not directly from keyboard or mobile UI.
+Gameplay code must read through the input abstraction. Gameplay scripts must not directly depend on keyboard-only input.
 
 ## 9. MVP Scope
 
 ### MVP Must Include
 
 - Boot / MainMenu / Game scenes
-- Input System abstraction
+- Input abstraction
 - Rigidbody2D player controller
 - Cinemachine follow camera
-- Platform identity
+- Platform identity and one-way collision
 - Landing detection
 - Memory sequence system
 - LevelConfig-driven levels
@@ -192,10 +191,16 @@ Gameplay code must read through `InputReader`, not directly from keyboard or mob
 - Correct/wrong landing validation
 - Lives
 - Score
-- Respawn/checkpoint
+- Respawn
 - Level complete / game over
 - 3 MVP levels
-- Basic UI for memory sequence, lives, score, result screens
+- Basic HUD and result panels
+- Retry / Main Menu / simple scene flow
+- Basic audio feedback
+- Basic UX feedback and tutorial hints
+- Cactus obstacle
+- Item-ready player stats architecture
+- Advanced same-row platform layout foundation
 
 ### MVP Should Not Include
 
@@ -211,18 +216,18 @@ Gameplay code must read through `InputReader`, not directly from keyboard or mob
 - Lua / HybridCLR / ILRuntime code hot update
 - Full art polish
 - Addressables remote content
+- Full inventory / equipment screen
+- Persistent active skill loadout save
 
 ## 10. Level Design
 
 ### MVP Levels
 
-| Level | Sequence Length | Platforms/Row | Memory Time | Obstacles | Jitter |
-|---|---:|---:|---:|---|---|
-| Level 1 | 4 | 2 | 5 sec | None | 0 (flat) |
-| Level 2 | 5 | 2 | 5 sec | Cactus 25% | 0 (flat) |
-| Level 3 | 6 | 3 | 5 sec | Cactus 35% | 0.3 (small stagger) |
-
-Level 3 uses `_rowVerticalJitter = 0.3`, giving platforms in the same row a small random Y offset (±0.3u). RowIndex is unaffected — Y position does not define the sequence step.
+| Level | Sequence Length | Platform Count | Memory Time | Obstacles |
+|---|---:|---:|---:|---|
+| Level 1 | 4 | 2 per row | 5 sec | No cactus |
+| Level 2 | 5 | 2 per row | 5 sec | Light cactus |
+| Level 3 | 6 | 3 per row | 5 sec | Moderate cactus + light same-row vertical jitter |
 
 ### Difficulty Growth
 
@@ -230,25 +235,14 @@ Difficulty can increase by:
 
 - Longer sequences
 - More colors
-- Less memory time
 - Smaller platforms
 - Wider platform spacing
-- Same-row vertical jitter
-- Moving platforms
-- Obstacles
-- Similar color distractions
-- Fewer safe landing options
+- Cactus obstacles
+- More decoys per row
+- Staggered platform Y positions within the same row
+- Later: moving / disappearing / slippery platforms
 
 ## 11. Platform System
-
-### Platform Data
-
-Each platform should store:
-
-```text
-PlatformColor color
-int rowIndex
-```
 
 ### Platform Rules
 
@@ -268,14 +262,6 @@ jump upward through them from below
 land on them from above
 ```
 
-This creates a smoother vertical climbing experience and keeps the challenge focused on:
-
-```text
-color memory
-jump timing
-landing accuracy
-```
-
 Default colored platforms should use:
 
 ```text
@@ -286,88 +272,213 @@ PlatformEffector2D.useOneWay = true
 PlatformEffector2D.surfaceArc = 180
 ```
 
-Expected behavior:
+### Advanced Platform Layouts
+
+Levels may support staggered platforms within the same logical row.
+
+Example:
 
 ```text
-Jebby jumps from below → passes through
-Jebby falls from above → lands on top
+RowIndex 3:
+  Red platform:   y = 11.2
+  Blue platform:  y = 11.7
+  Green platform: y = 10.9
 ```
 
-Solid blocking platforms may be added later as a separate platform type for puzzle or obstacle levels. They should not be the default behavior for colored memory platforms.
-
-### Obstacles on One-Way Platforms
-
-Obstacles placed on platforms, such as cactus, must be separate child objects with their own colliders.
-
-The platform collider controls the one-way landing surface. The obstacle collider controls hazard or blocking behavior.
-
-Example hierarchy:
+Important rule:
 
 ```text
-Platform_Row1_Blue
-  ├── PlatformCollider / BoxCollider2D + PlatformEffector2D
-  └── CactusObstacle / separate Collider2D
+RowIndex defines the sequence step.
+Y position does not define the sequence step.
 ```
 
-A cactus should not be part of the one-way platform collider. It should have its own collider, usually a trigger collider in the first implementation.
+This enables same-row mobility challenges without allowing sequence-row skipping.
 
-Initial cactus rule:
+Current Phase 19 foundation:
 
 ```text
-Touching cactus causes damage or costs one life.
+LevelConfig._rowVerticalJitter
+Level 1/2: 0
+Level 3: small value such as 0.3
 ```
 
-Advanced cactus rule later:
+Future layout fields may include:
 
 ```text
-Platforms may be divided into left, center, and right landing zones, allowing cactus to make only part of a platform unsafe.
+maxPlatformYDifferenceWithinRow
+minHorizontalGap
+maxHorizontalGap
+layoutDifficulty
 ```
 
-## 12. Memory System
+## 12. Obstacles
 
-Core responsibilities:
+### First Obstacle: Cactus
 
-- Generate sequence
-- Display sequence
-- Countdown
-- Hide sequence
-- Track current expected step
-- Expose expected color for validation
+Cactus is a separate generated object with its own trigger collider. It is not part of the platform’s one-way collider.
 
-Suggested scripts later:
+Current rule:
 
 ```text
-ColorSequenceGenerator
-MemoryPhaseController
-SequenceValidator
+Touching cactus during Playing loses one life.
+Cactus spawns only on distractor / incorrect platforms for now.
 ```
 
-## 13. Level Generation
-
-Use `LevelConfig` ScriptableObjects.
-
-A level config may include:
+Future advanced rule:
 
 ```text
-levelId
-sequenceLength
-availableColors
-memoryTimeSeconds
-startingLives
-platformsPerRowMin
-platformsPerRowMax
-rowVerticalSpacing
-rowHorizontalSpread
-rowVerticalJitter
-obstaclesEnabled
-themeId
+Correct platforms may become partially unsafe after landing zones exist.
 ```
 
-For MVP, use conservative reachable layouts rather than fully random difficult generation.
+Do not add landing zones until explicitly approved.
+
+## 13. Equipment and Active Skill System
+
+Items should not be random pickups scattered in levels by default.
+
+The long-term model is:
+
+```text
+Jebby has a build / loadout.
+Some items are equipment.
+Some items are active skills placed into limited active skill slots.
+```
+
+### Item Categories
+
+#### Equipment
+
+Equipment can be passive or always equipped.
+
+Possible future equipment slots:
+
+```text
+Boots
+Cape
+Badge / charm
+```
+
+Examples:
+
+- Mobility boots
+- Protective cape
+- Score badge
+- Memory charm
+
+#### Active Skills
+
+Active skills are manually triggered during gameplay.
+
+Future model:
+
+```text
+3 active skill slots
+Slot 1: Rocket Boots
+Slot 2: Bubble Shield
+Slot 3: Color Echo
+```
+
+Active skills may be balanced as:
+
+```text
+one-time use per level
+limited charges per level
+cooldown-based
+```
+
+For MVP prototypes, prefer **one use per level** unless cooldown is explicitly approved.
+
+### Core Item Rule
+
+Equipment and active skills must help the player solve harder movement or memory situations. They must not bypass the sequence.
+
+Items may support:
+
+- Same-row mobility
+- Recovery from poor positioning
+- Reaching wider same-row gaps
+- Reaching slightly staggered same-row platforms
+- Cactus avoidance
+- Defensive recovery from one mistake
+- Memory assistance
+
+Items must not support:
+
+```text
+Skipping required sequence rows
+Ignoring color validation
+Bypassing lives / score rules
+Breaking row progression
+Random scene pickup dependency for core strategy
+```
+
+### Rocket Boots Design Direction
+
+Rocket Boots should be implemented as:
+
+```text
+equipped gear / active skill
+```
+
+not as:
+
+```text
+random scene pickup
+```
+
+Rocket Boots are intended as a same-row mobility assist.
+
+Rocket Boots should eventually help with:
+
+- Staggered platforms within the same RowIndex
+- Larger horizontal gaps within the same row
+- Reaching higher/farther same-step platforms
+- Avoiding cactus side hazards
+- Recovery from bad positioning
+
+Rocket Boots must not allow intentional row skipping.
+
+Validation remains:
+
+```text
+Row > CurrentStepIndex = wrong landing / lose life
+```
+
+Recommended Rocket Boots prototype direction:
+
+```text
+equipped by default for prototype
+activated by Use Item input
+one use per level
+short duration
+small jump assist
+small move speed / air-control assist
+no pickup object
+no inventory UI
+no shop
+no save data
+```
+
+Suggested future tuning:
+
+```text
+jumpMultiplier: about 1.10–1.20
+moveSpeed or air-control assist: about 1.10–1.25
+duration: about 5 seconds
+```
+
+### Future Active Skills
+
+Potential future active skills:
+
+- Rocket Boots: mobility assist for same-row layout challenges
+- Bullet Time: temporary air-control / reaction-time assist
+- Bubble Shield: protects from one mistake or hazard
+- Color Echo: briefly reminds next/remaining colors
 
 ## 14. Scoring and Lives
 
-### Suggested MVP Score
+Suggested MVP score:
 
 ```text
 Correct landing: +10
@@ -375,181 +486,27 @@ Level complete: +50
 Remaining life: +20 each
 ```
 
-### Lives
-
 MVP default:
 
 ```text
 startingLives = 3
 ```
 
-Wrong landing:
+## 15. Wardrobe / Outfit System
 
-```text
-lives -= 1
-```
+Wardrobe is approved as a future product direction, but **not MVP**.
 
-Lives reach zero:
-
-```text
-GameOver
-```
-
-## 15. Obstacles
-
-### First Obstacle: Cactus
-
-Cactus must be implemented as a **separate child obstacle object**, not as part of the platform's one-way collider.
-
-Initial simple rule:
-
-```text
-Touching cactus causes damage or costs one life.
-```
-
-Recommended first implementation:
-
-```text
-CactusObstacle.cs
-Collider2D with isTrigger = true
-Placed as a child object on the platform edge
-```
-
-This allows the platform to stay smooth and one-way while the cactus area remains dangerous.
-
-Later advanced rule:
-
-```text
-Cactus on one side of platform makes that landing zone unsafe.
-```
-
-For example:
-
-```text
-Cactus on right edge = right side unsafe
-Landing on left or center remains safe
-```
-
-### Future Obstacles
-
-- Ice platform
-- Cracked platform
-- Cloud platform
-- Moving platform
-- Wind zone
-- Spike ball
-
-## 16. Advanced Platform Layout
-
-### Same-Row Vertical Jitter
-
-Platforms within the same logical row may have slightly different Y positions (vertical jitter). This creates visual variety and mild horizontal navigation challenges without changing sequence validation.
-
-Key invariant:
-
-```text
-RowIndex is assigned from the row loop counter, not from Y position.
-All platforms in the same logical row share the same RowIndex.
-Validation is based on RowIndex and PlatformColor, not on world Y.
-```
-
-Config field:
-
-```text
-LevelConfig._rowVerticalJitter (float, default 0, clamped 0–1)
-0     = flat rows (Level 1, Level 2 default)
-0.3   = small stagger (Level 3)
-1.0   = maximum safe jitter
-```
-
-Reachability rule:
-
-```text
-Max jitter must be < (max jump height − row vertical spacing).
-With jump force 10 and gravity 9.81: max safe jitter ≈ 1.0u.
-```
-
-Cactus placement uses the actual staggered platform transform position. No changes to cactus spawning logic are needed.
-
-## 17. Item System
-
-Not part of MVP gameplay implementation, but architecture should remain item-ready.
-
-Future item categories:
-
-- Movement
-- Time
-- Defense
-- Memory helper
-- Utility
-- Economy
-
-### First Future Items
-
-#### Rocket Boots
-
-Rocket Boots is **deferred until Phase 19+ advanced platform layouts create a meaningful same-row mobility challenge**.
-
-Rocket Boots must NOT be a row-skipping power-up.
-
-When implemented, Rocket Boots may assist:
-- Same-row mobility
-- Wider same-row gaps or staggered same-row platforms requiring horizontal reach
-- Cactus avoidance
-- Recovery from poor positioning
-
-Rocket Boots must NOT:
-- Bypass row validation
-- Allow intentional sequence-row skipping
-- Ignore wrong-color validation
-- Function as a shortcut around the memory sequence
-
-#### Bullet Time
-
-Modify:
-
-```text
-timeScale
-air-time control window
-limited charges
-```
-
-#### Bubble Shield
-
-Protects from one mistake or hazard.
-
-#### Color Echo
-
-Briefly reminds the player of the next/remaining colors.
-
-## 18. Wardrobe / Outfit System
-
-Approved as future product direction, **not MVP**.
-
-### Product Direction
+Product direction:
 
 ```text
 MVP: Default Jebby only
 V2: Basic outfit preview or 1–2 unlockable cosmetic outfits
-V3: Full Jebby's Wardrobe with outfit fragments
+V3: Full Jebby’s Wardrobe system with outfit fragments
 ```
 
-### Unlock Concept
+Outfits are cosmetic first. Do not add gameplay advantages, wardrobe UI, skins, outfit fragments, cosmetic inventory, outfit economy, or outfit-related save data until explicitly approved.
 
-Players collect outfit fragments. When all fragments are collected, the outfit unlocks.
-
-Initial future outfit candidates:
-
-- Forest Cavalier
-- Sunshine Knight
-- Aqua Knight
-- Silver Dreamer
-
-### Rule
-
-Outfits are cosmetic first. Do not add wardrobe, outfit fragments, cosmetic inventory, save data, or outfit economy until explicitly approved.
-
-## 19. Art Direction
+## 16. Art Direction
 
 Defined in:
 
@@ -567,9 +524,9 @@ Key style:
 - Premium indie
 - Clear gameplay readability
 
-## 20. Technical Direction
+## 17. Technical Direction
 
-### Engine Stack
+Engine stack:
 
 ```text
 Unity 6 LTS
@@ -578,59 +535,48 @@ Rigidbody2D
 Unity Input System
 Cinemachine 3
 ScriptableObjects
-UGUI for MVP UI
+UGUI / TMP for MVP UI
 Config-driven architecture
 ```
 
-### Live Update Strategy
-
-MVP does not implement code hot update.
-
-Use config-driven architecture:
+MVP does not implement code hot update. Use config-driven architecture for values that may be changed later:
 
 - Level configs
 - Difficulty settings
-- Item values
+- Equipment / active skill values later
 - Obstacle rules
 - Tutorial/localization text later
 - Addressable assets later
 
 No Lua / HybridCLR / ILRuntime for MVP.
 
-## 21. Current Phase Plan
+## 18. Current Phase Direction
 
-1. Project foundation ✅
-2. Packages + Input System setup ✅
-3. Rigidbody2D Player Controller ✅
-4. Cinemachine + test scene ✅
-5. Platform identity + landing detection ✅
-6. Memory sequence system ✅
-7. LevelConfig + platform row generation ✅
-8. Lives / score / respawn / level complete ✅
-9. Mobile virtual controls polish ✅
-10. Cactus obstacle + item-ready player stats ✅
-11. In-game HUD + game over / level complete panels ✅
-12. Retry / restart level flow ✅
-13. Boot + Main Menu + scene flow foundation ✅
-14. Basic audio feedback (SFX) ✅
-15. MVP level set + session level progression ✅
-16. Playability tuning / MVP balance pass ✅
-17. MVP polish — visual readability + UX feedback ✅
-18. Basic tutorial / first-time onboarding ✅
-19. Advanced platform layout foundation (_rowVerticalJitter) ✅
-20. Rocket Boots Prototype — only after Phase 19 creates a meaningful same-row mobility challenge
+The next recommended gameplay phase is:
 
-## 22. MVP Completion Criteria
+```text
+Phase 20: Rocket Boots Equipped Active Skill Prototype
+```
+
+Purpose:
+
+```text
+Prototype the first active skill as character equipment, not as a random scene pickup.
+```
+
+Do not add inventory, shop, equipment UI, save data, or additional skills yet.
+
+## 19. MVP Completion Criteria
 
 The MVP is complete when:
 
 - A player can launch the game.
-- The player can start a level.
-- A color sequence is shown.
-- The sequence is hidden after countdown.
+- The player can start from Main Menu.
+- The player can play 3 levels.
+- A color sequence is shown and hidden.
 - The player controls Jebby with real movement.
-- Jebby jumps through colored platforms.
+- Jebby jumps through one-way colored platforms.
 - The game validates correct/wrong color order.
-- The player can win or lose.
-- There are at least 3 playable levels.
-- The codebase supports future obstacles, items, and wardrobe without major rewrites.
+- The player can win, lose, retry, and return to menu.
+- Basic HUD, audio, feedback, and tutorial hints exist.
+- The codebase supports future obstacles, platform layouts, equipment, active skills, and wardrobe without major rewrites.
