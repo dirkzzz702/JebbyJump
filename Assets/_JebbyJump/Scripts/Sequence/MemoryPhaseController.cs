@@ -189,6 +189,7 @@ namespace JebbyJump.Sequence
             if (_sequenceManager == null || _spawner == null || _progressTracker == null) return;
 
             _activeSkillController?.ResetForLevel();  // cancel effect + reset cooldown
+            _playerAnimator?.ResetToIdle();
             StopAllCoroutines();
             _phase = Phase.ShowingSequence;
 

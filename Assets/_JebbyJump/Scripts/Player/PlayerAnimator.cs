@@ -26,5 +26,6 @@ namespace JebbyJump.Player
         public void TriggerLand()    => _animator?.SetTrigger(LandTriggerParam);
         public void TriggerHurt()    => _animator?.SetTrigger(HurtTriggerParam);
         public void TriggerVictory() => _animator?.SetTrigger(VictoryTriggerParam);
+        public void ResetToIdle()    => _animator?.Play("Idle", 0);
     }
 }
