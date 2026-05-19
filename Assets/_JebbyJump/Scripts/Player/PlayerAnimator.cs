@@ -15,6 +15,8 @@ namespace JebbyJump.Player
         private static readonly int HurtTriggerParam     = Animator.StringToHash("HurtTrigger");
         private static readonly int VictoryTriggerParam  = Animator.StringToHash("VictoryTrigger");
 
+        private bool _facingLeft;
+
         private void Update()
         {
             if (_animator == null || _motor == null) return;
@@ -23,8 +25,11 @@ namespace JebbyJump.Player
             _animator.SetBool(IsGroundedParam, _motor.IsGrounded);
             _animator.SetFloat(VerticalVelocityParam, _motor.Velocity.y);
 
-            if (_sr != null && Mathf.Abs(_motor.Velocity.x) > 0.01f)
-                _sr.flipX = _motor.Velocity.x < 0;
+            if (Mathf.Abs(_motor.Velocity.x) > 0.01f)
+                _facingLeft = _motor.Velocity.x < 0;
+
+            if (_sr != null)
+                _sr.flipX = _facingLeft;
         }
 
         public void TriggerLand()    => _animator?.SetTrigger(LandTriggerParam);
