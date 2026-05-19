@@ -6,6 +6,7 @@ namespace JebbyJump.Player
     {
         [SerializeField] private PlayerMotor _motor;
         [SerializeField] private Animator _animator;
+        [SerializeField] private SpriteRenderer _sr;
 
         private static readonly int SpeedParam           = Animator.StringToHash("Speed");
         private static readonly int IsGroundedParam      = Animator.StringToHash("IsGrounded");
@@ -21,6 +22,9 @@ namespace JebbyJump.Player
             _animator.SetFloat(SpeedParam, Mathf.Abs(_motor.Velocity.x));
             _animator.SetBool(IsGroundedParam, _motor.IsGrounded);
             _animator.SetFloat(VerticalVelocityParam, _motor.Velocity.y);
+
+            if (_sr != null && Mathf.Abs(_motor.Velocity.x) > 0.01f)
+                _sr.flipX = _motor.Velocity.x < 0;
         }
 
         public void TriggerLand()    => _animator?.SetTrigger(LandTriggerParam);

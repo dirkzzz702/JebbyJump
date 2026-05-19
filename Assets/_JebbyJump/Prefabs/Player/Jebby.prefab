@@ -191,7 +191,7 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 0.5}
   m_Size: {x: 0.5, y: 1}
   m_Direction: 0
 --- !u!114 &8571186503948283667
@@ -226,6 +226,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JebbyJump.Player.PlayerAnimator
   _motor: {fileID: 8571186503948283667}
   _animator: {fileID: 8719887537957937891}
+  _sr: {fileID: 8576872347281431571}
 --- !u!114 &6290850186715018952
 MonoBehaviour:
   m_ObjectHideFlags: 0
