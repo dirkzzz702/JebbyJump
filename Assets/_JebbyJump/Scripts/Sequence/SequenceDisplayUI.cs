@@ -9,6 +9,7 @@ namespace JebbyJump.Sequence
     public class SequenceDisplayUI : MonoBehaviour
     {
         [SerializeField] private RectTransform _container;
+        [SerializeField] private Sprite _gemSprite;
         [SerializeField] private float _swatchSize = 60f;
         [SerializeField] private float _swatchSpacing = 12f;
 
@@ -34,7 +35,9 @@ namespace JebbyJump.Sequence
                 go.transform.SetParent(_container, false);
                 var rt = go.GetComponent<RectTransform>();
                 rt.sizeDelta = new Vector2(_swatchSize, _swatchSize);
-                go.GetComponent<Image>().color = PlatformColorPalette.GetColor(sequence[i]);
+                var img = go.GetComponent<Image>();
+                if (_gemSprite != null) { img.sprite = _gemSprite; img.preserveAspect = true; }
+                img.color = PlatformColorPalette.GetColor(sequence[i]);
                 _swatches.Add(go);
             }
 

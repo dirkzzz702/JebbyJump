@@ -47,6 +47,7 @@ GameObject:
   - component: {fileID: 1037656559701031306}
   - component: {fileID: 6290850186715018952}
   - component: {fileID: 8449094507652424235}
+  - component: {fileID: 8719887537957937891}
   m_Layer: 6
   m_Name: Jebby
   m_TagString: Player
@@ -64,7 +65,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.13, y: 0.13, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5266659150003947286}
@@ -119,7 +120,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 6008755849024553855, guid: d0440e8857eb55c45bdf8508fee4ebdd, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 590ce5d81259ad64192ac24c18bba3dc, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -252,3 +253,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JebbyJump.Player.PlayerStats
   _config: {fileID: 11400000, guid: 1736d3471e2f9744fb0140ef48d09505, type: 2}
+--- !u!95 &8719887537957937891
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8296823959736851068}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 20a1a3f7e0d7c9b48832bacbfe4bcdb0, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

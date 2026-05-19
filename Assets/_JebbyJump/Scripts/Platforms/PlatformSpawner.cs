@@ -55,13 +55,16 @@ namespace JebbyJump.Level
                 {
                     GameObject go = Instantiate(_platformPrefab, positions[i], Quaternion.identity, _container);
                     go.name = "Platform_Row" + row + "_" + colors[i];
-                    go.transform.localScale = new Vector3(_config.PlatformWidth, _config.PlatformHeight, 1f);
+                    go.transform.localScale = new Vector3(1f, _config.PlatformHeight, 1f);
 
                     Platform platform = go.GetComponent<Platform>();
                     if (platform == null)
                         Debug.LogError("[PlatformSpawner] Prefab has no Platform component.", go);
                     else
+                    {
                         platform.Initialize(colors[i], row);
+                        platform.SetWidth(_config.PlatformWidth);
+                    }
 
                     _spawnedPlatforms.Add(go);
 

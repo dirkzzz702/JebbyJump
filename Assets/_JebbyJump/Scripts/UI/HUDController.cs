@@ -12,6 +12,8 @@ namespace JebbyJump.UI
         [SerializeField] private LevelProgressTracker _tracker;
         [SerializeField] private MemoryPhaseController _phaseController;
         [SerializeField] private TextMeshProUGUI _livesText;
+        [SerializeField] private Transform _livesIconContainer;
+        [SerializeField] private Sprite _lifeIconSprite;
         [SerializeField] private TextMeshProUGUI _scoreText;
         [SerializeField] private GameObject _gameOverPanel;
         [SerializeField] private TextMeshProUGUI _gameOverScoreText;
@@ -95,7 +97,22 @@ namespace JebbyJump.UI
 
         private void RefreshLives(int lives)
         {
-            if (_livesText != null) _livesText.text = "♥ " + lives;
+            if (_livesIconContainer != null && _lifeIconSprite != null)
+            {
+                for (int i = _livesIconContainer.childCount - 1; i >= 0; i--)
+                    Destroy(_livesIconContainer.GetChild(i).gameObject);
+                for (int i = 0; i < lives; i++)
+                {
+                    var go = new GameObject($"Heart_{i}", typeof(RectTransform), typeof(Image));
+                    go.transform.SetParent(_livesIconContainer, false);
+                    go.GetComponent<RectTransform>().sizeDelta = new Vector2(36f, 36f);
+                    go.GetComponent<Image>().sprite = _lifeIconSprite;
+                }
+            }
+            else if (_livesText != null)
+            {
+                _livesText.text = "♥ " + lives;
+            }
         }
 
         private void RefreshScore(int score)
