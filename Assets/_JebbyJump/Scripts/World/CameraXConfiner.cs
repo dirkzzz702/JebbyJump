@@ -1,10 +1,11 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace JebbyJump.World
 {
     // Clamps the Main Camera's viewport so it never shows beyond the background
-    // sprite bounds. Background must be a fixed scene object (not camera-following).
-    // Runs after Cinemachine (DefaultExecutionOrder 100).
+    // sprite bounds. Runs via RenderPipelineManager.beginCameraRendering so it
+    // fires after Cinemachine has written its final position for the frame.
     [DefaultExecutionOrder(100)]
     public class CameraXConfiner : MonoBehaviour
     {
@@ -14,9 +15,19 @@ namespace JebbyJump.World
 
         private void Awake() => _cam = GetComponent<Camera>();
 
-        private void LateUpdate()
+        private void OnEnable()
         {
-            if (_cam == null || _background == null) return;
+            RenderPipelineManager.beginCameraRendering += OnBeginCameraRendering;
+        }
+
+        private void OnDisable()
+        {
+            RenderPipelineManager.beginCameraRendering -= OnBeginCameraRendering;
+        }
+
+        private void OnBeginCameraRendering(ScriptableRenderContext ctx, Camera cam)
+        {
+            if (cam != _cam || _background == null) return;
 
             float halfCamW = _cam.orthographicSize * _cam.aspect;
             float halfCamH = _cam.orthographicSize;
