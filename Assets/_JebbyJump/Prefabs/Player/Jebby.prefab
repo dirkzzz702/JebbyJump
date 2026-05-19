@@ -225,7 +225,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JebbyJump.Player.PlayerAnimator
   _motor: {fileID: 8571186503948283667}
-  _animator: {fileID: 0}
+  _animator: {fileID: 8719887537957937891}
 --- !u!114 &6290850186715018952
 MonoBehaviour:
   m_ObjectHideFlags: 0

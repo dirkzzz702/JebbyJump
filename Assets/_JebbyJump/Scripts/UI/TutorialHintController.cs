@@ -17,6 +17,7 @@ namespace JebbyJump.UI
         private bool _hasShownIntro;
         private bool _hasShownWrongHint;
         private bool _hasShownCactusHint;
+        private bool _hintsDone;
         private Coroutine _hideCoroutine;
 
         private bool IsLevelOne => _levelSession == null || _levelSession.CurrentLevelIndex == 0;
@@ -57,8 +58,7 @@ namespace JebbyJump.UI
 
         private void OnCorrectLanding()
         {
-            // Hide intro hint as soon as the player demonstrates they understand.
-            if (IsLevelOne) HideHint();
+            if (IsLevelOne) { _hintsDone = true; HideHint(); }
         }
 
         private void OnWrongLanding()
@@ -77,7 +77,7 @@ namespace JebbyJump.UI
 
         private void ShowHint(string text, float duration)
         {
-            if (_hintText == null) return;
+            if (_hintsDone || _hintText == null) return;
             if (_hideCoroutine != null) StopCoroutine(_hideCoroutine);
             _hintText.text = text;
             if (_hintRoot != null) _hintRoot.SetActive(true);

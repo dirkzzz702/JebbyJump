@@ -21,6 +21,7 @@ namespace JebbyJump.Sequence
         [SerializeField] private LevelSessionController _levelSession;
         [SerializeField] private GameFeedbackUI _feedbackUI;
         [SerializeField] private ActiveSkillController _activeSkillController;
+        [SerializeField] private PlayerAnimator _playerAnimator;
 
         public event Action LevelCompleted;
         public event Action CorrectLanding;
@@ -65,17 +66,20 @@ namespace JebbyJump.Sequence
             if (_spawner != null) _spawner.CactusHit -= OnCactusHit;
         }
 
-        private void Start()
+        private IEnumerator Start()
         {
-            if (_sequenceManager == null || _spawner == null || _displayUI == null) return;
+            if (_sequenceManager == null || _spawner == null || _displayUI == null) yield break;
 
+            // Wait one physics frame so Jebby settles on the floor before capturing spawn position.
+            yield return new WaitForFixedUpdate();
             _spawnPosition = _playerController != null ? _playerController.transform.position : Vector3.zero;
+
             ApplySessionConfig();
             _progressTracker?.Initialize(_sequenceManager.Config.StartingLives);
 
             _sequenceManager.GenerateSequence();
 
-            if (_sequenceManager.Sequence == null || _sequenceManager.Sequence.Count == 0) return;
+            if (_sequenceManager.Sequence == null || _sequenceManager.Sequence.Count == 0) yield break;
 
             _spawner.SpawnPlatforms(_sequenceManager.Sequence);
             StartCoroutine(RunMemoryPhase());
@@ -148,6 +152,7 @@ namespace JebbyJump.Sequence
         private void OnLifeLost()
         {
             _activeSkillController?.CancelActiveSkill();  // cooldown stays spent
+            _playerAnimator?.TriggerHurt();
             _phase = Phase.Playing;
             _sequenceManager.ResetProgress();
             _landingDetector?.ResetCurrentPlatform();
@@ -205,6 +210,7 @@ namespace JebbyJump.Sequence
         private void OnSequenceComplete()
         {
             _activeSkillController?.SetCanUseSkill(false);
+            _playerAnimator?.TriggerVictory();
             _phase = Phase.Completed;
             int bonus = 50 + (_progressTracker != null ? _progressTracker.Lives * 20 : 0);
             _progressTracker?.AddScore(bonus);
