@@ -18,7 +18,12 @@
       "Bash(cp /tmp/pc_backup.cs \"d:/Workspace/JebbyJump/Assets/_JebbyJump/Scripts/Player/PlayerController.cs\" && echo \"Restored clean version\")",
       "mcp__coplay-mcp__open_scene",
       "Bash(git restore *)",
-      "mcp__coplay-mcp__set_transform"
+      "mcp__coplay-mcp__set_transform",
+      "Bash(ls \"Assets/_JebbyJump/Docs/Art/\")",
+      "Bash(ls \"Assets/_JebbyJump/Docs/Design/\")",
+      "mcp__coplay-mcp__stop_game",
+      "mcp__coplay-mcp__execute_script",
+      "mcp__coplay-mcp__get_unity_editor_state"
     ],
     "additionalDirectories": [
       "\\tmp"
