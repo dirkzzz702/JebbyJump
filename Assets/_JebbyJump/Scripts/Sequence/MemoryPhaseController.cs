@@ -22,6 +22,7 @@ namespace JebbyJump.Sequence
         [SerializeField] private GameFeedbackUI _feedbackUI;
         [SerializeField] private ActiveSkillController _activeSkillController;
         [SerializeField] private PlayerAnimator _playerAnimator;
+        [SerializeField] private LevelTimer _levelTimer;
 
         public event Action LevelCompleted;
         public event Action CorrectLanding;
@@ -99,6 +100,7 @@ namespace JebbyJump.Sequence
             _phase = Phase.Playing;
             _activeSkillController?.SetCanUseSkill(true);
             _playerController?.SetJumpMultiplier(1f);
+            _levelTimer?.StartTimer();
             Debug.Log("[MemoryPhaseController] Memory phase ended. Playing.");
         }
 
@@ -164,6 +166,7 @@ namespace JebbyJump.Sequence
         private void OnGameOver()
         {
             _activeSkillController?.SetCanUseSkill(false);
+            _levelTimer?.StopTimer();
             _phase = Phase.Completed;
             Debug.Log("[MemoryPhaseController] Game over!");
         }
@@ -190,6 +193,7 @@ namespace JebbyJump.Sequence
 
             _activeSkillController?.ResetForLevel();  // cancel effect + reset cooldown
             _playerAnimator?.ResetToIdle();
+            _levelTimer?.ResetTimer();
             StopAllCoroutines();
             _phase = Phase.ShowingSequence;
 
@@ -211,6 +215,7 @@ namespace JebbyJump.Sequence
         private void OnSequenceComplete()
         {
             _activeSkillController?.SetCanUseSkill(false);
+            _levelTimer?.StopTimer();
             _playerAnimator?.TriggerVictory();
             _phase = Phase.Completed;
             int bonus = 50 + (_progressTracker != null ? _progressTracker.Lives * 20 : 0);

@@ -28,6 +28,18 @@ namespace JebbyJump.UI
         [SerializeField] private TextMeshProUGUI _levelText;
         [SerializeField] private TextMeshProUGUI _levelCompleteTitleText;
 
+        [Header("Time / Rank (P2)")]
+        [SerializeField] private LevelTimer _levelTimer;
+        [SerializeField] private TimeRankConfig _rankConfig;
+        [SerializeField] private TextMeshProUGUI _levelCompleteTimeText;
+        [SerializeField] private TextMeshProUGUI _levelCompleteBestTimeText;
+        [SerializeField] private TextMeshProUGUI _levelCompleteRankText;
+
+        private static readonly Color RankColorS = new Color(1.00f, 0.84f, 0.10f); // gold
+        private static readonly Color RankColorA = new Color(0.85f, 0.85f, 0.90f); // silver
+        private static readonly Color RankColorB = new Color(0.80f, 0.50f, 0.20f); // bronze
+        private static readonly Color RankColorC = new Color(0.60f, 0.60f, 0.60f); // gray
+
         private void Awake()
         {
             if (_gameOverPanel != null) _gameOverPanel.SetActive(false);
@@ -139,6 +151,40 @@ namespace JebbyJump.UI
             if (_levelCompleteNextButton != null) _levelCompleteNextButton.gameObject.SetActive(!isFinal);
             if (_levelCompleteTitleText != null)
                 _levelCompleteTitleText.text = isFinal ? "MVP Complete!" : "Level Complete!";
+
+            PopulateTimeRank();
+        }
+
+        private void PopulateTimeRank()
+        {
+            if (_levelTimer == null) return;
+
+            float elapsed = _levelTimer.Elapsed;
+            string levelKey = _levelSession != null && _levelSession.CurrentConfig != null
+                ? _levelSession.CurrentConfig.name
+                : null;
+
+            BestTimeStore.TrySetBest(levelKey, elapsed);
+            float best = BestTimeStore.GetBest(levelKey);
+
+            if (_levelCompleteTimeText != null)
+                _levelCompleteTimeText.text = $"Time: {elapsed:F1}s";
+
+            if (_levelCompleteBestTimeText != null)
+                _levelCompleteBestTimeText.text = float.IsNaN(best) ? "Best: --" : $"Best: {best:F1}s";
+
+            if (_levelCompleteRankText != null && _rankConfig != null)
+            {
+                var rank = _rankConfig.GetRank(elapsed);
+                _levelCompleteRankText.text = $"Rank: {rank}";
+                _levelCompleteRankText.color = rank switch
+                {
+                    TimeRank.S => RankColorS,
+                    TimeRank.A => RankColorA,
+                    TimeRank.B => RankColorB,
+                    _          => RankColorC
+                };
+            }
         }
 
         private void OnRetryClicked()
