@@ -84,39 +84,60 @@ Production v1:
 ## Updated Production Phase Order
 
 ### P1 — Current Screen Production Polish
-Fix current UI/presentation issues.
+
+Fix current UI/presentation issues:
+- mobile buttons
+- HUD readability
+- background coverage
+- start platform/floor
+- Jebby spawn/animation
+- tutorial placement
+- result panels
+- mobile skill button
+- camera/background bounds
 
 ### P2 — Time Ranking System
+
 Replace score with timer/best time/rank.
 
 ### P3 — 50-Level Data Foundation
-WorldConfig, LevelSetConfig, LevelConfig expansion.
+
+WorldConfig, LevelSetConfig, LevelConfig expansion, rank thresholds per level.
 
 ### P4 — Mobile-first UI Shell
-Level map, polished menus, safe area, mobile controls.
+
+Level map, polished menus, safe area, mobile controls, settings, pause.
 
 ### P5 — Equipped Skill Foundation v2
+
 Skill slots, skill definitions, cooldown model.
 
 ### P6 — Skill Content
+
 Rocket Boots, Bubble Shield, Color Echo, Health Potion.
 
 ### P7 — Economy Foundation
+
 Rainbow Gems, rewards, rewarded ad hooks.
 
 ### P8 — Cosmetic Wardrobe Foundation
+
 Outfit definitions, unlocks, preview, equip.
 
 ### P9 — Backend / Analytics / Ads Integration
+
 Cloud/account, analytics, ads abstraction.
 
 ### P10 — Full Art Production
+
 Final sprites, UI, worlds, icons, animations.
 
 ### P11 — Soft Launch
+
 Limited test, analytics, tuning.
 
 ### P12 — Production Launch v1
+
 50 levels, monetization, wardrobe, services, mobile polish.
 
 ## Open Decisions

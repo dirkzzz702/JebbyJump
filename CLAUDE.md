@@ -1,8 +1,8 @@
-# CLAUDE.md Production Update v1.0
+# Jebby Jump Development Guide — Production v1.0
 
 ## Production Mode
 
-Jebby Jump is now a production game, not just MVP.
+Jebby Jump is now a production game, not just an MVP.
 
 Direction:
 
@@ -30,7 +30,7 @@ Every UI and control decision must consider mobile first.
 
 ### Performance Metric
 
-Score should be removed or de-emphasized.
+Score should be removed or heavily de-emphasized.
 
 Use:
 
@@ -100,7 +100,7 @@ Expand later:
 3 active skill slots
 ```
 
-Do not build full skill-slot UI until approved.
+Do not build full skill-slot UI until explicitly approved.
 
 ### Wardrobe
 
@@ -119,11 +119,9 @@ analytics
 ads
 ```
 
-Use service abstractions.
+Use service abstractions. Gameplay code must not directly depend on ads/analytics/backend SDKs.
 
 Do not add vendor SDKs without explicit approval.
-
-Gameplay code must not directly depend on ads/analytics/backend SDKs.
 
 ## Current Production Priorities
 
@@ -151,3 +149,10 @@ forced ads
 ```
 
 Each production feature must be planned and reviewed before implementation.
+
+## Key Principle
+
+Playable with real controls first.  
+Polish second.  
+Mobile-first production quality before feature expansion.  
+Economy/backend/ads only through planned service abstractions.
