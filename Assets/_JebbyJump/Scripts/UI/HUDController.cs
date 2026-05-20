@@ -14,11 +14,8 @@ namespace JebbyJump.UI
         [SerializeField] private TextMeshProUGUI _livesText;
         [SerializeField] private Transform _livesIconContainer;
         [SerializeField] private Sprite _lifeIconSprite;
-        [SerializeField] private TextMeshProUGUI _scoreText;
         [SerializeField] private GameObject _gameOverPanel;
-        [SerializeField] private TextMeshProUGUI _gameOverScoreText;
         [SerializeField] private GameObject _levelCompletePanel;
-        [SerializeField] private TextMeshProUGUI _levelCompleteScoreText;
         [SerializeField] private Button _gameOverRetryButton;
         [SerializeField] private Button _levelCompleteRetryButton;
         [SerializeField] private Button _gameOverMenuButton;
@@ -28,7 +25,7 @@ namespace JebbyJump.UI
         [SerializeField] private TextMeshProUGUI _levelText;
         [SerializeField] private TextMeshProUGUI _levelCompleteTitleText;
 
-        [Header("Time / Rank (P2)")]
+        [Header("Time / Rank")]
         [SerializeField] private LevelTimer _levelTimer;
         [SerializeField] private TimeRankConfig _rankConfig;
         [SerializeField] private TextMeshProUGUI _levelCompleteTimeText;
@@ -65,7 +62,6 @@ namespace JebbyJump.UI
             if (_tracker != null)
             {
                 _tracker.LivesChanged += OnLivesChanged;
-                _tracker.ScoreChanged += OnScoreChanged;
                 _tracker.GameOver += OnGameOver;
             }
             if (_phaseController != null)
@@ -79,7 +75,6 @@ namespace JebbyJump.UI
             if (_tracker != null)
             {
                 _tracker.LivesChanged -= OnLivesChanged;
-                _tracker.ScoreChanged -= OnScoreChanged;
                 _tracker.GameOver -= OnGameOver;
             }
             if (_phaseController != null)
@@ -91,10 +86,7 @@ namespace JebbyJump.UI
         private void Start()
         {
             if (_tracker != null)
-            {
                 RefreshLives(_tracker.Lives);
-                RefreshScore(_tracker.Score);
-            }
             RefreshLevelText();
         }
 
@@ -105,7 +97,6 @@ namespace JebbyJump.UI
         }
 
         private void OnLivesChanged(int lives) => RefreshLives(lives);
-        private void OnScoreChanged(int score) => RefreshScore(score);
 
         private void RefreshLives(int lives)
         {
@@ -127,25 +118,16 @@ namespace JebbyJump.UI
             }
         }
 
-        private void RefreshScore(int score)
-        {
-            if (_scoreText != null) _scoreText.text = "Score: " + score;
-        }
-
         private void OnGameOver()
         {
             if (_levelCompletePanel != null) _levelCompletePanel.SetActive(false);
             if (_gameOverPanel != null) _gameOverPanel.SetActive(true);
-            if (_gameOverScoreText != null && _tracker != null)
-                _gameOverScoreText.text = "Score: " + _tracker.Score;
         }
 
         private void OnLevelCompleted()
         {
             if (_gameOverPanel != null) _gameOverPanel.SetActive(false);
             if (_levelCompletePanel != null) _levelCompletePanel.SetActive(true);
-            if (_levelCompleteScoreText != null && _tracker != null)
-                _levelCompleteScoreText.text = "Score: " + _tracker.Score;
 
             bool isFinal = _levelSession != null && _levelSession.IsFinalLevel;
             if (_levelCompleteNextButton != null) _levelCompleteNextButton.gameObject.SetActive(!isFinal);

@@ -130,7 +130,6 @@ namespace JebbyJump.Sequence
             {
                 Debug.Log("[Sequence] Step " + (_sequenceManager.CurrentStepIndex + 1) + "/" + _sequenceManager.Sequence.Count + " — Correct: " + platform.Color);
                 _feedbackUI?.ShowMessage("Correct!", 0.7f);
-                _progressTracker?.AddScore(10);
                 CorrectLanding?.Invoke();
                 _sequenceManager.AdvanceStep();
             }
@@ -218,9 +217,7 @@ namespace JebbyJump.Sequence
             _levelTimer?.StopTimer();
             _playerAnimator?.TriggerVictory();
             _phase = Phase.Completed;
-            int bonus = 50 + (_progressTracker != null ? _progressTracker.Lives * 20 : 0);
-            _progressTracker?.AddScore(bonus);
-            Debug.Log("[MemoryPhaseController] Level complete! Bonus: " + bonus);
+            Debug.Log("[MemoryPhaseController] Level complete!");
             LevelCompleted?.Invoke();
         }
     }
