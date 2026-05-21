@@ -60,14 +60,17 @@ namespace JebbyJump.Player
                 Log("reject: not falling (motor-landed apex guard)", "motor-landed");
                 return;
             }
-            TryProcessLanding(groundCollider, "motor-landed");
+            TryProcessLanding(groundCollider, "motor-landed", ignoreHorizontalMargin: false);
         }
 
         // Grounded recheck — covers the case where the rising-edge landing was
         // rejected (e.g. edge/side-slide failed the horizontal bounds check) but
         // Jebby has since slid fully onto the platform top while still grounded.
         // No velocity check (vy ≈ 0 is normal when grounded); instead a 2-frame
-        // debounce filters brief apex clip-through groundings.
+        // debounce filters brief apex clip-through groundings. Horizontal margin
+        // is also dropped here — sustained grounded state means physics has
+        // already confirmed Jebby is on the platform, including standing on its
+        // very edge (no more "standing on wrong platform with no consequence").
         private void FixedUpdate()
         {
             if (_motor == null || !_motor.IsGrounded)
@@ -98,10 +101,10 @@ namespace JebbyJump.Player
                 return;
             }
 
-            TryProcessLanding(col, "grounded-recheck");
+            TryProcessLanding(col, "grounded-recheck", ignoreHorizontalMargin: true);
         }
 
-        private void TryProcessLanding(Collider2D groundCollider, string source)
+        private void TryProcessLanding(Collider2D groundCollider, string source, bool ignoreHorizontalMargin)
         {
             if (groundCollider == null)
             {
@@ -120,7 +123,7 @@ namespace JebbyJump.Player
                 Log("reject: same current platform", source);
                 return;
             }
-            if (!IsInsidePlatformBounds(groundCollider))
+            if (!IsInsidePlatformBounds(groundCollider, ignoreHorizontalMargin))
             {
                 Log("reject: outside horizontal bounds", source);
                 return;
@@ -136,14 +139,15 @@ namespace JebbyJump.Player
             LandedOnPlatform?.Invoke(platform);
         }
 
-        private bool IsInsidePlatformBounds(Collider2D platformCollider)
+        private bool IsInsidePlatformBounds(Collider2D platformCollider, bool ignoreMargin)
         {
             float playerX = _playerCollider != null
                 ? _playerCollider.bounds.center.x
                 : transform.position.x;
             Bounds bounds = platformCollider.bounds;
-            return playerX > bounds.min.x + _horizontalMargin
-                && playerX < bounds.max.x - _horizontalMargin;
+            float margin = ignoreMargin ? 0f : _horizontalMargin;
+            return playerX > bounds.min.x + margin
+                && playerX < bounds.max.x - margin;
         }
 
         // Jebby's feet must be on (or above with tolerance) the platform top
