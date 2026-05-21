@@ -20,7 +20,7 @@ MonoBehaviour:
   _cactusSpawnChance: 0.35
   _platformsPerRow: 3
   _rowVerticalSpacing: 3.8
-  _rowStartY: 2
+  _rowStartY: 3
   _platformWidth: 3.4
   _platformHeight: 0.5
   _rowHorizontalSpread: 9
