@@ -19,7 +19,7 @@ public static class AdjustCameraFraming
     // CM 3 PositionComposer: +Y moves the camera UP in world space, which
     // makes the tracked target appear LOWER in the frame. (Empirically verified:
     // -0.15 placed Jebby at ~65% from bottom; +0.15 places him at ~35%.)
-    private const float ScreenY = 0.15f; // → Jebby ~35% from bottom
+    private const float ScreenY = 0.25f; // → Jebby ~25% from bottom (lower)
 
     public static void Execute()
     {
