@@ -16,7 +16,10 @@ using UnityEngine;
 public static class AdjustCameraFraming
 {
     private const string ScenePath = "Assets/_JebbyJump/Scenes/Game.unity";
-    private const float ScreenY = -0.15f; // 35% from bottom
+    // CM 3 PositionComposer: +Y moves the camera UP in world space, which
+    // makes the tracked target appear LOWER in the frame. (Empirically verified:
+    // -0.15 placed Jebby at ~65% from bottom; +0.15 places him at ~35%.)
+    private const float ScreenY = 0.15f; // → Jebby ~35% from bottom
 
     public static void Execute()
     {
