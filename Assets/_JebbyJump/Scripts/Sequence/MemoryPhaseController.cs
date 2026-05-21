@@ -20,7 +20,8 @@ namespace JebbyJump.Sequence
         [SerializeField] private LevelProgressTracker _progressTracker;
         [SerializeField] private LevelSessionController _levelSession;
         [SerializeField] private GameFeedbackUI _feedbackUI;
-        [SerializeField] private ActiveSkillController _activeSkillController;
+        [SerializeField] private ActiveSkillController[] _activeSkills;
+        [SerializeField] private BubbleShieldEffect _bubbleShield;
         [SerializeField] private PlayerAnimator _playerAnimator;
         [SerializeField] private LevelTimer _levelTimer;
 
@@ -71,7 +72,6 @@ namespace JebbyJump.Sequence
         {
             if (_sequenceManager == null || _spawner == null || _displayUI == null) yield break;
 
-            // Wait one physics frame so Jebby settles on the floor before capturing spawn position.
             yield return new WaitForFixedUpdate();
             _spawnPosition = _playerController != null ? _playerController.transform.position : Vector3.zero;
 
@@ -79,7 +79,6 @@ namespace JebbyJump.Sequence
             _progressTracker?.Initialize(_sequenceManager.Config.StartingLives);
 
             _sequenceManager.GenerateSequence();
-
             if (_sequenceManager.Sequence == null || _sequenceManager.Sequence.Count == 0) yield break;
 
             _spawner.SpawnPlatforms(_sequenceManager.Sequence);
@@ -89,17 +88,15 @@ namespace JebbyJump.Sequence
         private IEnumerator RunMemoryPhase()
         {
             _phase = Phase.ShowingSequence;
-            _activeSkillController?.SetCanUseSkill(false);
+            SetAllSkillsUsable(false);
             _playerController?.SetJumpMultiplier(_sequenceManager.Config.MemoryPhaseJumpMultiplier);
             _displayUI.Show(_sequenceManager.Sequence);
             MemoryPhaseStarted?.Invoke();
-            // No long "Remember the colors!" feedback here — TutorialHintController owns
-            // that prompt on Level 1, and on later levels the swatches alone are the cue.
             yield return new WaitForSeconds(_sequenceManager.Config.MemoryTimeSeconds);
             _displayUI.Hide();
             _feedbackUI?.ShowMessage("Go!", 1f);
             _phase = Phase.Playing;
-            _activeSkillController?.SetCanUseSkill(true);
+            SetAllSkillsUsable(true);
             _playerController?.SetJumpMultiplier(1f);
             _levelTimer?.StartTimer();
             Debug.Log("[MemoryPhaseController] Memory phase ended. Playing.");
@@ -111,14 +108,11 @@ namespace JebbyJump.Sequence
             if (_sequenceManager.IsComplete) return;
 
             if (platform.RowIndex < _sequenceManager.CurrentStepIndex)
-            {
-                // Already-completed row — player still standing on it, ignore.
-                return;
-            }
+                return; // already-completed row, ignore
 
             if (platform.RowIndex > _sequenceManager.CurrentStepIndex)
             {
-                // Jumped ahead of the expected row — treat as wrong landing.
+                if (TryShieldAbsorb()) { RespawnAfterShield(); return; }
                 Debug.Log("[Sequence] Skipped to Row " + platform.RowIndex + " — expected Row " + _sequenceManager.CurrentStepIndex + ". Wrong.");
                 _feedbackUI?.ShowMessage("Wrong color!", 0.9f);
                 WrongLanding?.Invoke();
@@ -129,14 +123,13 @@ namespace JebbyJump.Sequence
             bool correct = platform.Color == _sequenceManager.ExpectedColor;
             if (correct)
             {
-                Debug.Log("[Sequence] Step " + (_sequenceManager.CurrentStepIndex + 1) + "/" + _sequenceManager.Sequence.Count + " — Correct: " + platform.Color);
                 _feedbackUI?.ShowMessage("Correct!", 0.7f);
                 CorrectLanding?.Invoke();
                 _sequenceManager.AdvanceStep();
             }
             else
             {
-                Debug.Log("[Sequence] Step " + (_sequenceManager.CurrentStepIndex + 1) + "/" + _sequenceManager.Sequence.Count + " — Wrong: got " + platform.Color + ", expected " + _sequenceManager.ExpectedColor);
+                if (TryShieldAbsorb()) { RespawnAfterShield(); return; }
                 _feedbackUI?.ShowMessage("Wrong color!", 0.9f);
                 WrongLanding?.Invoke();
                 _progressTracker?.LoseLife();
@@ -146,14 +139,26 @@ namespace JebbyJump.Sequence
         private void OnCactusHit()
         {
             if (_phase != Phase.Playing) return;
-            Debug.Log("[MemoryPhaseController] Cactus hit. Losing life.");
+            if (TryShieldAbsorb()) { /* no respawn — Jebby keeps position after cactus block */ return; }
             _feedbackUI?.ShowMessage("Ouch! Cactus!", 0.9f);
             _progressTracker?.LoseLife();
         }
 
+        // Returns true if a Bubble Shield was active and absorbed the hit.
+        private bool TryShieldAbsorb() => _bubbleShield != null && _bubbleShield.TryConsume();
+
+        // After a shield absorbs a wrong-landing hit we respawn Jebby to origin so
+        // row progression isn't confused by Jebby standing on the wrong platform.
+        private void RespawnAfterShield()
+        {
+            _landingDetector?.ResetCurrentPlatform();
+            _playerController?.SetJumpMultiplier(1f);
+            _playerController?.Respawn(_spawnPosition);
+        }
+
         private void OnLifeLost()
         {
-            _activeSkillController?.CancelActiveSkill();  // cooldown stays spent
+            CancelAllSkills();   // cooldowns stay spent
             _playerAnimator?.TriggerHurt();
             _phase = Phase.Playing;
             _sequenceManager.ResetProgress();
@@ -165,7 +170,7 @@ namespace JebbyJump.Sequence
 
         private void OnGameOver()
         {
-            _activeSkillController?.SetCanUseSkill(false);
+            SetAllSkillsUsable(false);
             _levelTimer?.StopTimer();
             _phase = Phase.Completed;
             Debug.Log("[MemoryPhaseController] Game over!");
@@ -191,7 +196,7 @@ namespace JebbyJump.Sequence
         {
             if (_sequenceManager == null || _spawner == null || _progressTracker == null) return;
 
-            _activeSkillController?.ResetForLevel();  // cancel effect + reset cooldown
+            ResetAllSkillsForLevel();
             _playerAnimator?.ResetToIdle();
             _levelTimer?.ResetTimer();
             StopAllCoroutines();
@@ -200,7 +205,6 @@ namespace JebbyJump.Sequence
             ApplySessionConfig();
             _progressTracker.Initialize(_sequenceManager.Config.StartingLives);
             _sequenceManager.GenerateSequence();
-
             if (_sequenceManager.Sequence == null || _sequenceManager.Sequence.Count == 0) return;
 
             _spawner.SpawnPlatforms(_sequenceManager.Sequence);
@@ -214,12 +218,31 @@ namespace JebbyJump.Sequence
 
         private void OnSequenceComplete()
         {
-            _activeSkillController?.SetCanUseSkill(false);
+            SetAllSkillsUsable(false);
             _levelTimer?.StopTimer();
             _playerAnimator?.TriggerVictory();
             _phase = Phase.Completed;
             Debug.Log("[MemoryPhaseController] Level complete!");
             LevelCompleted?.Invoke();
+        }
+
+        // ── skill helpers ────────────────────────────────────────────────────
+        private void SetAllSkillsUsable(bool usable)
+        {
+            if (_activeSkills == null) return;
+            foreach (var s in _activeSkills) s?.SetCanUseSkill(usable);
+        }
+
+        private void CancelAllSkills()
+        {
+            if (_activeSkills == null) return;
+            foreach (var s in _activeSkills) s?.CancelActiveSkill();
+        }
+
+        private void ResetAllSkillsForLevel()
+        {
+            if (_activeSkills == null) return;
+            foreach (var s in _activeSkills) s?.ResetForLevel();
         }
     }
 }

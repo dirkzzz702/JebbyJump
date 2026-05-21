@@ -127,6 +127,24 @@ public partial class @JebbyInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""UseSkill2"",
+                    ""type"": ""Button"",
+                    ""id"": ""11111111-2222-3333-4444-555555555555"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""UseSkill3"",
+                    ""type"": ""Button"",
+                    ""id"": ""22222222-3333-4444-5555-666666666666"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -338,6 +356,28 @@ public partial class @JebbyInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Pause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""33333333-4444-5555-6666-777777777777"",
+                    ""path"": ""<Keyboard>/k"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""UseSkill2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""44444444-5555-6666-7777-888888888888"",
+                    ""path"": ""<Keyboard>/l"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""UseSkill3"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -350,6 +390,8 @@ public partial class @JebbyInputActions: IInputActionCollection2, IDisposable
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
         m_Player_UseItem = m_Player.FindAction("UseItem", throwIfNotFound: true);
         m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
+        m_Player_UseSkill2 = m_Player.FindAction("UseSkill2", throwIfNotFound: true);
+        m_Player_UseSkill3 = m_Player.FindAction("UseSkill3", throwIfNotFound: true);
     }
 
     ~@JebbyInputActions()
@@ -434,6 +476,8 @@ public partial class @JebbyInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Jump;
     private readonly InputAction m_Player_UseItem;
     private readonly InputAction m_Player_Pause;
+    private readonly InputAction m_Player_UseSkill2;
+    private readonly InputAction m_Player_UseSkill3;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -461,6 +505,14 @@ public partial class @JebbyInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Pause".
         /// </summary>
         public InputAction @Pause => m_Wrapper.m_Player_Pause;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/UseSkill2".
+        /// </summary>
+        public InputAction @UseSkill2 => m_Wrapper.m_Player_UseSkill2;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/UseSkill3".
+        /// </summary>
+        public InputAction @UseSkill3 => m_Wrapper.m_Player_UseSkill3;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -499,6 +551,12 @@ public partial class @JebbyInputActions: IInputActionCollection2, IDisposable
             @Pause.started += instance.OnPause;
             @Pause.performed += instance.OnPause;
             @Pause.canceled += instance.OnPause;
+            @UseSkill2.started += instance.OnUseSkill2;
+            @UseSkill2.performed += instance.OnUseSkill2;
+            @UseSkill2.canceled += instance.OnUseSkill2;
+            @UseSkill3.started += instance.OnUseSkill3;
+            @UseSkill3.performed += instance.OnUseSkill3;
+            @UseSkill3.canceled += instance.OnUseSkill3;
         }
 
         /// <summary>
@@ -522,6 +580,12 @@ public partial class @JebbyInputActions: IInputActionCollection2, IDisposable
             @Pause.started -= instance.OnPause;
             @Pause.performed -= instance.OnPause;
             @Pause.canceled -= instance.OnPause;
+            @UseSkill2.started -= instance.OnUseSkill2;
+            @UseSkill2.performed -= instance.OnUseSkill2;
+            @UseSkill2.canceled -= instance.OnUseSkill2;
+            @UseSkill3.started -= instance.OnUseSkill3;
+            @UseSkill3.performed -= instance.OnUseSkill3;
+            @UseSkill3.canceled -= instance.OnUseSkill3;
         }
 
         /// <summary>
@@ -590,5 +654,19 @@ public partial class @JebbyInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnPause(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "UseSkill2" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnUseSkill2(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "UseSkill3" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnUseSkill3(InputAction.CallbackContext context);
     }
 }

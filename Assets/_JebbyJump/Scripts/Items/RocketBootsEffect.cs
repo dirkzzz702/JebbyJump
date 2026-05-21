@@ -4,9 +4,8 @@ using UnityEngine;
 
 namespace JebbyJump.Items
 {
-    // Phase 20: one temporary movement effect at a time.
-    // Future item stacking should use a proper modifier system.
-    public class RocketBootsEffect : MonoBehaviour
+    // Temporary jump/move-speed boost. One instance at a time.
+    public class RocketBootsEffect : ActiveSkillEffect
     {
         [SerializeField] private Player.PlayerStats _stats;
         [SerializeField] private GameFeedbackUI _feedbackUI;
@@ -19,15 +18,15 @@ namespace JebbyJump.Items
         private bool _isActive;
         private Coroutine _effectRoutine;
 
-        public bool IsActive => _isActive;
+        public override bool IsActive => _isActive;
 
-        public void Activate()
+        public override void Activate()
         {
             CancelEffect();
             _effectRoutine = StartCoroutine(RunEffect());
         }
 
-        public void CancelEffect()
+        public override void CancelEffect()
         {
             if (_effectRoutine != null)
             {
@@ -53,13 +52,12 @@ namespace JebbyJump.Items
             _isActive = true;
             _stats.JumpForce = _storedJumpForce * _jumpMultiplier;
             _stats.MoveSpeed = _storedMoveSpeed * _moveSpeedMultiplier;
-            Debug.Log($"[RocketBoots] Activated for {_durationSeconds}s. JumpForce: {_storedJumpForce:F1}->{_stats.JumpForce:F1}, MoveSpeed: {_storedMoveSpeed:F1}->{_stats.MoveSpeed:F1}");
+            Debug.Log($"[RocketBoots] Activated for {_durationSeconds}s.");
             _feedbackUI?.ShowMessage("Rocket Boots!", 1.5f);
             yield return new WaitForSeconds(_durationSeconds);
             RestoreStats();
             _isActive = false;
             _effectRoutine = null;
-            Debug.Log("[RocketBoots] Expired. Stats restored.");
         }
     }
 }

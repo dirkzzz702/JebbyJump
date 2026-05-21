@@ -9,7 +9,9 @@ namespace JebbyJump.Inputs
     {
         public event Action JumpStartedEvent;
         public event Action JumpCanceledEvent;
-        public event Action UseItemStartedEvent;
+        public event Action UseItemStartedEvent;   // Skill slot 0 (J / LeftShift / RightShoulder)
+        public event Action UseSkill2StartedEvent; // Skill slot 1 (K)
+        public event Action UseSkill3StartedEvent; // Skill slot 2 (L)
         public event Action PauseEvent;
 
         public Vector2 Move { get; private set; }
@@ -57,14 +59,22 @@ namespace JebbyJump.Inputs
 
         void JebbyInputActions.IPlayerActions.OnUseItem(InputAction.CallbackContext ctx)
         {
-            if (ctx.started)
-                UseItemStartedEvent?.Invoke();
+            if (ctx.started) UseItemStartedEvent?.Invoke();
+        }
+
+        void JebbyInputActions.IPlayerActions.OnUseSkill2(InputAction.CallbackContext ctx)
+        {
+            if (ctx.started) UseSkill2StartedEvent?.Invoke();
+        }
+
+        void JebbyInputActions.IPlayerActions.OnUseSkill3(InputAction.CallbackContext ctx)
+        {
+            if (ctx.started) UseSkill3StartedEvent?.Invoke();
         }
 
         void JebbyInputActions.IPlayerActions.OnPause(InputAction.CallbackContext ctx)
         {
-            if (ctx.started)
-                PauseEvent?.Invoke();
+            if (ctx.started) PauseEvent?.Invoke();
         }
     }
 }

@@ -4,13 +4,19 @@ using UnityEngine;
 
 namespace JebbyJump.Items
 {
+    // One controller per equipped skill. Slot determines which InputReader
+    // event the controller listens to.
     public class ActiveSkillController : MonoBehaviour
     {
+        public enum SkillSlot { Slot1 = 0, Slot2 = 1, Slot3 = 2 }
+
         [SerializeField] private InputReader _input;
-        [SerializeField] private RocketBootsEffect _rocketBoots;
+        [SerializeField] private SkillSlot _slot = SkillSlot.Slot1;
+        [SerializeField] private ActiveSkillEffect _effect;
         [SerializeField] private GameFeedbackUI _feedbackUI;
         [SerializeField] private float _cooldownSeconds = 10f;
         [SerializeField] private bool _resetCooldownOnLevelRestart = true;
+        [SerializeField] private string _displayName = "Skill";
 
         private float _cooldownTimer;
         private bool _canUseSkill;
@@ -19,16 +25,29 @@ namespace JebbyJump.Items
         public bool  CanUseSkill        => _canUseSkill;
         public float CooldownRemaining  => Mathf.Max(0f, _cooldownTimer);
         public float CooldownSeconds    => _cooldownSeconds;
-        public bool  IsSkillActive      => _rocketBoots != null && _rocketBoots.IsActive;
+        public bool  IsSkillActive      => _effect != null && _effect.IsActive;
+        public SkillSlot Slot           => _slot;
 
         private void OnEnable()
         {
-            if (_input != null) _input.UseItemStartedEvent += TryUseSkill;
+            if (_input == null) return;
+            switch (_slot)
+            {
+                case SkillSlot.Slot1: _input.UseItemStartedEvent   += TryUseSkill; break;
+                case SkillSlot.Slot2: _input.UseSkill2StartedEvent += TryUseSkill; break;
+                case SkillSlot.Slot3: _input.UseSkill3StartedEvent += TryUseSkill; break;
+            }
         }
 
         private void OnDisable()
         {
-            if (_input != null) _input.UseItemStartedEvent -= TryUseSkill;
+            if (_input == null) return;
+            switch (_slot)
+            {
+                case SkillSlot.Slot1: _input.UseItemStartedEvent   -= TryUseSkill; break;
+                case SkillSlot.Slot2: _input.UseSkill2StartedEvent -= TryUseSkill; break;
+                case SkillSlot.Slot3: _input.UseSkill3StartedEvent -= TryUseSkill; break;
+            }
         }
 
         private void Update()
@@ -37,41 +56,32 @@ namespace JebbyJump.Items
                 _cooldownTimer -= Time.deltaTime;
         }
 
-        public void SetCanUseSkill(bool canUse)
-        {
-            _canUseSkill = canUse;
-        }
+        public void SetCanUseSkill(bool canUse) => _canUseSkill = canUse;
 
         public void TryUseSkill()
         {
             if (!_canUseSkill)
             {
-                Debug.Log("[ActiveSkill] Cannot use skill outside Playing phase.");
                 _feedbackUI?.ShowMessage("Wait for Go!", 0.8f);
                 return;
             }
             if (_cooldownTimer > 0f)
             {
-                Debug.Log("[ActiveSkill] Rocket Boots cooling down.");
-                _feedbackUI?.ShowMessage("Rocket Boots cooling down!", 0.8f);
+                _feedbackUI?.ShowMessage($"{_displayName} cooling down!", 0.8f);
                 return;
             }
-            Debug.Log($"[ActiveSkill] Rocket Boots used. Cooldown: {_cooldownSeconds}s.");
-            _rocketBoots?.Activate();
+            _effect?.Activate();
             _cooldownTimer = _cooldownSeconds;
+            Debug.Log($"[ActiveSkill:{_slot}] {_displayName} used. Cooldown {_cooldownSeconds}s.");
         }
 
-        public void CancelActiveSkill()
-        {
-            _rocketBoots?.CancelEffect();
-        }
+        public void CancelActiveSkill() => _effect?.CancelEffect();
 
         public void ResetForLevel()
         {
             CancelActiveSkill();
             if (_resetCooldownOnLevelRestart)
                 _cooldownTimer = 0f;
-            Debug.Log("[ActiveSkill] Reset for level.");
         }
     }
 }
