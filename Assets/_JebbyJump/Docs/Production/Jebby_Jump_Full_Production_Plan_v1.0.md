@@ -249,6 +249,11 @@ Add:
 - result panels
 - level map art
 - main menu key art
+- **origin/start floor art** — full-width cloud-floor or magical strip sprite,
+  fixed scene object, visually distinct from colored sequence platforms.
+  Target path: `Assets/_JebbyJump/Art/Sprites/World/spr_origin_floor_01.png`.
+  Until supplied, the origin floor stays as a solid warm-beige rectangle
+  collider; gameplay behavior unchanged.
 
 ### P11 — Soft Launch
 
