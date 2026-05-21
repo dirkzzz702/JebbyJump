@@ -31,6 +31,7 @@ namespace JebbyJump.UI
         [SerializeField] private TextMeshProUGUI _levelCompleteTimeText;
         [SerializeField] private TextMeshProUGUI _levelCompleteBestTimeText;
         [SerializeField] private TextMeshProUGUI _levelCompleteRankText;
+        [SerializeField] private TextMeshProUGUI _liveTimerText;   // optional top-right live timer
 
         private static readonly Color RankColorS = new Color(1.00f, 0.84f, 0.10f); // gold
         private static readonly Color RankColorA = new Color(0.85f, 0.85f, 0.90f); // silver
@@ -88,6 +89,23 @@ namespace JebbyJump.UI
             if (_tracker != null)
                 RefreshLives(_tracker.Lives);
             RefreshLevelText();
+            if (_liveTimerText != null) _liveTimerText.text = FormatTime(0f);
+        }
+
+        private void Update()
+        {
+            // Live HUD timer (top-right). Updates only while the run is active.
+            if (_liveTimerText != null && _levelTimer != null && _levelTimer.IsRunning)
+                _liveTimerText.text = FormatTime(_levelTimer.Elapsed);
+        }
+
+        // MM:SS.SS — e.g. "00:12.34".
+        private static string FormatTime(float seconds)
+        {
+            if (float.IsNaN(seconds) || seconds < 0f) seconds = 0f;
+            int  minutes = (int)(seconds / 60f);
+            float rest   = seconds - minutes * 60f;
+            return $"{minutes:00}:{rest:00.00}";
         }
 
         private void RefreshLevelText()
@@ -146,14 +164,16 @@ namespace JebbyJump.UI
                 ? _levelSession.CurrentConfig.name
                 : null;
 
-            BestTimeStore.TrySetBest(levelKey, elapsed);
+            bool isNewBest = BestTimeStore.TrySetBest(levelKey, elapsed);
             float best = BestTimeStore.GetBest(levelKey);
 
             if (_levelCompleteTimeText != null)
-                _levelCompleteTimeText.text = $"Time: {elapsed:F1}s";
+                _levelCompleteTimeText.text = $"Time: {FormatTime(elapsed)}";
 
             if (_levelCompleteBestTimeText != null)
-                _levelCompleteBestTimeText.text = float.IsNaN(best) ? "Best: --" : $"Best: {best:F1}s";
+                _levelCompleteBestTimeText.text = isNewBest
+                    ? $"Best: {FormatTime(best)}  (New!)"
+                    : (float.IsNaN(best) ? "Best: --" : $"Best: {FormatTime(best)}");
 
             if (_levelCompleteRankText != null && _rankConfig != null)
             {
