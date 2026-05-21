@@ -17,6 +17,8 @@ namespace JebbyJump.Player
         private Collider2D _playerCollider;
         private PlayerMotor _motor;
         private Platform _currentPlatform;
+        private Collider2D _lastGroundCol;
+        private int _groundedFramesOnCol;
 
         private void Awake()
         {
@@ -49,23 +51,52 @@ namespace JebbyJump.Player
         }
 
         // Edge of grounded — first frame Jebby's ground check overlaps a platform.
+        // Strict: only accept when clearly falling. Rejects apex/clip-through
+        // false positives where the motor briefly sees grounded at vy ≈ 0.
         private void OnMotorLanded(Collider2D groundCollider)
         {
+            if (_motor != null && _motor.Velocity.y > -0.1f)
+            {
+                Log("reject: not falling (motor-landed apex guard)", "motor-landed");
+                return;
+            }
             TryProcessLanding(groundCollider, "motor-landed");
         }
 
         // Grounded recheck — covers the case where the rising-edge landing was
         // rejected (e.g. edge/side-slide failed the horizontal bounds check) but
         // Jebby has since slid fully onto the platform top while still grounded.
+        // No velocity check (vy ≈ 0 is normal when grounded); instead a 2-frame
+        // debounce filters brief apex clip-through groundings.
         private void FixedUpdate()
         {
-            if (_motor == null || !_motor.IsGrounded) return;
+            if (_motor == null || !_motor.IsGrounded)
+            {
+                _groundedFramesOnCol = 0;
+                _lastGroundCol = null;
+                return;
+            }
             var col = _motor.CurrentGroundCollider;
-            if (col == null) return;
+            if (col == null)
+            {
+                _groundedFramesOnCol = 0;
+                _lastGroundCol = null;
+                return;
+            }
 
-            // Skip if we already accepted this platform.
+            if (col == _lastGroundCol) _groundedFramesOnCol++;
+            else { _lastGroundCol = col; _groundedFramesOnCol = 1; }
+
             var platform = col.GetComponentInParent<Platform>();
             if (platform == null || platform == _currentPlatform) return;
+
+            // Brief apex clip-through grounds for ~1 frame; sustained landings
+            // ground for many. Require ≥ 2 to filter the apex case.
+            if (_groundedFramesOnCol < 2)
+            {
+                Log("reject: grounded < 2 frames on this collider (debounce)", "grounded-recheck");
+                return;
+            }
 
             TryProcessLanding(col, "grounded-recheck");
         }
@@ -75,13 +106,6 @@ namespace JebbyJump.Player
             if (groundCollider == null)
             {
                 Log("reject: null ground collider", source);
-                return;
-            }
-
-            // Reject upward / apex false positives.
-            if (_motor != null && _motor.Velocity.y > 0.1f)
-            {
-                Log("reject: upward / not falling enough", source);
                 return;
             }
 
