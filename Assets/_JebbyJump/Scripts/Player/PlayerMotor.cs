@@ -15,6 +15,7 @@ namespace JebbyJump.Player
         public event Action Jumped;
 
         public bool IsGrounded { get; private set; }
+        public Collider2D CurrentGroundCollider { get; private set; }
         public Vector2 Velocity => _rb.linearVelocity;
 
         private Rigidbody2D _rb;
@@ -100,7 +101,9 @@ namespace JebbyJump.Player
             // Reject upward contact to prevent false grounded state when passing through
             // a one-way platform from below. Without this, _wasGrounded=true from the
             // pass-through detection consumes the rising edge needed for the real landing.
-            IsGrounded = hit != null && _rb.linearVelocity.y <= 0.1f;
+            bool grounded = hit != null && _rb.linearVelocity.y <= 0.1f;
+            IsGrounded = grounded;
+            CurrentGroundCollider = grounded ? hit : null;
             if (!_wasGrounded && IsGrounded)
                 Landed?.Invoke(hit);
         }
