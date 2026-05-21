@@ -13,6 +13,9 @@ namespace JebbyJump.Level
         [SerializeField] private GameObject _platformPrefab;
         [SerializeField] private GameObject _cactusPrefab;
 
+        [Tooltip("Vertical offset added to every spawned row. Shifts the entire row stack as a whole so the first jump from the origin floor can be tuned without editing each LevelConfig.")]
+        [SerializeField] private float _rowStartYOffset = -0.7f;
+
         public event Action CactusHit;
 
         public void SetConfig(LevelConfig config)
@@ -46,7 +49,7 @@ namespace JebbyJump.Level
 
             for (int row = 0; row < sequence.Count; row++)
             {
-                float rowY = _config.RowStartY + row * _config.RowVerticalSpacing;
+                float rowY = _config.RowStartY + _rowStartYOffset + row * _config.RowVerticalSpacing;
                 PlatformColor[] colors = BuildRowColors(sequence[row], _config.PlatformsPerRow, _config.AvailableColors);
                 Vector3[] positions = GetRowPositions(rowY, _config.PlatformsPerRow, _config.RowHorizontalSpread, _config.RowVerticalJitter);
 
