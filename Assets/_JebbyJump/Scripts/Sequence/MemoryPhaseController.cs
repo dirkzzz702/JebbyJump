@@ -93,7 +93,8 @@ namespace JebbyJump.Sequence
             _playerController?.SetJumpMultiplier(_sequenceManager.Config.MemoryPhaseJumpMultiplier);
             _displayUI.Show(_sequenceManager.Sequence);
             MemoryPhaseStarted?.Invoke();
-            _feedbackUI?.ShowMessage("Remember the colors!", _sequenceManager.Config.MemoryTimeSeconds);
+            // No long "Remember the colors!" feedback here — TutorialHintController owns
+            // that prompt on Level 1, and on later levels the swatches alone are the cue.
             yield return new WaitForSeconds(_sequenceManager.Config.MemoryTimeSeconds);
             _displayUI.Hide();
             _feedbackUI?.ShowMessage("Go!", 1f);

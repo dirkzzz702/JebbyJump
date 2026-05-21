@@ -108,7 +108,7 @@ namespace JebbyJump.UI
                 {
                     var go = new GameObject($"Heart_{i}", typeof(RectTransform), typeof(Image));
                     go.transform.SetParent(_livesIconContainer, false);
-                    go.GetComponent<RectTransform>().sizeDelta = new Vector2(36f, 36f);
+                    go.GetComponent<RectTransform>().sizeDelta = new Vector2(48f, 48f);
                     go.GetComponent<Image>().sprite = _lifeIconSprite;
                 }
             }
