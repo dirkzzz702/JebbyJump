@@ -12,16 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc77e7c5632966846b737866c3e96b5f, type: 3}
   m_Name: Level2Config
   m_EditorClassIdentifier: Assembly-CSharp::JebbyJump.Level.LevelConfig
-  _sequenceLength: 5
+  _sequenceLength: 4
   _memoryTimeSeconds: 5
   _memoryPhaseJumpMultiplier: 0.35
   _startingLives: 3
-  _availableColors: 01000000020000000400000003000000
-  _cactusSpawnChance: 0.25
+  _availableColors: 010000000200000003000000
+  _cactusSpawnChance: 0
   _platformsPerRow: 2
-  _rowVerticalSpacing: 3.7
+  _rowVerticalSpacing: 3.4
   _rowStartY: 3
-  _platformWidth: 3.6
+  _platformWidth: 4
   _platformHeight: 0.5
-  _rowHorizontalSpread: 8.5
+  _rowHorizontalSpread: 7.8
   _rowVerticalJitter: 0
+  _rankConfig: {fileID: 11400000, guid: 92fe2c02feee9594cbb0c37693cca3a5, type: 2}

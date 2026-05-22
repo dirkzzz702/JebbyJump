@@ -29,6 +29,9 @@ namespace JebbyJump.Level
         [SerializeField] private float _rowHorizontalSpread = 8f;
         [SerializeField] private float _rowVerticalJitter = 0f;
 
+        [Header("Time Rank")]
+        [SerializeField] private TimeRankConfig _rankConfig;
+
         public int SequenceLength => _sequenceLength;
         public float MemoryTimeSeconds => _memoryTimeSeconds;
         public float MemoryPhaseJumpMultiplier => _memoryPhaseJumpMultiplier;
@@ -44,6 +47,7 @@ namespace JebbyJump.Level
         public float PlatformHeight => _platformHeight;
         public float RowHorizontalSpread => _rowHorizontalSpread;
         public float RowVerticalJitter => _rowVerticalJitter;
+        public TimeRankConfig RankConfig => _rankConfig;
 
         private void OnValidate()
         {

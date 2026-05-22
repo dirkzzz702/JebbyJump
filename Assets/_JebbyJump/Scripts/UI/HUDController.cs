@@ -175,9 +175,16 @@ namespace JebbyJump.UI
                     ? $"Best: {FormatTime(best)}  (New!)"
                     : (float.IsNaN(best) ? "Best: --" : $"Best: {FormatTime(best)}");
 
-            if (_levelCompleteRankText != null && _rankConfig != null)
+            // Per-level rank config takes priority; fall back to the shared default.
+            var rankCfg = _levelSession != null
+                          && _levelSession.CurrentConfig != null
+                          && _levelSession.CurrentConfig.RankConfig != null
+                ? _levelSession.CurrentConfig.RankConfig
+                : _rankConfig;
+
+            if (_levelCompleteRankText != null && rankCfg != null)
             {
-                var rank = _rankConfig.GetRank(elapsed);
+                var rank = rankCfg.GetRank(elapsed);
                 _levelCompleteRankText.text = $"Rank: {rank}";
                 _levelCompleteRankText.color = rank switch
                 {
