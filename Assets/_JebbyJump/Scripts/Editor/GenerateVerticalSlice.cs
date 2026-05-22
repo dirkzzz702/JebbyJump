@@ -6,10 +6,21 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-// Idempotent: generates / re-tunes the 10-level vertical slice and wires the
-// LevelSessionController._levels array in the scene. Re-run any time to
-// reset the slice to the documented curve. Keep this tool in the project —
-// designers can edit the table below to retune levels without writing code.
+// Idempotent: generates / re-tunes the 10 LevelConfig + 10 TimeRankConfig
+// assets that form the vertical slice, and attempts to wire
+// LevelSessionController._levels in Game.unity.
+//
+// Known limitation: the scene-wiring step uses SerializedObject and is
+// reliable only on a re-run after all level assets already exist on disk.
+// On the very FIRST run (newly-created level assets), only the previously
+// existing slots (Level1-3) consistently persist into the scene array; the
+// new slots may show {fileID: 0}. The script self-verifies after saving the
+// scene and, if any slot is null, logs an ERROR listing the GUIDs to paste
+// manually into the scene's _levels block. Running the script a second time
+// (after assets exist on disk) typically fills the array correctly.
+//
+// Keep this tool in the project — designers can edit the table below to
+// retune levels without writing code.
 public static class GenerateVerticalSlice
 {
     private const string LevelFolder    = "Assets/_JebbyJump/Settings/Level";
@@ -112,8 +123,46 @@ public static class GenerateVerticalSlice
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
 
-        Debug.Log($"[VSlice] Done. {Specs.Length} TimeRankConfigs + {Specs.Length} LevelConfigs written. " +
-                  $"LevelSessionController._levels wired in order Level1..Level{Specs.Length}.");
+        // Self-verify scene wiring: re-read the saved scene file and confirm
+        // every _levels entry has a non-zero asset reference. If not, log the
+        // expected GUID list so it can be pasted manually.
+        VerifySceneWiring(levelAssets);
+
+        Debug.Log($"[VSlice] Done. {Specs.Length} TimeRankConfigs + {Specs.Length} LevelConfigs written.");
+    }
+
+    private static void VerifySceneWiring(LevelConfig[] expected)
+    {
+        string sceneText = File.ReadAllText(ScenePath);
+        int levelsIdx = sceneText.IndexOf("  _levels:", System.StringComparison.Ordinal);
+        if (levelsIdx < 0)
+        {
+            Debug.LogError("[VSlice] Could not find '_levels:' block in scene file.");
+            return;
+        }
+        // Inspect the next N lines.
+        var lines = sceneText.Substring(levelsIdx).Split('\n');
+        int nullCount = 0;
+        var missing = new System.Collections.Generic.List<string>();
+        for (int i = 1; i <= expected.Length && i < lines.Length; i++)
+        {
+            if (lines[i].Contains("{fileID: 0}"))
+            {
+                nullCount++;
+                string p = AssetDatabase.GetAssetPath(expected[i - 1]);
+                string guid = AssetDatabase.AssetPathToGUID(p);
+                missing.Add($"  - {{fileID: 11400000, guid: {guid}, type: 2}}   // slot {i - 1}: {expected[i - 1].name}");
+            }
+        }
+        if (nullCount == 0)
+        {
+            Debug.Log($"[VSlice] Scene wiring verified: all {expected.Length} entries persisted.");
+            return;
+        }
+
+        Debug.LogError($"[VSlice] Scene wiring INCOMPLETE: {nullCount} of {expected.Length} entries are {{fileID: 0}}.");
+        Debug.LogError("[VSlice] Run the script again (now that assets exist on disk) — that usually fixes it.");
+        Debug.LogError("[VSlice] If the second run still leaves nulls, paste the following lines manually into the _levels: block in Game.unity (replace any {fileID: 0} entries):\n" + string.Join("\n", missing));
     }
 
     // ─────────────────────────────────────────────────────────────────────────
