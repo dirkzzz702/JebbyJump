@@ -19,7 +19,7 @@ using UnityEngine;
 // manually into the scene's _levels block. Running the script a second time
 // (after assets exist on disk) typically fills the array correctly.
 //
-// Keep this tool in the project — designers can edit the table below to
+// Keep this tool in the project - designers can edit the table below to
 // retune levels without writing code.
 public static class GenerateVerticalSlice
 {
@@ -48,10 +48,10 @@ public static class GenerateVerticalSlice
     }
 
     // ---- The curve (revised per user direction):
-    //   L1–L3 retuned for gentle onboarding (gentler than the originals).
+    //   L1-L3 retuned for gentle onboarding (gentler than the originals).
     //   L8 memory time 5.0 (was proposed 4.0).
     //   L10 sequence 6 (was proposed 7), memory 5.0.
-    //   All rank thresholds are INITIAL — flag any that play unrealistic.
+    //   All rank thresholds are INITIAL - flag any that play unrealistic.
     private static readonly LevelSpec[] Specs = new[]
     {
         new LevelSpec { Name="Level1Config",  SeqLen=3, MemTime=5.0f, Lives=3, Colors=new[]{PlatformColor.Red, PlatformColor.Blue, PlatformColor.Green},                                                 PerRow=2, Cactus=0.00f, Spacing=3.3f, Spread=7.5f,  Width=4.0f, Height=0.5f, RowStartY=3f, Jitter=0.0f, S= 8, A=12, B=18 },
@@ -161,11 +161,11 @@ public static class GenerateVerticalSlice
         }
 
         Debug.LogError($"[VSlice] Scene wiring INCOMPLETE: {nullCount} of {expected.Length} entries are {{fileID: 0}}.");
-        Debug.LogError("[VSlice] Run the script again (now that assets exist on disk) — that usually fixes it.");
+        Debug.LogError("[VSlice] Run the script again (now that assets exist on disk) - that usually fixes it.");
         Debug.LogError("[VSlice] If the second run still leaves nulls, paste the following lines manually into the _levels: block in Game.unity (replace any {fileID: 0} entries):\n" + string.Join("\n", missing));
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // -------------------------------------------------------------------------
     private static TimeRankConfig EnsureRankAsset(int levelNumber, float s, float a, float b)
     {
         string path = $"{RankFolder}/Level{levelNumber:D2}_TimeRankConfig.asset";

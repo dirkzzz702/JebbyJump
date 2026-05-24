@@ -99,7 +99,7 @@ namespace JebbyJump.UI
                 _liveTimerText.text = FormatTime(_levelTimer.Elapsed);
         }
 
-        // MM:SS.SS — e.g. "00:12.34".
+        // MM:SS.SS - e.g. "00:12.34".
         private static string FormatTime(float seconds)
         {
             if (float.IsNaN(seconds) || seconds < 0f) seconds = 0f;
