@@ -1,5 +1,6 @@
 using JebbyJump.Flow;
 using JebbyJump.Level;
+using JebbyJump.Progression;
 using JebbyJump.Sequence;
 using TMPro;
 using UnityEngine;
@@ -199,7 +200,18 @@ namespace JebbyJump.UI
                     isFinal ? "MVP Complete!" : "Level Complete!";
             }
 
+            // Progression side effect lives here, not inside the display
+            // formatter below. Game Over / Retry never reach this method,
+            // so unlock cannot leak into failure paths.
+            RecordLevelCompletion();
+
             PopulateTimeRank();
+        }
+
+        private void RecordLevelCompletion()
+        {
+            if (_levelSession == null) return;
+            LevelProgressStore.UnlockNext(_levelSession.CurrentLevelIndex);
         }
 
         private void PopulateTimeRank()

@@ -1,4 +1,5 @@
 using System;
+using JebbyJump.Progression;
 using UnityEngine;
 
 namespace JebbyJump.Level
@@ -19,7 +20,19 @@ namespace JebbyJump.Level
 
         private void Awake()
         {
+            // Default to Level 1 unless the player picked a level on the
+            // Main Menu just before this scene loaded.
             CurrentLevelIndex = 0;
+            if (_levels != null && _levels.Length > 0)
+            {
+                int requested = PendingLevelSelection.Index;
+                if (requested >= 0 && requested < _levels.Length)
+                    CurrentLevelIndex = requested;
+            }
+            // Consume the selection so a return-to-menu + new run does not
+            // silently keep the previous index.
+            PendingLevelSelection.Reset();
+
             if (_levels == null || _levels.Length == 0)
                 Debug.LogError("[LevelSessionController] No levels assigned.", this);
         }

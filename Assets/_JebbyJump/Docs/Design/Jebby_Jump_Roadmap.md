@@ -140,6 +140,21 @@ Limited test, analytics, tuning.
 
 50 levels, monetization, wardrobe, services, mobile polish.
 
+## Current Production Phase Status
+
+```text
+P1 — Current Screen Production Polish              : complete
+P2 — Time Ranking System                           : complete
+P3 — 10-Level Data Foundation (vertical slice)     : complete (commit 42ee80f)
+P4A — Readiness / Analytical Verification          : complete (read-only verification, accepted)
+P4B — Manual Playtest + Balance Tuning             : deferred (awaiting tester data)
+P5A — Level Select / Local Progression Foundation  : in progress
+```
+
+P4 balance is intentionally deferred because manual tester data is not available yet.
+Current LevelConfig values and TimeRankConfig thresholds remain provisional.
+L8/L9/L10 are known candidates for future retuning after real playtest data.
+
 ## Open Decisions
 
 ```text
