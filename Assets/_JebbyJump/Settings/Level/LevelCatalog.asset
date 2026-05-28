@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b767c5ff644ba6c468d0720d4764a78d, type: 3}
+  m_Name: LevelCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::JebbyJump.Progression.LevelCatalog
+  _levels:
+  - {fileID: 11400000, guid: 5d9b9aa207955d745aecf980d5c854ef, type: 2}
+  - {fileID: 11400000, guid: 9476c7b41873d804991509482c2f0ce4, type: 2}
+  - {fileID: 11400000, guid: 75015c3559dd43d4d9b1c0e4014bc3f5, type: 2}
+  - {fileID: 11400000, guid: d792b3b33868df149a54d830ec4e40da, type: 2}
+  - {fileID: 11400000, guid: 1b08ae772c0f0dd43b4dd870237e7286, type: 2}
+  - {fileID: 11400000, guid: 15332970f325c824eb9efb5953360367, type: 2}
+  - {fileID: 11400000, guid: 9b3017e5869dbc74c95707d0ce740172, type: 2}
+  - {fileID: 11400000, guid: 14c0fc92b173ca149a2eba04c2ed6ca0, type: 2}
+  - {fileID: 11400000, guid: d99cf195c7d354f4f999e822e79b1d89, type: 2}
+  - {fileID: 11400000, guid: 519a2915ab31fa04799ed0a768d13c6b, type: 2}

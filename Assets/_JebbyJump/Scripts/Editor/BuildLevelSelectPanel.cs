@@ -1,3 +1,4 @@
+using JebbyJump.Progression;
 using JebbyJump.UI;
 using TMPro;
 using UnityEditor;
@@ -66,8 +67,10 @@ public static class BuildLevelSelectPanel
             panelRoot.Find("ScrollView/Viewport/Content") as RectTransform;
         var backButton = panelRoot.Find("BackButton")?.GetComponent<Button>();
 
-        WireController(controller, panelRoot, content, backButton, cardPrefab);
-        WireMainMenuStart(canvas, controller);
+        var catalog = FindSingleCatalog();
+        WireController(
+            controller, panelRoot, content, backButton, cardPrefab, catalog);
+        bool menuWired = WireMainMenuStart(controller);
 
         // Default to hidden; Main Menu controls visibility via Open().
         panelRoot.gameObject.SetActive(false);
@@ -78,13 +81,35 @@ public static class BuildLevelSelectPanel
         if (panelCreated)
             Debug.Log("[Scaffold] LevelSelectPanel built.");
         Debug.Log(
-            "[Scaffold] Wired: panelRoot, cardContainer, backButton, "
-            + "cardPrefab, MainMenuController._levelSelect.");
+            "[Scaffold] Wired controller: panelRoot, cardContainer, "
+            + "backButton, cardPrefab.");
         Debug.Log(
-            "[Scaffold] STILL MANUAL: drag LevelCatalog.asset into "
-            + "LevelSelectController._catalog. (Run "
-            + "'Jebby Jump/Progression/Create Or Sync Level Catalog' "
-            + "first if the asset does not exist yet.)");
+            "[Scaffold] MainMenuController._levelSelect wired: " + menuWired);
+
+        if (catalog != null)
+        {
+            Debug.Log(
+                "[Scaffold] Wired LevelSelectController._catalog to "
+                + AssetDatabase.GetAssetPath(catalog));
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[Scaffold] STILL MANUAL: no single LevelCatalog asset "
+                + "found to wire into LevelSelectController._catalog. Run "
+                + "'Jebby Jump/Progression/Create Or Sync Level Catalog' "
+                + "first, then re-run this scaffold or wire it by hand.");
+        }
+    }
+
+    // Returns the only LevelCatalog asset in the project, or null if there
+    // are zero or more than one (ambiguous -> leave for manual wiring).
+    private static LevelCatalog FindSingleCatalog()
+    {
+        string[] guids = AssetDatabase.FindAssets("t:LevelCatalog");
+        if (guids == null || guids.Length != 1) return null;
+        string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+        return AssetDatabase.LoadAssetAtPath<LevelCatalog>(path);
     }
 
     private static void EnsureSceneOpenInEditor()
@@ -337,7 +362,8 @@ public static class BuildLevelSelectPanel
         RectTransform panelRoot,
         RectTransform cardContainer,
         Button backButton,
-        LevelSelectCard cardPrefab)
+        LevelSelectCard cardPrefab,
+        LevelCatalog catalog)
     {
         var so = new SerializedObject(controller);
         SetIfEmpty(so, "_panelRoot", panelRoot != null
@@ -345,26 +371,31 @@ public static class BuildLevelSelectPanel
         SetIfEmpty(so, "_cardContainer", cardContainer);
         SetIfEmpty(so, "_backButton", backButton);
         SetIfEmpty(so, "_cardPrefab", cardPrefab);
+        SetIfEmpty(so, "_catalog", catalog);
         so.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(controller);
     }
 
-    private static void WireMainMenuStart(
-        Canvas canvas, LevelSelectController controller)
+    // Returns true if MainMenuController._levelSelect was (or already is)
+    // wired. The controller can live anywhere in the scene, not only
+    // under the Canvas, so search the whole scene.
+    private static bool WireMainMenuStart(LevelSelectController controller)
     {
-        var menu = canvas.GetComponentInChildren<MainMenuController>(true);
+        var menu = Object.FindFirstObjectByType<MainMenuController>(
+            FindObjectsInactive.Include);
         if (menu == null)
         {
             Debug.LogWarning(
-                "[Scaffold] No MainMenuController under the Canvas. "
+                "[Scaffold] No MainMenuController found in the scene. "
                 + "Wire the Start button to LevelSelectController.Open() "
                 + "manually.");
-            return;
+            return false;
         }
         var so = new SerializedObject(menu);
         SetIfEmpty(so, "_levelSelect", controller);
         so.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(menu);
+        return true;
     }
 
     private static void SetIfEmpty(
