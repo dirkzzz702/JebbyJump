@@ -40,14 +40,14 @@ public static class CreateOrSyncLevelCatalog
             {
                 Debug.LogError(
                     "[LevelCatalog] Could not find a LevelSessionController "
-                    + "in Game.unity. Aborting — catalog left untouched.");
+                    + "in Game.unity. Aborting; catalog left untouched.");
                 return;
             }
             if (levels.Count == 0)
             {
                 Debug.LogError(
                     "[LevelCatalog] LevelSessionController._levels is empty. "
-                    + "Aborting — catalog left untouched.");
+                    + "Aborting; catalog left untouched.");
                 return;
             }
 

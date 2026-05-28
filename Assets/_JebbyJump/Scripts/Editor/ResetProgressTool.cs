@@ -2,9 +2,9 @@ using JebbyJump.Progression;
 using UnityEditor;
 using UnityEngine;
 
-// Dev-only menu items for clearing local progression and / or best
+// Dev-only menu items for clearing local progression and/or best
 // times. Useful for verifying locked-card states and fresh-install
-// behaviour without uninstalling the app. No best-rank reset path —
+// behaviour without uninstalling the app. No best-rank reset path;
 // rank is never persisted in this design.
 public static class ResetProgressTool
 {

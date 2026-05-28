@@ -9,7 +9,7 @@ using UnityEngine.UI;
 // One-shot scaffold: builds a LevelSelectPanel (hidden by default)
 // inside MainMenu.unity, creates a LevelSelectCard prefab if missing,
 // and wires references where it can safely guess. Re-running is
-// idempotent — if the panel already exists, only the wiring is
+// idempotent: if the panel already exists, only the wiring is
 // refreshed. The user still has to drag the LevelCatalog asset into
 // LevelSelectController._catalog (the scaffold can't safely guess
 // across assets if multiple catalogs exist) and save the scene.
@@ -38,7 +38,7 @@ public static class BuildLevelSelectPanel
         {
             Debug.LogError(
                 "[Scaffold] No Canvas found in MainMenu.unity. "
-                + "Abort — the Main Menu must already have a Canvas.");
+                + "Abort: the Main Menu must already have a Canvas.");
             return;
         }
 
@@ -52,7 +52,7 @@ public static class BuildLevelSelectPanel
         else
         {
             Debug.Log(
-                "[Scaffold] LevelSelectPanel already present — "
+                "[Scaffold] LevelSelectPanel already present - "
                 + "skipping creation, refreshing wiring only.");
         }
 
@@ -69,7 +69,7 @@ public static class BuildLevelSelectPanel
         WireController(controller, panelRoot, content, backButton, cardPrefab);
         WireMainMenuStart(canvas, controller);
 
-        // Default to hidden — Main Menu controls visibility via Open().
+        // Default to hidden; Main Menu controls visibility via Open().
         panelRoot.gameObject.SetActive(false);
 
         EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());

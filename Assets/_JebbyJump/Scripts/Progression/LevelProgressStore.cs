@@ -4,7 +4,7 @@ namespace JebbyJump.Progression
 {
     // Local unlock state, PlayerPrefs-backed. Tracks only the highest
     // unlocked level index. Best time stays in BestTimeStore. Rank is
-    // intentionally NOT persisted here — Level Select recomputes it from
+    // intentionally NOT persisted here. Level Select recomputes it from
     // best time + the current LevelConfig.RankConfig so future threshold
     // tuning never strands a stale stored rank.
     //
@@ -34,7 +34,7 @@ namespace JebbyJump.Progression
             return index <= highest;
         }
 
-        // Called after a successful level clear. Monotonic — only advances.
+        // Called after a successful level clear. Monotonic; only advances.
         public static void UnlockNext(int completedIndex)
         {
             if (completedIndex < 0) return;

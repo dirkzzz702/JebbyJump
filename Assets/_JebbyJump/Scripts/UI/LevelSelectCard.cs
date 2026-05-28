@@ -7,7 +7,7 @@ namespace JebbyJump.UI
 {
     // A single Level Select cell. Spawned and bound by
     // LevelSelectController. The card itself does not know what "open
-    // this level" means — it just reports clicks with its index.
+    // this level" means; it just reports clicks with its index.
     public class LevelSelectCard : MonoBehaviour
     {
         [SerializeField] private Button _button;

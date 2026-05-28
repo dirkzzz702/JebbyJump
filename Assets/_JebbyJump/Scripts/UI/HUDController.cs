@@ -201,7 +201,7 @@ namespace JebbyJump.UI
             }
 
             // Progression side effect lives here, not inside the display
-            // formatter below. Game Over / Retry never reach this method,
+            // formatter below. Game Over and Retry never reach this method,
             // so unlock cannot leak into failure paths.
             RecordLevelCompletion();
 

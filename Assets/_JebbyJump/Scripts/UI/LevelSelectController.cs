@@ -8,8 +8,8 @@ using UnityEngine.UI;
 namespace JebbyJump.UI
 {
     // Populates the Level Select grid from a LevelCatalog. Best time
-    // comes from BestTimeStore. Rank is computed dynamically from best
-    // time + LevelConfig.RankConfig at display time — never persisted —
+    // comes from BestTimeStore. Rank is computed dynamically at display
+    // time from best time + LevelConfig.RankConfig and is never stored,
     // so future TimeRankConfig tuning cannot strand a stale stored rank.
     public class LevelSelectController : MonoBehaviour
     {

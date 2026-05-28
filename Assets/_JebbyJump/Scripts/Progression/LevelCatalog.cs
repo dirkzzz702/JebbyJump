@@ -25,9 +25,9 @@ namespace JebbyJump.Progression
             return _levels[index];
         }
 
-        // Stable persistent key for a level slot. Uses the LevelConfig
-        // asset name (e.g. "Level1Config") so the key matches the
-        // BestTimeStore convention (JebbyJump.BestTime.<assetName>).
+        // Stable persistent key for a level slot. Returns the
+        // LevelConfig asset name (e.g. "Level1Config"), matching the
+        // BestTimeStore key convention (JebbyJump.BestTime.<assetName>).
         public string GetLevelKey(int index)
         {
             var cfg = Get(index);
