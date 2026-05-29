@@ -1,4 +1,5 @@
 using System;
+using JebbyJump.Progression;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,6 +22,10 @@ namespace JebbyJump.UI
             new Color(1f, 1f, 1f, 1f);
         [SerializeField] private Color _lockedColor =
             new Color(0.55f, 0.55f, 0.55f, 1f);
+        // Soft green; defaulted in code so the existing prefab needs no
+        // edit to show the completed tint.
+        [SerializeField] private Color _completedColor =
+            new Color(0.78f, 0.93f, 0.78f, 1f);
 
         public event Action<int> Clicked;
         public int LevelIndex { get; private set; }
@@ -37,11 +42,12 @@ namespace JebbyJump.UI
 
         public void Bind(
             int levelIndex,
-            bool isUnlocked,
+            LevelCardState state,
             string bestTimeDisplay,
             string bestRankDisplay)
         {
             LevelIndex = levelIndex;
+            bool isUnlocked = state != LevelCardState.Locked;
 
             if (_levelNumberText != null)
                 _levelNumberText.text = (levelIndex + 1).ToString();
@@ -59,7 +65,14 @@ namespace JebbyJump.UI
                 _button.interactable = isUnlocked;
 
             if (_background != null)
-                _background.color = isUnlocked ? _unlockedColor : _lockedColor;
+            {
+                _background.color = state switch
+                {
+                    LevelCardState.Completed => _completedColor,
+                    LevelCardState.Unlocked  => _unlockedColor,
+                    _                        => _lockedColor,
+                };
+            }
         }
 
         private void OnClicked() => Clicked?.Invoke(LevelIndex);

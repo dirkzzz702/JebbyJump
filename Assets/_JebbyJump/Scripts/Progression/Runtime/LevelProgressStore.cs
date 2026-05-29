@@ -43,6 +43,15 @@ namespace JebbyJump.Progression
                 HighestUnlockedIndex = next;
         }
 
+        // Target level index for a "Continue" action: the highest unlocked
+        // level, clamped to a valid catalog range. Returns 0 when there are
+        // no levels (caller should disable Continue in that case anyway).
+        public static int GetContinueIndex(int levelCount)
+        {
+            if (levelCount <= 0) return 0;
+            return Mathf.Clamp(HighestUnlockedIndex, 0, levelCount - 1);
+        }
+
         // Dev-only. Deletes the single unlock key so a fresh-install state
         // can be restored from the editor.
         public static void ResetLocalProgress()

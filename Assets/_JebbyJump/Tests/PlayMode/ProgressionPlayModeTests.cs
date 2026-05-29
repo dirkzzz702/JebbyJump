@@ -129,5 +129,63 @@ namespace JebbyJump.Tests
             PendingLevelSelection.Reset();
             Assert.AreEqual(0, PendingLevelSelection.Index);
         }
+
+        [Test]
+        public void GetContinueIndex_FreshState_IsZero()
+        {
+            Assert.AreEqual(0, LevelProgressStore.GetContinueIndex(10));
+        }
+
+        [Test]
+        public void GetContinueIndex_AfterUnlock_IsHighestUnlocked()
+        {
+            LevelProgressStore.UnlockNext(3); // highest -> 4
+            Assert.AreEqual(4, LevelProgressStore.GetContinueIndex(10));
+        }
+
+        [Test]
+        public void GetContinueIndex_ClampsWhenHighestExceedsCount()
+        {
+            // Clearing the final level pushes highest to count (10), which
+            // is out of range; Continue must clamp to the last index.
+            for (int i = 0; i < 10; i++) LevelProgressStore.UnlockNext(i);
+            Assert.AreEqual(10, LevelProgressStore.HighestUnlockedIndex);
+            Assert.AreEqual(9, LevelProgressStore.GetContinueIndex(10));
+        }
+
+        [Test]
+        public void GetContinueIndex_NonPositiveCount_IsZero()
+        {
+            LevelProgressStore.UnlockNext(5);
+            Assert.AreEqual(0, LevelProgressStore.GetContinueIndex(0));
+            Assert.AreEqual(0, LevelProgressStore.GetContinueIndex(-3));
+        }
+
+        [Test]
+        public void ClassifyCard_Locked_WhenNotUnlocked()
+        {
+            Assert.AreEqual(
+                LevelCardState.Locked,
+                LevelCardClassifier.Classify(false, false));
+            Assert.AreEqual(
+                LevelCardState.Locked,
+                LevelCardClassifier.Classify(false, true));
+        }
+
+        [Test]
+        public void ClassifyCard_Unlocked_WhenNoBestTime()
+        {
+            Assert.AreEqual(
+                LevelCardState.Unlocked,
+                LevelCardClassifier.Classify(true, false));
+        }
+
+        [Test]
+        public void ClassifyCard_Completed_WhenHasBestTime()
+        {
+            Assert.AreEqual(
+                LevelCardState.Completed,
+                LevelCardClassifier.Classify(true, true));
+        }
     }
 }

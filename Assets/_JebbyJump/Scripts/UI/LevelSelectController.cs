@@ -87,26 +87,26 @@ namespace JebbyJump.UI
                 float best = !string.IsNullOrEmpty(levelKey)
                     ? BestTimeStore.GetBest(levelKey)
                     : float.NaN;
-                string bestText = float.IsNaN(best)
-                    ? "Best: --"
-                    : $"Best: {FormatTime(best)}";
+                bool hasBest = !float.IsNaN(best);
+                string bestText = hasBest
+                    ? $"Best {FormatTime(best)}"
+                    : "Best --";
 
                 // Rank is recomputed every time the panel opens.
                 // No persistent rank store; tuning the TimeRankConfig
                 // immediately reflects in the displayed rank.
                 var cfg = _catalog.Get(i);
                 TimeRank? rank = null;
-                if (!float.IsNaN(best)
-                    && cfg != null
-                    && cfg.RankConfig != null)
+                if (hasBest && cfg != null && cfg.RankConfig != null)
                 {
                     rank = cfg.RankConfig.GetRank(best);
                 }
                 string rankText = rank.HasValue
-                    ? $"Rank: {rank.Value}"
-                    : "Rank: --";
+                    ? $"Rank {rank.Value}"
+                    : "Rank --";
 
-                card.Bind(i, unlocked, bestText, rankText);
+                var state = LevelCardClassifier.Classify(unlocked, hasBest);
+                card.Bind(i, state, bestText, rankText);
                 card.Clicked += OnCardClicked;
                 _spawned.Add(card);
             }
