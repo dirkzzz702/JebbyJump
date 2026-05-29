@@ -109,3 +109,7 @@ InitTestScene*.unity*
 # Plastic SCM
 .plastic/
 ignore.conf
+
+# Transient performance-test-framework artifacts (regenerated each test run)
+/[Aa]ssets/[Rr]esources/PerformanceTestRun*.json
+/[Aa]ssets/[Rr]esources/PerformanceTestRun*.json.meta
