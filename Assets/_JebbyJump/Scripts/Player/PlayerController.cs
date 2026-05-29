@@ -1,4 +1,5 @@
 using JebbyJump.Inputs;
+using JebbyJump.Session;
 using UnityEngine;
 
 namespace JebbyJump.Player
@@ -50,7 +51,11 @@ namespace JebbyJump.Player
                 return;
             }
 
-            _motor.SetMoveInput(_input.Move.x);
+            // Ignore horizontal input while paused; movement is applied in
+            // FixedUpdate (frozen at timeScale 0) but zeroing the intent
+            // prevents a held button from lurching on resume.
+            _motor.SetMoveInput(
+                PauseState.IsPaused ? 0f : _input.Move.x);
         }
 
         private bool _jumpEnabled = true;
@@ -76,6 +81,7 @@ namespace JebbyJump.Player
 
         private void OnJumpStarted()
         {
+            if (PauseState.IsPaused) return;
             if (_motor != null && _jumpEnabled)
             {
                 _motor.RequestJump();

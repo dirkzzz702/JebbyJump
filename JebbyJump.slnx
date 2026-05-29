@@ -1,5 +1,6 @@
 ﻿<Solution>
   <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="JebbyJump.Session.Runtime.csproj" />
   <Project Path="JebbyJump.Tests.PlayMode.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="JebbyJump.Progression.Runtime.csproj" />

@@ -1,4 +1,5 @@
 using JebbyJump.Inputs;
+using JebbyJump.Session;
 using JebbyJump.UI;
 using UnityEngine;
 
@@ -60,6 +61,11 @@ namespace JebbyJump.Items
 
         public void TryUseSkill()
         {
+            // Block activation while paused. timeScale 0 freezes the
+            // cooldown/duration, but Activate() applies its stat changes
+            // immediately, so it must not run during pause.
+            if (PauseState.IsPaused) return;
+
             if (!_canUseSkill)
             {
                 _feedbackUI?.ShowMessage("Wait for Go!", 0.8f);

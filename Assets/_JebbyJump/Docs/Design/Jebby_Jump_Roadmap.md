@@ -148,12 +148,20 @@ P2 — Time Ranking System                           : complete
 P3 — 10-Level Data Foundation (vertical slice)     : complete (commit 42ee80f)
 P4A — Readiness / Analytical Verification          : complete (read-only verification, accepted)
 P4B — Manual Playtest + Balance Tuning             : deferred (awaiting tester data)
-P5A — Level Select / Local Progression Foundation  : in progress
+P5A — Level Select / Local Progression Foundation  : complete
+P5B — Continue Flow + Level Select UX Polish        : complete (automated; manual UI smoke deferred)
+P5C — Pause Menu / In-Game Flow Polish              : in progress
 ```
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
 L8/L9/L10 are known candidates for future retuning after real playtest data.
+
+P5B manual rendered UI smoke test remains DEFERRED. Automated compile and
+PlayMode logic tests passed, but the visible Main Menu / Level Select
+interaction (panel opens, 10 cards render, lock/unlock/completed visuals,
+Continue jumps to the right level) still requires manual QA later. It is
+NOT marked completed.
 
 ## Open Decisions
 
