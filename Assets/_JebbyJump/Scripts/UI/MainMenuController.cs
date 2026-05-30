@@ -13,8 +13,10 @@ namespace JebbyJump.UI
     {
         [SerializeField] private Button _continueButton;
         [SerializeField] private Button _startButton;
+        [SerializeField] private Button _settingsButton;
         [SerializeField] private Button _quitButton;
         [SerializeField] private LevelSelectController _levelSelect;
+        [SerializeField] private SettingsPanelController _settingsPanel;
         [SerializeField] private LevelCatalog _catalog;
 
         private void Awake()
@@ -23,6 +25,8 @@ namespace JebbyJump.UI
                 _continueButton.onClick.AddListener(OnContinueClicked);
             if (_startButton != null)
                 _startButton.onClick.AddListener(OnStartClicked);
+            if (_settingsButton != null)
+                _settingsButton.onClick.AddListener(OnSettingsClicked);
             if (_quitButton != null)
                 _quitButton.onClick.AddListener(SceneLoader.QuitGame);
 
@@ -48,6 +52,8 @@ namespace JebbyJump.UI
                 _continueButton.onClick.RemoveListener(OnContinueClicked);
             if (_startButton != null)
                 _startButton.onClick.RemoveListener(OnStartClicked);
+            if (_settingsButton != null)
+                _settingsButton.onClick.RemoveListener(OnSettingsClicked);
             if (_quitButton != null)
                 _quitButton.onClick.RemoveListener(SceneLoader.QuitGame);
         }
@@ -79,6 +85,18 @@ namespace JebbyJump.UI
                 return;
             }
             _levelSelect.Open();
+        }
+
+        private void OnSettingsClicked()
+        {
+            if (_settingsPanel == null)
+            {
+                Debug.LogWarning(
+                    "[MainMenu] No SettingsPanelController assigned; "
+                    + "Settings click ignored.");
+                return;
+            }
+            _settingsPanel.Open();
         }
     }
 }

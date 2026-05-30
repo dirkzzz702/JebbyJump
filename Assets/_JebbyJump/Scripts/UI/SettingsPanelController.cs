@@ -1,0 +1,109 @@
+using JebbyJump.Audio;
+using JebbyJump.Settings;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace JebbyJump.UI
+{
+    // Settings panel: music slider, SFX slider, mute toggle, back button,
+    // and an optional Reset Defaults button. Populates from
+    // AudioSettingsStore on Open and writes back on each change, calling
+    // the applier so changes take effect immediately.
+    //
+    // _initializing guard prevents the slider/toggle event handlers from
+    // re-writing the store while we're seeding their values from the
+    // store on Open.
+    public class SettingsPanelController : MonoBehaviour
+    {
+        [SerializeField] private GameObject _panelRoot;
+        [SerializeField] private Slider _musicSlider;
+        [SerializeField] private Slider _sfxSlider;
+        [SerializeField] private Toggle _muteToggle;
+        [SerializeField] private Button _backButton;
+        [SerializeField] private Button _resetButton;
+        [SerializeField] private AudioSettingsApplier _applier;
+
+        private bool _initializing;
+
+        private void Awake()
+        {
+            if (_panelRoot != null) _panelRoot.SetActive(false);
+
+            if (_musicSlider != null)
+                _musicSlider.onValueChanged.AddListener(OnMusicChanged);
+            if (_sfxSlider != null)
+                _sfxSlider.onValueChanged.AddListener(OnSfxChanged);
+            if (_muteToggle != null)
+                _muteToggle.onValueChanged.AddListener(OnMuteChanged);
+            if (_backButton != null)
+                _backButton.onClick.AddListener(Close);
+            if (_resetButton != null)
+                _resetButton.onClick.AddListener(OnResetClicked);
+        }
+
+        private void OnDestroy()
+        {
+            if (_musicSlider != null)
+                _musicSlider.onValueChanged.RemoveListener(OnMusicChanged);
+            if (_sfxSlider != null)
+                _sfxSlider.onValueChanged.RemoveListener(OnSfxChanged);
+            if (_muteToggle != null)
+                _muteToggle.onValueChanged.RemoveListener(OnMuteChanged);
+            if (_backButton != null)
+                _backButton.onClick.RemoveListener(Close);
+            if (_resetButton != null)
+                _resetButton.onClick.RemoveListener(OnResetClicked);
+        }
+
+        public void Open()
+        {
+            PopulateFromStore();
+            if (_panelRoot != null) _panelRoot.SetActive(true);
+        }
+
+        public void Close()
+        {
+            if (_panelRoot != null) _panelRoot.SetActive(false);
+        }
+
+        private void PopulateFromStore()
+        {
+            _initializing = true;
+            if (_musicSlider != null)
+                _musicSlider.value = AudioSettingsStore.MusicVolume;
+            if (_sfxSlider != null)
+                _sfxSlider.value = AudioSettingsStore.SfxVolume;
+            if (_muteToggle != null)
+                _muteToggle.isOn = AudioSettingsStore.Muted;
+            _initializing = false;
+        }
+
+        private void OnMusicChanged(float value)
+        {
+            if (_initializing) return;
+            AudioSettingsStore.MusicVolume = value;
+            _applier?.ApplyAll();
+        }
+
+        private void OnSfxChanged(float value)
+        {
+            if (_initializing) return;
+            AudioSettingsStore.SfxVolume = value;
+            _applier?.ApplyAll();
+        }
+
+        private void OnMuteChanged(bool value)
+        {
+            if (_initializing) return;
+            AudioSettingsStore.Muted = value;
+            _applier?.ApplyAll();
+        }
+
+        private void OnResetClicked()
+        {
+            AudioSettingsStore.ResetToDefaults();
+            PopulateFromStore();
+            _applier?.ApplyAll();
+        }
+    }
+}

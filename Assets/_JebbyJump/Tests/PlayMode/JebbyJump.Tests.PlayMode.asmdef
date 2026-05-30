@@ -5,7 +5,8 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "JebbyJump.Progression.Runtime",
-        "JebbyJump.Session.Runtime"
+        "JebbyJump.Session.Runtime",
+        "JebbyJump.Settings.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
