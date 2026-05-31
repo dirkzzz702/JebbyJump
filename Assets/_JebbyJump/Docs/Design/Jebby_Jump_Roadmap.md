@@ -151,7 +151,7 @@ P4B — Manual Playtest + Balance Tuning             : deferred (awaiting tester
 P5A — Level Select / Local Progression Foundation  : complete
 P5B — Continue Flow + Level Select UX Polish        : complete (automated; manual UI smoke deferred)
 P5C — Pause Menu / In-Game Flow Polish              : complete (automated; visible pause interaction deferred)
-P5D — Basic Audio / Settings Foundation             : in progress
+P5D — Basic Audio / Settings Foundation             : complete (automated; visible Settings UI QA deferred)
 ```
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
@@ -168,6 +168,12 @@ P5C visible pause interaction remains DEFERRED. Automated compile, scaffold,
 and PlayMode logic tests passed, but the visible in-game pause flow
 (Pause button opens panel, gameplay freezes, Resume/Restart/Main Menu
 behave correctly, timeScale restored) still requires manual QA later.
+It is NOT marked completed.
+
+P5D visible Settings panel interaction remains DEFERRED. Automated compile,
+scaffold, and PlayMode settings tests passed, but the visible Settings flow
+(Settings button opens panel, sliders/toggle populate from store and apply
+immediately, Back returns to Main Menu) still requires manual UI QA later.
 It is NOT marked completed.
 
 ## Open Decisions

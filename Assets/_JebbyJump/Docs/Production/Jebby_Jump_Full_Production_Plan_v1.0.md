@@ -291,7 +291,7 @@ Launch target:
 | P5A   | Level Select / Local Progression Foundation      | complete                                                  |
 | P5B   | Continue Flow + Level Select UX Polish           | complete (automated; manual UI smoke deferred)            |
 | P5C   | Pause Menu / In-Game Flow Polish                 | complete (automated; visible pause interaction deferred)  |
-| P5D   | Basic Audio / Settings Foundation                | in progress                                               |
+| P5D   | Basic Audio / Settings Foundation                | complete (automated; visible Settings UI QA deferred)     |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -304,6 +304,11 @@ still requires manual QA later. It is NOT marked completed.
 P5C visible pause interaction remains DEFERRED. Automated compile, scaffold,
 and PlayMode logic tests passed, but visible in-game pause flow still
 requires manual QA later. It is NOT marked completed.
+
+P5D visible Settings panel interaction remains DEFERRED. Automated compile,
+scaffold, and PlayMode settings tests passed, but visible Settings flow
+(sliders/toggle populate and apply, Back returns to Main Menu) still
+requires manual UI QA later. It is NOT marked completed.
 
 ## Open Decisions Before Implementation
 
