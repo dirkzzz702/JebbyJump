@@ -27,6 +27,7 @@ namespace JebbyJump.UI
         [SerializeField] private SettingsPanelController _settingsPanel;
 
         private bool _canPause = true;
+        private bool _settingsOpen;
         public bool IsPaused { get; private set; }
 
         private void Awake()
@@ -113,6 +114,11 @@ namespace JebbyJump.UI
 
         private void TogglePause()
         {
+            // While Settings is open from Pause, ignore the pause hotkey.
+            // Toggling here would either unpause behind the open Settings
+            // panel or hide it - both leave hidden/confusing state. Back
+            // is the only intended exit from Settings.
+            if (_settingsOpen) return;
             if (IsPaused) Resume();
             else Pause();
         }
@@ -130,6 +136,7 @@ namespace JebbyJump.UI
         {
             if (!IsPaused) return;
             IsPaused = false;
+            _settingsOpen = false;
             PauseState.SetPaused(false);
             Time.timeScale = 1f;
             if (_pausePanel != null) _pausePanel.SetActive(false);
@@ -164,16 +171,23 @@ namespace JebbyJump.UI
                     + "Settings click ignored.");
                 return;
             }
+            if (_settingsOpen) return;
+            _settingsOpen = true;
             if (_pausePanel != null) _pausePanel.SetActive(false);
             _settingsPanel.Open(() =>
             {
-                if (_pausePanel != null) _pausePanel.SetActive(true);
+                _settingsOpen = false;
+                // Only restore the Pause panel if still paused; a Resume/
+                // Restart/Main Menu that ran meanwhile must not resurrect it.
+                if (IsPaused && _pausePanel != null)
+                    _pausePanel.SetActive(true);
             });
         }
 
         private void UnpauseTimeOnly()
         {
             IsPaused = false;
+            _settingsOpen = false;
             PauseState.SetPaused(false);
             Time.timeScale = 1f;
         }
