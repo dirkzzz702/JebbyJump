@@ -292,23 +292,64 @@ Launch target:
 | P5B   | Continue Flow + Level Select UX Polish           | complete (automated; manual UI smoke deferred)            |
 | P5C   | Pause Menu / In-Game Flow Polish                 | complete (automated; visible pause interaction deferred)  |
 | P5D   | Basic Audio / Settings Foundation                | complete (automated; visible Settings UI QA deferred)     |
+| P5E   | Settings-from-Pause Integration                  | complete (automated; visible Pause->Settings deferred)    |
+| P5F   | Shell Polish / Deferred QA Consolidation         | complete (PauseButton overlap fixed; visual QA deferred)  |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
 L8/L9/L10 are known candidates for future retuning after real playtest data.
 
-P5B manual rendered UI smoke test remains DEFERRED. Automated compile and
-PlayMode logic tests passed, but visible Main Menu / Level Select interaction
-still requires manual QA later. It is NOT marked completed.
+## Deferred Manual UI QA Backlog
 
-P5C visible pause interaction remains DEFERRED. Automated compile, scaffold,
-and PlayMode logic tests passed, but visible in-game pause flow still
-requires manual QA later. It is NOT marked completed.
+Consolidated list of visible UI checks NOT yet performed. Automated
+verification (compile + scaffold + PlayMode logic tests) passed for every
+phase below, but the rendered interaction could not be driven headlessly.
+None of these is marked complete. (Supersedes the previous scattered
+per-phase "remains DEFERRED" notes.)
 
-P5D visible Settings panel interaction remains DEFERRED. Automated compile,
-scaffold, and PlayMode settings tests passed, but visible Settings flow
-(sliders/toggle populate and apply, Back returns to Main Menu) still
-requires manual UI QA later. It is NOT marked completed.
+```text
+P5B — Main Menu / Level Select visible flow  [DEFERRED / NOT VERIFIED]
+  - Continue / Level Select / Settings / Quit visible and correctly stacked
+  - Level Select opens
+  - exactly 10 cards render
+  - locked / unlocked / completed states visually clear
+  - completed card shows Best / Rank
+  - locked cards cannot start
+  - Continue starts highest unlocked level
+
+P5C — Pause visible flow  [DEFERRED / NOT VERIFIED]
+  - Pause button appears and does not overlap important HUD
+  - Pause opens panel
+  - timer and gameplay visibly freeze
+  - Resume / Restart / Main Menu work
+  - Retry / Game Over / Level Complete flows still correct
+
+P5D — Settings visible flow  [DEFERRED / NOT VERIFIED]
+  - Main Menu Settings opens / closes
+  - Music / SFX sliders and Mute toggle display correctly
+  - values persist after reopen
+  - no console errors
+
+P5E — Pause Settings visible flow  [DEFERRED / NOT VERIFIED]
+  - Pause -> Settings opens Settings while paused
+  - Back returns to Pause panel
+  - Pause hotkey while Settings is open is ignored
+  - Resume unpauses only after returning from Settings
+
+Visual polish (low priority)  [DEFERRED / NOT VERIFIED]
+  - Settings panel layout / spacing
+  - Main Menu button stack spacing
+  - Level Select card spacing / readability
+
+P4B — Manual playtest + balance tuning  [DEFERRED — awaiting tester data]
+  - per-level clear-time feel, fairness, S/A/B/C threshold tuning
+  - LevelConfig values and TimeRankConfig thresholds remain provisional
+    (L8/L9/L10 are known retune candidates)
+```
+
+P5F note: the PauseButton-vs-timer overlap was addressed objectively in
+P5F from the scene RectTransforms (PauseButton moved down to clear the
+top-right timer band). Visual confirmation belongs to the P5C list above.
 
 ## Open Decisions Before Implementation
 

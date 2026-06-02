@@ -98,9 +98,11 @@ public static class BuildPauseMenu
         rt.anchorMin = new Vector2(1f, 1f);
         rt.anchorMax = new Vector2(1f, 1f);
         rt.pivot     = new Vector2(1f, 1f);
-        rt.anchoredPosition = new Vector2(-24f, -24f);
+        // Below the live timer (which sits at top-right ~36-96px from the
+        // top) so the two no longer overlap. See P5F.
+        rt.anchoredPosition = new Vector2(-24f, -116f);
         rt.sizeDelta = new Vector2(96f, 96f);
-        Debug.Log("[Pause] Created PauseButton (top-right).");
+        Debug.Log("[Pause] Created PauseButton (top-right, below timer).");
         return go.GetComponent<Button>();
     }
 
