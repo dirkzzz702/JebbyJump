@@ -28,6 +28,12 @@ public static class BuildSettingsPanel
     private const float SettingsY = -20f;
     private const float QuitY     = -120f;
 
+    // Pause panel 4-button stack (Resume / Restart / Settings / Main Menu).
+    private const float PauseResumeY   =  120f;
+    private const float PauseRestartY  =   20f;
+    private const float PauseSettingsY =  -80f;
+    private const float PauseMainMenuY = -180f;
+
     [MenuItem("Jebby Jump/Scaffold/Build Settings Panel")]
     public static void Run()
     {
@@ -137,17 +143,19 @@ public static class BuildSettingsPanel
 
     private static SettingsPanelController EnsureSettingsPanel(Canvas canvas)
     {
-        var existing = canvas.transform.Find("SettingsPanel");
-        if (existing != null)
+        // Reuse any existing panel anywhere in the active scene. A per-
+        // canvas Find() is not enough: a scene may have several root
+        // canvases, and re-runs must never create a second panel.
+        var existingCtrl =
+            Object.FindFirstObjectByType<SettingsPanelController>(
+                FindObjectsInactive.Include);
+        if (existingCtrl != null)
         {
-            var ctrl = existing.GetComponent<SettingsPanelController>();
-            if (ctrl == null)
-                ctrl = existing.gameObject.AddComponent<SettingsPanelController>();
             // Rewire children into the controller in case they were
             // recreated by hand.
-            WirePanelChildren(ctrl);
-            existing.gameObject.SetActive(false);
-            return ctrl;
+            WirePanelChildren(existingCtrl);
+            existingCtrl.gameObject.SetActive(false);
+            return existingCtrl;
         }
 
         var panelGO = new GameObject(
@@ -238,14 +246,22 @@ public static class BuildSettingsPanel
         }
         OpenScene(GameScenePath);
 
-        Canvas canvas = FindMainCanvas();
+        // The Game scene has several root canvases (HUD, MobileControls,
+        // Sequence). Anchor new Settings objects to the SAME canvas the
+        // PausePanel lives on, so Pause -> Settings layering is coherent
+        // and placement is deterministic across re-runs (driven by an
+        // existing wired ref, not arbitrary canvas iteration order).
+        Canvas canvas = FindPauseCanvas() ?? FindMainCanvas();
         if (canvas == null)
         {
             Debug.LogError("[Settings] No Canvas in Game. Abort.");
             return;
         }
 
-        var applier = canvas.GetComponent<AudioSettingsApplier>();
+        // Reuse an existing applier anywhere in the scene (the P5D one may
+        // live on a different canvas); only add if none exists at all.
+        var applier = Object.FindFirstObjectByType<AudioSettingsApplier>(
+            FindObjectsInactive.Include);
         bool created = false;
         if (applier == null)
         {
@@ -277,13 +293,98 @@ public static class BuildSettingsPanel
         so.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(applier);
 
+        // Build a Game-scene SettingsPanel (mirrors MainMenu's) so Pause
+        // can route into the same controller pattern. Reuses
+        // EnsureSettingsPanel + WirePanelChildren from the MainMenu path.
+        SettingsPanelController gameSettingsPanel =
+            EnsureSettingsPanel(canvas);
+        WireApplierIntoPanel(gameSettingsPanel, applier);
+
+        bool pauseWired = WirePauseSettings(canvas, gameSettingsPanel);
+
         EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
         EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
 
         Debug.Log(
             "[Settings] Game scaffolded: AudioSettingsApplier "
             + (created ? "added" : "reused")
-            + "; _sfxSource wired: " + (sfxSource != null));
+            + "; _sfxSource wired: " + (sfxSource != null)
+            + "; SettingsPanel ready; PauseSettings wired: " + pauseWired);
+    }
+
+    // Add Settings button to PausePanel, restack the 4 buttons, and wire
+    // PauseMenuController._settingsButton + _settingsPanel. Idempotent:
+    // reuses existing SettingsButton if present. Returns true on success.
+    private static bool WirePauseSettings(
+        Canvas canvas, SettingsPanelController settingsPanel)
+    {
+        var pauseCtrl = Object.FindFirstObjectByType<PauseMenuController>(
+            FindObjectsInactive.Include);
+        if (pauseCtrl == null)
+        {
+            Debug.LogWarning(
+                "[Settings] No PauseMenuController in Game; skipping "
+                + "Pause Settings wiring.");
+            return false;
+        }
+        var ctrlSo = new SerializedObject(pauseCtrl);
+        var pausePanelGO = ctrlSo.FindProperty("_pausePanel")
+            .objectReferenceValue as GameObject;
+        var resumeBtn = ctrlSo.FindProperty("_resumeButton")
+            .objectReferenceValue as Button;
+        var restartBtn = ctrlSo.FindProperty("_restartButton")
+            .objectReferenceValue as Button;
+        var mainMenuBtn = ctrlSo.FindProperty("_mainMenuButton")
+            .objectReferenceValue as Button;
+        if (pausePanelGO == null || resumeBtn == null
+            || restartBtn == null || mainMenuBtn == null)
+        {
+            Debug.LogWarning(
+                "[Settings] PauseMenuController is missing core refs "
+                + "(_pausePanel/_resumeButton/_restartButton/_mainMenuButton); "
+                + "run Build Pause Menu first.");
+            return false;
+        }
+        Transform pausePanel = pausePanelGO.transform;
+        float x = resumeBtn.GetComponent<RectTransform>()
+            .anchoredPosition.x;
+
+        // Idempotent SettingsButton (cloned from Resume so style matches).
+        Button settingsBtn;
+        var existing = pausePanel.Find("SettingsButton");
+        if (existing != null)
+        {
+            settingsBtn = existing.GetComponent<Button>();
+            SetLabel(settingsBtn, "Settings");
+        }
+        else
+        {
+            var clone = Object.Instantiate(
+                resumeBtn.gameObject, pausePanel);
+            clone.name = "SettingsButton";
+            settingsBtn = clone.GetComponent<Button>();
+            SetLabel(settingsBtn, "Settings");
+            Debug.Log(
+                "[Settings] Created Pause SettingsButton (cloned Resume).");
+        }
+
+        // Restack the four buttons consistently every run.
+        SetY(resumeBtn, x, PauseResumeY);
+        SetY(restartBtn, x, PauseRestartY);
+        SetY(settingsBtn, x, PauseSettingsY);
+        SetY(mainMenuBtn, x, PauseMainMenuY);
+
+        // Sibling order: place Settings between Restart and Main Menu.
+        settingsBtn.transform.SetSiblingIndex(
+            mainMenuBtn.transform.GetSiblingIndex());
+
+        ctrlSo.FindProperty("_settingsButton").objectReferenceValue =
+            settingsBtn;
+        ctrlSo.FindProperty("_settingsPanel").objectReferenceValue =
+            settingsPanel;
+        ctrlSo.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(pauseCtrl);
+        return true;
     }
 
     // ---- helpers ------------------------------------------------------
@@ -306,6 +407,21 @@ public static class BuildSettingsPanel
         for (int i = 0; i < canvases.Length; i++)
             if (canvases[i].isRootCanvas) return canvases[i];
         return canvases.Length > 0 ? canvases[0] : null;
+    }
+
+    // The root canvas hosting the PausePanel (via PauseMenuController).
+    // Deterministic across re-runs: derived from an existing wired ref
+    // rather than canvas iteration order. Null if pause UI is absent.
+    private static Canvas FindPauseCanvas()
+    {
+        var pauseCtrl = Object.FindFirstObjectByType<PauseMenuController>(
+            FindObjectsInactive.Include);
+        if (pauseCtrl == null) return null;
+        var panel = new SerializedObject(pauseCtrl)
+            .FindProperty("_pausePanel").objectReferenceValue as GameObject;
+        if (panel == null) return null;
+        var c = panel.GetComponentInParent<Canvas>();
+        return c != null ? c.rootCanvas : null;
     }
 
     private static void Set(SerializedObject so, string field, Object value)

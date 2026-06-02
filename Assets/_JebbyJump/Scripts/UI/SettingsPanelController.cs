@@ -1,3 +1,4 @@
+using System;
 using JebbyJump.Audio;
 using JebbyJump.Settings;
 using UnityEngine;
@@ -24,6 +25,7 @@ namespace JebbyJump.UI
         [SerializeField] private AudioSettingsApplier _applier;
 
         private bool _initializing;
+        private Action _onClosed;
 
         private void Awake()
         {
@@ -61,9 +63,24 @@ namespace JebbyJump.UI
             if (_panelRoot != null) _panelRoot.SetActive(true);
         }
 
+        // Pause-menu path: open with a callback that fires on Close so the
+        // caller can restore its own UI (e.g. the Pause panel). Does not
+        // touch Time.timeScale or PauseState - the pause invariants are
+        // preserved by NOT changing them here.
+        public void Open(Action onClosed)
+        {
+            _onClosed = onClosed;
+            Open();
+        }
+
         public void Close()
         {
             if (_panelRoot != null) _panelRoot.SetActive(false);
+            // Clear before invoking so a callback that itself reopens the
+            // panel cannot leak a stale handler.
+            var cb = _onClosed;
+            _onClosed = null;
+            cb?.Invoke();
         }
 
         private void PopulateFromStore()

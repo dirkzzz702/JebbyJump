@@ -19,10 +19,12 @@ namespace JebbyJump.UI
         [SerializeField] private GameObject _pausePanel;
         [SerializeField] private Button _resumeButton;
         [SerializeField] private Button _restartButton;
+        [SerializeField] private Button _settingsButton;
         [SerializeField] private Button _mainMenuButton;
         [SerializeField] private MemoryPhaseController _phaseController;
         [SerializeField] private LevelProgressTracker _progressTracker;
         [SerializeField] private InputReader _input;
+        [SerializeField] private SettingsPanelController _settingsPanel;
 
         private bool _canPause = true;
         public bool IsPaused { get; private set; }
@@ -42,6 +44,8 @@ namespace JebbyJump.UI
                 _resumeButton.onClick.AddListener(Resume);
             if (_restartButton != null)
                 _restartButton.onClick.AddListener(RestartLevel);
+            if (_settingsButton != null)
+                _settingsButton.onClick.AddListener(OnSettingsClicked);
             if (_mainMenuButton != null)
                 _mainMenuButton.onClick.AddListener(ReturnToMainMenu);
         }
@@ -80,6 +84,8 @@ namespace JebbyJump.UI
                 _resumeButton.onClick.RemoveListener(Resume);
             if (_restartButton != null)
                 _restartButton.onClick.RemoveListener(RestartLevel);
+            if (_settingsButton != null)
+                _settingsButton.onClick.RemoveListener(OnSettingsClicked);
             if (_mainMenuButton != null)
                 _mainMenuButton.onClick.RemoveListener(ReturnToMainMenu);
 
@@ -143,6 +149,26 @@ namespace JebbyJump.UI
             // the next scene, so no stale selection is replayed.
             UnpauseTimeOnly();
             SceneLoader.LoadMainMenu();
+        }
+
+        // Open Settings while keeping the game paused. Hide the Pause
+        // panel for the duration; restore it on Back via the close
+        // callback. Does NOT touch Time.timeScale or PauseState - the
+        // pause invariants must hold across the Settings round-trip.
+        private void OnSettingsClicked()
+        {
+            if (_settingsPanel == null)
+            {
+                Debug.LogWarning(
+                    "[Pause] No SettingsPanelController assigned; "
+                    + "Settings click ignored.");
+                return;
+            }
+            if (_pausePanel != null) _pausePanel.SetActive(false);
+            _settingsPanel.Open(() =>
+            {
+                if (_pausePanel != null) _pausePanel.SetActive(true);
+            });
         }
 
         private void UnpauseTimeOnly()
