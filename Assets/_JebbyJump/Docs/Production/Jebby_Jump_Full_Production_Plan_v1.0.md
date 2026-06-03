@@ -297,6 +297,7 @@ Launch target:
 | P6A   | Analytics / Event Tracking Foundation            | complete (local debug sink only; no SDK/backend/network)  |
 | P6B   | Analytics Event Review / Provider-Ready Cleanup  | complete (central catalog + payload sanitization; local-only) |
 | P6C   | Reward / Economy Design Spec                     | complete (design spec only; no runtime/economy code)      |
+| P7A   | Stars-Only Mastery Reward Foundation             | complete (local Stars only; no Spark Coins/Gems/shop/ads) |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -450,6 +451,31 @@ ads**; cosmetic-first spending; rewards never affect rank fairness. Future
 economy analytics events are documented (extending the P6A/P6B catalog via
 `IAnalyticsSink`) but not implemented. Implementation maps to the existing
 **P7 Economy Foundation** phase and is gated on manual playtest + analytics.
+
+## P7A — Stars-Only Mastery Reward Foundation
+
+Status: implemented. Scope: **local Stars only** - a per-level mastery record,
+not a spendable/farmable currency. No Spark Coins, Rainbow Gems, shop,
+wardrobe, ads, IAP, backend, cloud save, or paid currency.
+
+- Rules: S/A = 3, B = 2, C = 1, completed-with-no-rank-config = 1, failure = 0.
+  Stars track the **best** achieved rank per level and **never decrease** on
+  replay; they do not affect progression unlocks, rank, or time.
+- Persistence: `StarRewardStore` (PlayerPrefs) with per-level keys
+  `jebby.rewards.levelStars.{levelIndex}` only - no aggregate key;
+  `GetTotalStars(levelCount)` sums on demand (no drift). `StarRewardCalculator`
+  is the pure rank→stars mapping. Both live in `JebbyJump.Rewards.Runtime`.
+- UI: result panel shows `Stars: N/3` (+ "New Star Best!" on improvement) via
+  a scaffolded `StarsText` (`Jebby Jump/Scaffold/Build Stars Display`,
+  idempotent). Existing time/rank/best-time display unchanged.
+- Analytics (local debug only, extends the P6A/P6B catalog): `reward_granted`
+  and `star_total_changed`, emitted **only when a clear increases the stored
+  best**. No backend/provider/network.
+- Reset: `Jebby Jump/Reset/Reset Stars`, and Stars are included in
+  `Reset Everything`. Reset Local Progress / Reset Best Times unchanged.
+- Deferred: **Level Select card star display → P7B** (avoids card layout
+  redesign); Spark Coins / Rainbow Gems / cosmetics / shop / ads remain
+  deferred per P6C. Reward numbers stay placeholders pending P4B + analytics.
 
 ## Open Decisions Before Implementation
 

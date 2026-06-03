@@ -1,4 +1,5 @@
 using JebbyJump.Progression;
+using JebbyJump.Rewards;
 using UnityEditor;
 using UnityEngine;
 
@@ -37,11 +38,27 @@ public static class ResetProgressTool
         Debug.Log("[ResetProgress] Best times cleared for all levels.");
     }
 
+    [MenuItem("Jebby Jump/Reset/Reset Stars")]
+    public static void ResetStars()
+    {
+        var catalog = LoadCatalog();
+        if (catalog == null)
+        {
+            Debug.LogWarning(
+                "[ResetProgress] LevelCatalog not found; "
+                + "cannot enumerate star keys.");
+            return;
+        }
+        StarRewardStore.ResetAll(catalog.Count);
+        Debug.Log("[ResetProgress] Mastery stars cleared for all levels.");
+    }
+
     [MenuItem("Jebby Jump/Reset/Reset Everything")]
     public static void ResetEverything()
     {
         ResetLocalProgress();
         ResetBestTimes();
+        ResetStars();
         Debug.Log("[ResetProgress] Full reset complete.");
     }
 

@@ -31,6 +31,9 @@ namespace JebbyJump.Analytics
         public const string PauseSettingsOpened         = "pause_settings_opened";
 
         public const string SettingsChanged             = "settings_changed";
+
+        public const string RewardGranted               = "reward_granted";
+        public const string StarTotalChanged            = "star_total_changed";
     }
 
     // Central catalog of analytics parameter keys. Same stability contract
@@ -57,5 +60,12 @@ namespace JebbyJump.Analytics
         public const string Value              = "value";
         public const string IsReplay           = "is_replay";
         public const string HasBestTime        = "has_best_time";
+        public const string RewardType         = "reward_type";
+        public const string Amount             = "amount";
+        public const string TotalForLevel      = "total_for_level";
+        public const string PreviousForLevel   = "previous_for_level";
+        public const string OldTotal           = "old_total";
+        public const string NewTotal           = "new_total";
+        public const string Delta              = "delta";
     }
 }

@@ -2,6 +2,7 @@ using JebbyJump.Analytics;
 using JebbyJump.Flow;
 using JebbyJump.Level;
 using JebbyJump.Progression;
+using JebbyJump.Rewards;
 using JebbyJump.Sequence;
 using TMPro;
 using UnityEngine;
@@ -33,6 +34,9 @@ namespace JebbyJump.UI
         [SerializeField] private TextMeshProUGUI _levelCompleteTimeText;
         [SerializeField] private TextMeshProUGUI _levelCompleteBestTimeText;
         [SerializeField] private TextMeshProUGUI _levelCompleteRankText;
+        // Optional per-level mastery stars on the result panel.
+        // Null until scaffolded; star logic/store/analytics run regardless.
+        [SerializeField] private TextMeshProUGUI _levelCompleteStarsText;
         // Optional top-right live timer.
         [SerializeField] private TextMeshProUGUI _liveTimerText;
 
@@ -284,6 +288,55 @@ namespace JebbyJump.UI
             }
 
             EmitCompletionAnalytics(elapsed, oldBest, best, isNewBest, computedRank);
+            GrantStars(computedRank);
+        }
+
+        // Awards mastery stars for this clear (S/A=3, B=2, C=1, completed
+        // with no rank config=1). Best-only via StarRewardStore (never
+        // decreases). Updates the result-panel stars text if wired, and
+        // emits reward analytics only when the stored best increases.
+        private void GrantStars(TimeRank? computedRank)
+        {
+            int levelIndex = _levelSession != null
+                ? _levelSession.CurrentLevelIndex : 0;
+            int levelCount = _levelSession != null
+                ? _levelSession.TotalLevels : 0;
+
+            string rankStr = computedRank.HasValue
+                ? computedRank.Value.ToString() : null;
+            int starsThisClear =
+                StarRewardCalculator.StarsForRank(rankStr, completed: true);
+
+            int prevStars = StarRewardStore.GetStars(levelIndex);
+            int oldTotal  = StarRewardStore.GetTotalStars(levelCount);
+            int storedStars =
+                StarRewardStore.SetStarsIfHigher(levelIndex, starsThisClear);
+            bool improved = storedStars > prevStars;
+
+            if (_levelCompleteStarsText != null)
+            {
+                _levelCompleteStarsText.text =
+                    $"Stars: {starsThisClear}/{StarRewardCalculator.MaxStars}"
+                    + (improved ? "  (New Star Best!)" : string.Empty);
+            }
+
+            // Emit only when the stored best actually increased - a replay
+            // with an equal/lower rank grants nothing and emits nothing.
+            if (!improved) return;
+
+            int newTotal = StarRewardStore.GetTotalStars(levelCount);
+            AnalyticsService.Track(AnalyticsEvents.RewardGranted,
+                AnalyticsParam.Of(AnalyticsParams.RewardType, "stars"),
+                AnalyticsParam.Of(AnalyticsParams.LevelIndex, levelIndex),
+                AnalyticsParam.Of(AnalyticsParams.LevelNumber, levelIndex + 1),
+                AnalyticsParam.Of(AnalyticsParams.Amount, storedStars - prevStars),
+                AnalyticsParam.Of(AnalyticsParams.TotalForLevel, storedStars),
+                AnalyticsParam.Of(AnalyticsParams.PreviousForLevel, prevStars),
+                AnalyticsParam.Of(AnalyticsParams.Reason, "level_clear"));
+            AnalyticsService.Track(AnalyticsEvents.StarTotalChanged,
+                AnalyticsParam.Of(AnalyticsParams.OldTotal, oldTotal),
+                AnalyticsParam.Of(AnalyticsParams.NewTotal, newTotal),
+                AnalyticsParam.Of(AnalyticsParams.Delta, newTotal - oldTotal));
         }
 
         // Single source of truth for completion analytics. rank is included

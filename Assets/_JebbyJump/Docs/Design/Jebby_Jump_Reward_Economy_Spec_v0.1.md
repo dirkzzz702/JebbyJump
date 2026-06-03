@@ -5,6 +5,15 @@ code, no ads SDK. This document defines future direction; implementation is
 deferred to the planned P7 Economy Foundation phase and gated on P4B manual
 playtest + analytics data.
 
+> **P7A update (implemented):** the first slice of this direction shipped as
+> the **Stars-Only Mastery Reward Foundation** - local per-level mastery
+> stars (S/A=3, B=2, C=1, completed-no-rank=1, failure=0), best-only and
+> never decreasing, not a spendable currency. Result panel shows `Stars: N/3`;
+> local `reward_granted` / `star_total_changed` analytics fire only on
+> improvement. **Still deferred:** Spark Coins, Rainbow Gems, cosmetics, shop,
+> ads, paid currency, and Level Select star display (→ P7B). Reward numbers
+> remain placeholders pending P4B + analytics.
+
 ---
 
 ## 1. Purpose
