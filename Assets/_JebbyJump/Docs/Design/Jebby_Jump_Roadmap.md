@@ -156,7 +156,16 @@ P5E — Settings-from-Pause Integration               : complete (automated; vis
 P5F — Shell Polish / Deferred QA Consolidation       : complete (PauseButton overlap fixed; visual confirmation deferred)
 P6A — Analytics / Event Tracking Foundation          : complete (local debug sink only; no SDK/backend/network; provider integration deferred)
 P6B — Analytics Event Review / Provider-Ready Cleanup : complete (central catalog + payload sanitization; settings_changed kept noisy/debounce-later; rank_earned stays removed; local-only)
+P6C — Reward / Economy Design Spec                   : complete (design spec only; no runtime/economy code; implementation deferred to P7)
 ```
+
+P6C produced a design-only reward/economy spec (no code). See
+`Assets/_JebbyJump/Docs/Design/Jebby_Jump_Reward_Economy_Spec_v0.1.md`.
+Near-term direction: Stars (mastery) primary, Spark Coins (earned-only soft
+currency) reserved, Rainbow Gems deferred, no hard/paid currency, no loot
+boxes, no forced ads, cosmetic-first spending, reward numbers are placeholders
+pending P4B + analytics. Implementation maps to the existing P7 Economy
+Foundation phase.
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.

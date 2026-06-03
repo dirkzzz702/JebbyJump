@@ -296,6 +296,7 @@ Launch target:
 | P5F   | Shell Polish / Deferred QA Consolidation         | complete (PauseButton overlap fixed; visual QA deferred)  |
 | P6A   | Analytics / Event Tracking Foundation            | complete (local debug sink only; no SDK/backend/network)  |
 | P6B   | Analytics Event Review / Provider-Ready Cleanup  | complete (central catalog + payload sanitization; local-only) |
+| P6C   | Reward / Economy Design Spec                     | complete (design spec only; no runtime/economy code)      |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -434,6 +435,21 @@ event is **provider-ready**.
 No PII collected. No network. No SDK. Real analytics provider integration
 remains **deferred**. Manual UI QA backlog (P5B–P5F) and P4B balance/playtest
 remain **deferred**.
+
+## P6C — Reward / Economy Design Spec
+
+Status: implemented as **design spec only**. No economy/monetization/ads
+runtime, no code, no scene/asset/package changes. Full spec:
+`Assets/_JebbyJump/Docs/Design/Jebby_Jump_Reward_Economy_Spec_v0.1.md`.
+
+Near-term direction (placeholders pending P4B + analytics): **Stars** as the
+primary per-level mastery reward; **Spark Coins** reserved as an earned-only
+soft currency for cosmetics; **Rainbow Gems** (GDD launch currency) deferred;
+**no hard/paid currency, no loot boxes, no forced ads, no progression-gated
+ads**; cosmetic-first spending; rewards never affect rank fairness. Future
+economy analytics events are documented (extending the P6A/P6B catalog via
+`IAnalyticsSink`) but not implemented. Implementation maps to the existing
+**P7 Economy Foundation** phase and is gated on manual playtest + analytics.
 
 ## Open Decisions Before Implementation
 
