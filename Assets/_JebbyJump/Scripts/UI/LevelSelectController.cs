@@ -42,7 +42,7 @@ namespace JebbyJump.UI
 
         public void Open()
         {
-            AnalyticsService.Track("level_select_opened");
+            AnalyticsService.Track(AnalyticsEvents.LevelSelectOpened);
             if (_panelRoot != null) _panelRoot.SetActive(true);
             Rebuild();
         }
@@ -123,11 +123,11 @@ namespace JebbyJump.UI
             string levelKey = _catalog.GetLevelKey(levelIndex);
             bool hasBest = !string.IsNullOrEmpty(levelKey)
                 && !float.IsNaN(BestTimeStore.GetBest(levelKey));
-            AnalyticsService.Track("level_selected",
-                AnalyticsParam.Of("level_index", levelIndex),
-                AnalyticsParam.Of("level_number", levelIndex + 1),
-                AnalyticsParam.Of("is_replay", hasBest),
-                AnalyticsParam.Of("has_best_time", hasBest));
+            AnalyticsService.Track(AnalyticsEvents.LevelSelected,
+                AnalyticsParam.Of(AnalyticsParams.LevelIndex, levelIndex),
+                AnalyticsParam.Of(AnalyticsParams.LevelNumber, levelIndex + 1),
+                AnalyticsParam.Of(AnalyticsParams.IsReplay, hasBest),
+                AnalyticsParam.Of(AnalyticsParams.HasBestTime, hasBest));
 
             PendingLevelSelection.Index = levelIndex;
             PendingLevelSelection.Source = "level_select";

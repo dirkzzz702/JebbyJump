@@ -105,14 +105,14 @@ namespace JebbyJump.Sequence
                 ? _levelSession.CurrentLevelIndex : 0;
             int sequenceLength = _sequenceManager.Sequence != null
                 ? _sequenceManager.Sequence.Count : 0;
-            AnalyticsService.Track("level_started",
-                AnalyticsParam.Of("level_index", levelIndex),
-                AnalyticsParam.Of("level_number", levelIndex + 1),
-                AnalyticsParam.Of("source", _attemptSource ?? "default"));
-            AnalyticsService.Track("memory_phase_started",
-                AnalyticsParam.Of("level_index", levelIndex),
-                AnalyticsParam.Of("level_number", levelIndex + 1),
-                AnalyticsParam.Of("sequence_length", sequenceLength));
+            AnalyticsService.Track(AnalyticsEvents.LevelStarted,
+                AnalyticsParam.Of(AnalyticsParams.LevelIndex, levelIndex),
+                AnalyticsParam.Of(AnalyticsParams.LevelNumber, levelIndex + 1),
+                AnalyticsParam.Of(AnalyticsParams.Source, _attemptSource ?? "default"));
+            AnalyticsService.Track(AnalyticsEvents.MemoryPhaseStarted,
+                AnalyticsParam.Of(AnalyticsParams.LevelIndex, levelIndex),
+                AnalyticsParam.Of(AnalyticsParams.LevelNumber, levelIndex + 1),
+                AnalyticsParam.Of(AnalyticsParams.SequenceLength, sequenceLength));
 
             SetAllSkillsUsable(false);
             _playerController?.SetJumpMultiplier(_sequenceManager.Config.MemoryPhaseJumpMultiplier);
@@ -125,9 +125,9 @@ namespace JebbyJump.Sequence
             SetAllSkillsUsable(true);
             _playerController?.SetJumpMultiplier(1f);
             _levelTimer?.StartTimer();
-            AnalyticsService.Track("gameplay_started",
-                AnalyticsParam.Of("level_index", levelIndex),
-                AnalyticsParam.Of("level_number", levelIndex + 1));
+            AnalyticsService.Track(AnalyticsEvents.GameplayStarted,
+                AnalyticsParam.Of(AnalyticsParams.LevelIndex, levelIndex),
+                AnalyticsParam.Of(AnalyticsParams.LevelNumber, levelIndex + 1));
             Debug.Log("[MemoryPhaseController] Memory phase ended. Playing.");
         }
 
@@ -207,10 +207,10 @@ namespace JebbyJump.Sequence
             _phase = Phase.Completed;
             int levelIndex = _levelSession != null
                 ? _levelSession.CurrentLevelIndex : 0;
-            AnalyticsService.Track("level_failed",
-                AnalyticsParam.Of("level_index", levelIndex),
-                AnalyticsParam.Of("level_number", levelIndex + 1),
-                AnalyticsParam.Of("reason", "lives_depleted"));
+            AnalyticsService.Track(AnalyticsEvents.LevelFailed,
+                AnalyticsParam.Of(AnalyticsParams.LevelIndex, levelIndex),
+                AnalyticsParam.Of(AnalyticsParams.LevelNumber, levelIndex + 1),
+                AnalyticsParam.Of(AnalyticsParams.Reason, "lives_depleted"));
             Debug.Log("[MemoryPhaseController] Game over!");
         }
 
@@ -223,11 +223,11 @@ namespace JebbyJump.Sequence
                 ? _levelSession.CurrentLevelIndex : 0;
             int remaining = _progressTracker != null
                 ? Mathf.Max(0, _progressTracker.Lives - 1) : 0;
-            AnalyticsService.Track("player_damaged",
-                AnalyticsParam.Of("level_index", levelIndex),
-                AnalyticsParam.Of("level_number", levelIndex + 1),
-                AnalyticsParam.Of("remaining_lives", remaining),
-                AnalyticsParam.Of("source", source));
+            AnalyticsService.Track(AnalyticsEvents.PlayerDamaged,
+                AnalyticsParam.Of(AnalyticsParams.LevelIndex, levelIndex),
+                AnalyticsParam.Of(AnalyticsParams.LevelNumber, levelIndex + 1),
+                AnalyticsParam.Of(AnalyticsParams.RemainingLives, remaining),
+                AnalyticsParam.Of(AnalyticsParams.Source, source));
         }
 
         private void ApplySessionConfig()

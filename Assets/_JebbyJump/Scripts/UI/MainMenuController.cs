@@ -73,15 +73,15 @@ namespace JebbyJump.UI
             int target = LevelProgressStore.GetContinueIndex(_catalog.Count);
             PendingLevelSelection.Index = target;
             PendingLevelSelection.Source = "continue";
-            AnalyticsService.Track("main_menu_continue_clicked",
-                AnalyticsParam.Of("target_level_index", target),
-                AnalyticsParam.Of("target_level_number", target + 1));
+            AnalyticsService.Track(AnalyticsEvents.MainMenuContinueClicked,
+                AnalyticsParam.Of(AnalyticsParams.TargetLevelIndex, target),
+                AnalyticsParam.Of(AnalyticsParams.TargetLevelNumber, target + 1));
             SceneLoader.LoadGame();
         }
 
         private void OnStartClicked()
         {
-            AnalyticsService.Track("main_menu_level_select_clicked");
+            AnalyticsService.Track(AnalyticsEvents.MainMenuLevelSelectClicked);
             if (_levelSelect == null)
             {
                 Debug.LogWarning(
@@ -95,7 +95,7 @@ namespace JebbyJump.UI
 
         private void OnSettingsClicked()
         {
-            AnalyticsService.Track("main_menu_settings_opened");
+            AnalyticsService.Track(AnalyticsEvents.MainMenuSettingsOpened);
             if (_settingsPanel == null)
             {
                 Debug.LogWarning(

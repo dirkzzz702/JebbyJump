@@ -119,6 +119,69 @@ namespace JebbyJump.Tests
                 ListContainsName(sink.Recent, "pause_opened"));
         }
 
+        [Test]
+        public void Sanitize_DropsNullAndUnsupportedValues_KeepsPrimitives()
+        {
+            var sink = new CaptureSink();
+            AnalyticsService.SetSink(sink);
+
+            // Built via the public object ctor with a mix of values.
+            Assert.DoesNotThrow(() => AnalyticsService.Track("evt",
+                new AnalyticsParam("good_int", 7),
+                new AnalyticsParam("good_str", "ok"),
+                new AnalyticsParam("null_val", null),
+                new AnalyticsParam("bad_obj", new object())));
+
+            var e = sink.Events.Find(x => x.Name == "evt");
+            Assert.AreEqual("evt", e.Name);
+            // Only the two supported primitives survive sanitization.
+            Assert.AreEqual(2, e.Parameters.Count);
+            Assert.IsTrue(HasKey(e.Parameters, "good_int"));
+            Assert.IsTrue(HasKey(e.Parameters, "good_str"));
+            Assert.IsFalse(HasKey(e.Parameters, "null_val"));
+            Assert.IsFalse(HasKey(e.Parameters, "bad_obj"));
+        }
+
+        [Test]
+        public void DebugSink_BufferCapsAtCapacity()
+        {
+            var sink = new DebugAnalyticsSink();
+            AnalyticsService.SetSink(sink);
+
+            for (int i = 0; i < DebugAnalyticsSink.BufferCapacity + 40; i++)
+                AnalyticsService.Track("level_started");
+
+            Assert.AreEqual(
+                DebugAnalyticsSink.BufferCapacity, sink.Recent.Count);
+        }
+
+        [Test]
+        public void SetSink_DoesNotReEmitAppSessionStarted()
+        {
+            var first = new CaptureSink();
+            AnalyticsService.SetSink(first);
+            AnalyticsService.Track("level_started"); // starts the session
+
+            var second = new CaptureSink();
+            AnalyticsService.SetSink(second);
+            AnalyticsService.Track("pause_opened");
+
+            Assert.IsFalse(
+                second.Events.Exists(
+                    e => e.Name == AnalyticsService.EventAppSessionStarted),
+                "Swapping sinks must not re-emit app_session_started.");
+            Assert.IsTrue(
+                second.Events.Exists(e => e.Name == "pause_opened"));
+        }
+
+        private static bool HasKey(
+            IReadOnlyList<AnalyticsParam> ps, string key)
+        {
+            for (int i = 0; i < ps.Count; i++)
+                if (ps[i].Key == key) return true;
+            return false;
+        }
+
         private static bool ListContainsName(
             IReadOnlyList<AnalyticsEvent> list, string name)
         {

@@ -298,21 +298,21 @@ namespace JebbyJump.UI
                 ? _levelSession.CurrentLevelIndex : 0;
             int levelNumber = levelIndex + 1;
 
-            AnalyticsService.Track("level_completed",
-                AnalyticsParam.Of("level_index", levelIndex),
-                AnalyticsParam.Of("level_number", levelNumber),
-                AnalyticsParam.Of("elapsed_time", elapsed),
-                AnalyticsParam.Of("rank", rank.HasValue ? rank.Value.ToString() : "none"),
-                AnalyticsParam.Of("is_new_best", isNewBest));
+            AnalyticsService.Track(AnalyticsEvents.LevelCompleted,
+                AnalyticsParam.Of(AnalyticsParams.LevelIndex, levelIndex),
+                AnalyticsParam.Of(AnalyticsParams.LevelNumber, levelNumber),
+                AnalyticsParam.Of(AnalyticsParams.ElapsedTime, elapsed),
+                AnalyticsParam.Of(AnalyticsParams.Rank, rank.HasValue ? rank.Value.ToString() : "none"),
+                AnalyticsParam.Of(AnalyticsParams.IsNewBest, isNewBest));
 
             if (isNewBest && !float.IsNaN(oldBest))
             {
-                AnalyticsService.Track("best_time_improved",
-                    AnalyticsParam.Of("level_index", levelIndex),
-                    AnalyticsParam.Of("level_number", levelNumber),
-                    AnalyticsParam.Of("old_best_time", oldBest),
-                    AnalyticsParam.Of("new_best_time", newBest),
-                    AnalyticsParam.Of("improvement_seconds", oldBest - newBest));
+                AnalyticsService.Track(AnalyticsEvents.BestTimeImproved,
+                    AnalyticsParam.Of(AnalyticsParams.LevelIndex, levelIndex),
+                    AnalyticsParam.Of(AnalyticsParams.LevelNumber, levelNumber),
+                    AnalyticsParam.Of(AnalyticsParams.OldBestTime, oldBest),
+                    AnalyticsParam.Of(AnalyticsParams.NewBestTime, newBest),
+                    AnalyticsParam.Of(AnalyticsParams.ImprovementSeconds, oldBest - newBest));
             }
         }
 

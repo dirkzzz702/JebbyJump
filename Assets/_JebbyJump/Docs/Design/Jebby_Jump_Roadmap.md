@@ -155,6 +155,7 @@ P5D — Basic Audio / Settings Foundation             : complete (automated; vis
 P5E — Settings-from-Pause Integration               : complete (automated; visible Pause->Settings interaction deferred)
 P5F — Shell Polish / Deferred QA Consolidation       : complete (PauseButton overlap fixed; visual confirmation deferred)
 P6A — Analytics / Event Tracking Foundation          : complete (local debug sink only; no SDK/backend/network; provider integration deferred)
+P6B — Analytics Event Review / Provider-Ready Cleanup : complete (central catalog + payload sanitization; settings_changed kept noisy/debounce-later; rank_earned stays removed; local-only)
 ```
 
 P4 balance is intentionally deferred because manual tester data is not available yet.

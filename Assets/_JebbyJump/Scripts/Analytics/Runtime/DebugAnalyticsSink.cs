@@ -9,12 +9,14 @@ namespace JebbyJump.Analytics
     // debug overlay. No file writes, no network, no PII.
     public sealed class DebugAnalyticsSink : IAnalyticsSink
     {
-        private const int BufferCapacity = 64;
+        public const int BufferCapacity = 64;
         private readonly List<AnalyticsEvent> _buffer =
             new List<AnalyticsEvent>(BufferCapacity);
 
-        // Most-recent-last view for tests / overlay.
-        public IReadOnlyList<AnalyticsEvent> Recent => _buffer;
+        // Most-recent-last read-only snapshot (a copy) so callers/tests
+        // cannot observe later mutation of the live buffer.
+        public IReadOnlyList<AnalyticsEvent> Recent =>
+            new List<AnalyticsEvent>(_buffer);
 
         public void Track(in AnalyticsEvent e)
         {

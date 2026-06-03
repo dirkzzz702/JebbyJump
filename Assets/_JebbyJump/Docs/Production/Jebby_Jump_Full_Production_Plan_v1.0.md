@@ -295,6 +295,7 @@ Launch target:
 | P5E   | Settings-from-Pause Integration                  | complete (automated; visible Pause->Settings deferred)    |
 | P5F   | Shell Polish / Deferred QA Consolidation         | complete (PauseButton overlap fixed; visual QA deferred)  |
 | P6A   | Analytics / Event Tracking Foundation            | complete (local debug sink only; no SDK/backend/network)  |
+| P6B   | Analytics Event Review / Provider-Ready Cleanup  | complete (central catalog + payload sanitization; local-only) |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -393,6 +394,46 @@ Event catalog (all snake_case; values are string/int/float/bool only):
 Intentionally **omitted**: `rank_earned` (rank is already carried by
 `level_completed`, so a separate event would duplicate rank data);
 `level_retried` (folded into `level_started` with `source=retry`).
+
+## P6B — Analytics Event Review / Provider-Ready Cleanup
+
+Status: implemented. Scope: provider-ready cleanup of the P6A surface.
+Still **local/debug-only** — no SDK, backend, HTTP/network, packages, or PII.
+
+What changed in P6B (no event name/key or payload values changed):
+- **Central catalog** — `AnalyticsEvents` (event names) and `AnalyticsParams`
+  (parameter keys) const classes in `Analytics.Runtime`. All emitter call
+  sites now reference the consts instead of string literals; emitted wire
+  names are identical to P6A.
+- **Provider-safe payload sanitization** — `AnalyticsService.Dispatch` now
+  drops any param whose value is null or not a simple primitive
+  (string/int/float/bool, plus long/double), with an editor-only warning.
+  Analytics never throws into gameplay; a future provider can never be
+  handed a Unity object, collection, or other complex value.
+- **DebugAnalyticsSink.Recent** returns a read-only snapshot copy; buffer
+  stays bounded at `BufferCapacity = 64` (ring-trims oldest).
+- **Provider boundary** — `IAnalyticsSink` is the integration seam (no new
+  interface added). A future Firebase / GameAnalytics / custom sink
+  implements `IAnalyticsSink`; `AnalyticsService.SetSink(...)` swaps it and
+  **callers do not change**. No provider package added.
+
+Decisions:
+- **`settings_changed` — kept on slider `onValueChanged`** (debug-noisy by
+  design; the `_initializing` guard prevents firing during populate).
+  Reducing per-drag noise would require pointer/EventTrigger scene logic
+  (out of scope and fragile), so the future real-provider adapter should
+  debounce or commit-on-close. Mute/reset are discrete, not noisy.
+- **`rank_earned` — confirmed removed.** `level_completed` already carries
+  `rank`; no separate event.
+
+Provider-readiness status by event: all 20 events are stable-named,
+single-source, and emit only sanitized primitive payloads. `settings_changed`
+is the only event flagged **noisy (debounce at provider)**; every other
+event is **provider-ready**.
+
+No PII collected. No network. No SDK. Real analytics provider integration
+remains **deferred**. Manual UI QA backlog (P5B–P5F) and P4B balance/playtest
+remain **deferred**.
 
 ## Open Decisions Before Implementation
 

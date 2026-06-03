@@ -79,10 +79,10 @@ namespace JebbyJump.Items
             }
             _effect?.Activate();
             _cooldownTimer = _cooldownSeconds;
-            AnalyticsService.Track("skill_used",
-                AnalyticsParam.Of("skill_type", _displayName),
-                AnalyticsParam.Of("level_index", LevelContext.CurrentIndex),
-                AnalyticsParam.Of("level_number", LevelContext.CurrentNumber));
+            AnalyticsService.Track(AnalyticsEvents.SkillUsed,
+                AnalyticsParam.Of(AnalyticsParams.SkillType, _displayName),
+                AnalyticsParam.Of(AnalyticsParams.LevelIndex, LevelContext.CurrentIndex),
+                AnalyticsParam.Of(AnalyticsParams.LevelNumber, LevelContext.CurrentNumber));
             Debug.Log($"[ActiveSkill:{_slot}] {_displayName} used. Cooldown {_cooldownSeconds}s.");
         }
 

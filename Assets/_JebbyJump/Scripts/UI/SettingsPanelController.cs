@@ -101,9 +101,9 @@ namespace JebbyJump.UI
             if (_initializing) return;
             AudioSettingsStore.MusicVolume = value;
             _applier?.ApplyAll();
-            AnalyticsService.Track("settings_changed",
-                AnalyticsParam.Of("setting_name", "music_volume"),
-                AnalyticsParam.Of("value", AudioSettingsStore.MusicVolume));
+            AnalyticsService.Track(AnalyticsEvents.SettingsChanged,
+                AnalyticsParam.Of(AnalyticsParams.SettingName, "music_volume"),
+                AnalyticsParam.Of(AnalyticsParams.Value, AudioSettingsStore.MusicVolume));
         }
 
         private void OnSfxChanged(float value)
@@ -111,9 +111,9 @@ namespace JebbyJump.UI
             if (_initializing) return;
             AudioSettingsStore.SfxVolume = value;
             _applier?.ApplyAll();
-            AnalyticsService.Track("settings_changed",
-                AnalyticsParam.Of("setting_name", "sfx_volume"),
-                AnalyticsParam.Of("value", AudioSettingsStore.SfxVolume));
+            AnalyticsService.Track(AnalyticsEvents.SettingsChanged,
+                AnalyticsParam.Of(AnalyticsParams.SettingName, "sfx_volume"),
+                AnalyticsParam.Of(AnalyticsParams.Value, AudioSettingsStore.SfxVolume));
         }
 
         private void OnMuteChanged(bool value)
@@ -121,9 +121,9 @@ namespace JebbyJump.UI
             if (_initializing) return;
             AudioSettingsStore.Muted = value;
             _applier?.ApplyAll();
-            AnalyticsService.Track("settings_changed",
-                AnalyticsParam.Of("setting_name", "muted"),
-                AnalyticsParam.Of("value", value));
+            AnalyticsService.Track(AnalyticsEvents.SettingsChanged,
+                AnalyticsParam.Of(AnalyticsParams.SettingName, "muted"),
+                AnalyticsParam.Of(AnalyticsParams.Value, value));
         }
 
         private void OnResetClicked()
@@ -131,9 +131,9 @@ namespace JebbyJump.UI
             AudioSettingsStore.ResetToDefaults();
             PopulateFromStore();
             _applier?.ApplyAll();
-            AnalyticsService.Track("settings_changed",
-                AnalyticsParam.Of("setting_name", "reset_defaults"),
-                AnalyticsParam.Of("value", true));
+            AnalyticsService.Track(AnalyticsEvents.SettingsChanged,
+                AnalyticsParam.Of(AnalyticsParams.SettingName, "reset_defaults"),
+                AnalyticsParam.Of(AnalyticsParams.Value, true));
         }
     }
 }
