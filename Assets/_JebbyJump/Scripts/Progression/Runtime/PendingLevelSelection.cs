@@ -9,6 +9,17 @@ namespace JebbyJump.Progression
     {
         public static int Index;
 
-        public static void Reset() => Index = 0;
+        // How the upcoming level was launched, for analytics labelling
+        // ("continue" / "level_select"). Defaults to "default" and is
+        // cleared back to it on Reset so a stale source is never replayed.
+        // Purely descriptive; does not affect progression.
+        public const string DefaultSource = "default";
+        public static string Source = DefaultSource;
+
+        public static void Reset()
+        {
+            Index = 0;
+            Source = DefaultSource;
+        }
     }
 }

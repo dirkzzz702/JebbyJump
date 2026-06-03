@@ -1,3 +1,4 @@
+using JebbyJump.Analytics;
 using JebbyJump.Flow;
 using JebbyJump.Level;
 using JebbyJump.Progression;
@@ -225,6 +226,10 @@ namespace JebbyJump.UI
                     ? _levelSession.CurrentConfig.name
                     : null;
 
+            // Capture the prior best BEFORE TrySetBest overwrites it, so
+            // best_time_improved can report old/new. Read-only capture;
+            // TrySetBest behaviour and save semantics are unchanged.
+            float oldBest = BestTimeStore.GetBest(levelKey);
             bool isNewBest = BestTimeStore.TrySetBest(levelKey, elapsed);
             float best = BestTimeStore.GetBest(levelKey);
 
@@ -261,9 +266,13 @@ namespace JebbyJump.UI
                     ? _levelSession.CurrentConfig.RankConfig
                     : _rankConfig;
 
-            if (_levelCompleteRankText != null && rankCfg != null)
+            TimeRank? computedRank = rankCfg != null
+                ? rankCfg.GetRank(elapsed)
+                : (TimeRank?)null;
+
+            if (_levelCompleteRankText != null && computedRank.HasValue)
             {
-                var rank = rankCfg.GetRank(elapsed);
+                var rank = computedRank.Value;
                 _levelCompleteRankText.text = $"Rank: {rank}";
                 _levelCompleteRankText.color = rank switch
                 {
@@ -272,6 +281,38 @@ namespace JebbyJump.UI
                     TimeRank.B => RankColorB,
                     _          => RankColorC
                 };
+            }
+
+            EmitCompletionAnalytics(elapsed, oldBest, best, isNewBest, computedRank);
+        }
+
+        // Single source of truth for completion analytics. rank is included
+        // in level_completed (so no separate rank_earned event - that would
+        // duplicate rank data). best_time_improved fires only when there
+        // was a prior best and the new time beat it.
+        private void EmitCompletionAnalytics(
+            float elapsed, float oldBest, float newBest,
+            bool isNewBest, TimeRank? rank)
+        {
+            int levelIndex = _levelSession != null
+                ? _levelSession.CurrentLevelIndex : 0;
+            int levelNumber = levelIndex + 1;
+
+            AnalyticsService.Track("level_completed",
+                AnalyticsParam.Of("level_index", levelIndex),
+                AnalyticsParam.Of("level_number", levelNumber),
+                AnalyticsParam.Of("elapsed_time", elapsed),
+                AnalyticsParam.Of("rank", rank.HasValue ? rank.Value.ToString() : "none"),
+                AnalyticsParam.Of("is_new_best", isNewBest));
+
+            if (isNewBest && !float.IsNaN(oldBest))
+            {
+                AnalyticsService.Track("best_time_improved",
+                    AnalyticsParam.Of("level_index", levelIndex),
+                    AnalyticsParam.Of("level_number", levelNumber),
+                    AnalyticsParam.Of("old_best_time", oldBest),
+                    AnalyticsParam.Of("new_best_time", newBest),
+                    AnalyticsParam.Of("improvement_seconds", oldBest - newBest));
             }
         }
 

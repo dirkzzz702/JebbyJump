@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using JebbyJump.Analytics;
 using JebbyJump.Flow;
 using JebbyJump.Level;
 using JebbyJump.Progression;
@@ -41,6 +42,7 @@ namespace JebbyJump.UI
 
         public void Open()
         {
+            AnalyticsService.Track("level_select_opened");
             if (_panelRoot != null) _panelRoot.SetActive(true);
             Rebuild();
         }
@@ -118,7 +120,17 @@ namespace JebbyJump.UI
             if (levelIndex < 0 || levelIndex >= _catalog.Count) return;
             if (!LevelProgressStore.IsUnlocked(levelIndex)) return;
 
+            string levelKey = _catalog.GetLevelKey(levelIndex);
+            bool hasBest = !string.IsNullOrEmpty(levelKey)
+                && !float.IsNaN(BestTimeStore.GetBest(levelKey));
+            AnalyticsService.Track("level_selected",
+                AnalyticsParam.Of("level_index", levelIndex),
+                AnalyticsParam.Of("level_number", levelIndex + 1),
+                AnalyticsParam.Of("is_replay", hasBest),
+                AnalyticsParam.Of("has_best_time", hasBest));
+
             PendingLevelSelection.Index = levelIndex;
+            PendingLevelSelection.Source = "level_select";
             SceneLoader.LoadGame();
         }
 

@@ -1,3 +1,4 @@
+using JebbyJump.Analytics;
 using JebbyJump.Flow;
 using JebbyJump.Inputs;
 using JebbyJump.Level;
@@ -130,6 +131,7 @@ namespace JebbyJump.UI
             PauseState.SetPaused(true);
             Time.timeScale = 0f;
             if (_pausePanel != null) _pausePanel.SetActive(true);
+            TrackPause("pause_opened");
         }
 
         public void Resume()
@@ -140,10 +142,12 @@ namespace JebbyJump.UI
             PauseState.SetPaused(false);
             Time.timeScale = 1f;
             if (_pausePanel != null) _pausePanel.SetActive(false);
+            TrackPause("pause_resumed");
         }
 
         public void RestartLevel()
         {
+            TrackPause("pause_restart_clicked");
             // Restore time first so the memory-phase coroutine can run.
             UnpauseTimeOnly();
             if (_pausePanel != null) _pausePanel.SetActive(false);
@@ -152,6 +156,7 @@ namespace JebbyJump.UI
 
         public void ReturnToMainMenu()
         {
+            TrackPause("pause_main_menu_clicked");
             // PendingLevelSelection is reset by MainMenuController.Awake in
             // the next scene, so no stale selection is replayed.
             UnpauseTimeOnly();
@@ -173,6 +178,7 @@ namespace JebbyJump.UI
             }
             if (_settingsOpen) return;
             _settingsOpen = true;
+            TrackPause("pause_settings_opened");
             if (_pausePanel != null) _pausePanel.SetActive(false);
             _settingsPanel.Open(() =>
             {
@@ -190,6 +196,15 @@ namespace JebbyJump.UI
             _settingsOpen = false;
             PauseState.SetPaused(false);
             Time.timeScale = 1f;
+        }
+
+        // Pause-flow events all carry the current level for context, read
+        // from the session-scoped LevelContext mirror.
+        private static void TrackPause(string eventName)
+        {
+            AnalyticsService.Track(eventName,
+                AnalyticsParam.Of("level_index", LevelContext.CurrentIndex),
+                AnalyticsParam.Of("level_number", LevelContext.CurrentNumber));
         }
     }
 }

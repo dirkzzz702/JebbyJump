@@ -294,6 +294,7 @@ Launch target:
 | P5D   | Basic Audio / Settings Foundation                | complete (automated; visible Settings UI QA deferred)     |
 | P5E   | Settings-from-Pause Integration                  | complete (automated; visible Pause->Settings deferred)    |
 | P5F   | Shell Polish / Deferred QA Consolidation         | complete (PauseButton overlap fixed; visual QA deferred)  |
+| P6A   | Analytics / Event Tracking Foundation            | complete (local debug sink only; no SDK/backend/network)  |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -350,6 +351,48 @@ P4B — Manual playtest + balance tuning  [DEFERRED — awaiting tester data]
 P5F note: the PauseButton-vs-timer overlap was addressed objectively in
 P5F from the scene RectTransforms (PauseButton moved down to clear the
 top-right timer band). Visual confirmation belongs to the P5C list above.
+
+## P6A — Analytics / Event Tracking Foundation
+
+Status: implemented. Scope: **local debug sink only** (`DebugAnalyticsSink`
+logs to the Unity console + keeps a small in-memory ring buffer). No
+third-party SDK, no backend, no HTTP/network, no PII. Deferred: real
+analytics provider integration (a future `IAnalyticsSink` implementation
+plugs in with zero gameplay change).
+
+Architecture: `JebbyJump.Analytics.Runtime` asmdef — `AnalyticsService`
+(static facade: `Enabled`, `SetSink`, `Track`), `IAnalyticsSink`,
+`AnalyticsEvent`/`AnalyticsParam`, `DebugAnalyticsSink`. Session id is a
+process-lifetime GUID (not persisted, not PII). `app_session_started` is
+self-emitted once per process on the first `Track` (scene-independent — no
+BootController dependency). Level context for emitters without a
+`LevelSessionController` reference comes from the read-only
+`JebbyJump.Session.LevelContext` mirror.
+
+Event catalog (all snake_case; values are string/int/float/bool only):
+
+| Event | Trigger (single source) | Key parameters | Notes |
+|---|---|---|---|
+| `app_session_started` | first `Track` of the process (AnalyticsService) | session_id | once per session; lazy |
+| `main_menu_continue_clicked` | `MainMenuController.OnContinueClicked` | target_level_index, target_level_number | |
+| `main_menu_level_select_clicked` | `MainMenuController.OnStartClicked` | — | |
+| `main_menu_settings_opened` | `MainMenuController.OnSettingsClicked` | — | |
+| `level_select_opened` | `LevelSelectController.Open` | — | |
+| `level_selected` | `LevelSelectController.OnCardClicked` | level_index, level_number, is_replay, has_best_time | is_replay == has_best_time |
+| `level_started` | `MemoryPhaseController.RunMemoryPhase` (entry) | level_index, level_number, source | source: continue/level_select/retry/next_level/default |
+| `memory_phase_started` | same (entry) | level_index, level_number, sequence_length | |
+| `gameplay_started` | `MemoryPhaseController` (Playing phase begins) | level_index, level_number | |
+| `level_completed` | `HUDController.PopulateTimeRank` | level_index, level_number, elapsed_time, rank, is_new_best | rank included here |
+| `best_time_improved` | same | level_index, level_number, old_best_time, new_best_time, improvement_seconds | only when prior best existed and improved |
+| `level_failed` | `MemoryPhaseController.OnGameOver` | level_index, level_number, reason | reason: lives_depleted |
+| `player_damaged` | `MemoryPhaseController` damage sites | level_index, level_number, remaining_lives, source | source: wrong_color/hazard; only on real (non-shielded) hits |
+| `skill_used` | `ActiveSkillController.TryUseSkill` (at activation) | skill_type, level_index, level_number | never when paused/cooldown-blocked |
+| `pause_opened` / `pause_resumed` / `pause_restart_clicked` / `pause_main_menu_clicked` / `pause_settings_opened` | `PauseMenuController` | level_index, level_number | |
+| `settings_changed` | `SettingsPanelController` committed handlers | setting_name, value | setting_name: music_volume/sfx_volume/muted/reset_defaults; suppressed during panel init; slider drags are debug-noisy |
+
+Intentionally **omitted**: `rank_earned` (rank is already carried by
+`level_completed`, so a separate event would duplicate rank data);
+`level_retried` (folded into `level_started` with `source=retry`).
 
 ## Open Decisions Before Implementation
 

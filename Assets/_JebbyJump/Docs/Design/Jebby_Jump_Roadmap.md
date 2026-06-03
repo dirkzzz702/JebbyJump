@@ -154,6 +154,7 @@ P5C — Pause Menu / In-Game Flow Polish              : complete (automated; vis
 P5D — Basic Audio / Settings Foundation             : complete (automated; visible Settings UI QA deferred)
 P5E — Settings-from-Pause Integration               : complete (automated; visible Pause->Settings interaction deferred)
 P5F — Shell Polish / Deferred QA Consolidation       : complete (PauseButton overlap fixed; visual confirmation deferred)
+P6A — Analytics / Event Tracking Foundation          : complete (local debug sink only; no SDK/backend/network; provider integration deferred)
 ```
 
 P4 balance is intentionally deferred because manual tester data is not available yet.

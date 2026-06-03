@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using JebbyJump.Analytics;
 using JebbyJump.Items;
 using JebbyJump.Level;
 using JebbyJump.Obstacles;
@@ -33,6 +34,12 @@ namespace JebbyJump.Sequence
         private enum Phase { ShowingSequence, Playing, Completed }
         private Phase _phase;
         private Vector3 _spawnPosition;
+
+        // Analytics-only label for how the current attempt began
+        // ("continue"/"level_select"/"default" for the first run,
+        // "retry"/"next_level" for restarts). Set before each
+        // RunMemoryPhase. Does not affect gameplay.
+        private string _attemptSource = "default";
 
         private void Awake()
         {
@@ -82,12 +89,31 @@ namespace JebbyJump.Sequence
             if (_sequenceManager.Sequence == null || _sequenceManager.Sequence.Count == 0) yield break;
 
             _spawner.SpawnPlatforms(_sequenceManager.Sequence);
+            // First run of this scene: source came from the Main Menu
+            // (continue / level_select) or defaults.
+            _attemptSource = _levelSession != null
+                ? _levelSession.LaunchSource
+                : "default";
             StartCoroutine(RunMemoryPhase());
         }
 
         private IEnumerator RunMemoryPhase()
         {
             _phase = Phase.ShowingSequence;
+
+            int levelIndex = _levelSession != null
+                ? _levelSession.CurrentLevelIndex : 0;
+            int sequenceLength = _sequenceManager.Sequence != null
+                ? _sequenceManager.Sequence.Count : 0;
+            AnalyticsService.Track("level_started",
+                AnalyticsParam.Of("level_index", levelIndex),
+                AnalyticsParam.Of("level_number", levelIndex + 1),
+                AnalyticsParam.Of("source", _attemptSource ?? "default"));
+            AnalyticsService.Track("memory_phase_started",
+                AnalyticsParam.Of("level_index", levelIndex),
+                AnalyticsParam.Of("level_number", levelIndex + 1),
+                AnalyticsParam.Of("sequence_length", sequenceLength));
+
             SetAllSkillsUsable(false);
             _playerController?.SetJumpMultiplier(_sequenceManager.Config.MemoryPhaseJumpMultiplier);
             _displayUI.Show(_sequenceManager.Sequence);
@@ -99,6 +125,9 @@ namespace JebbyJump.Sequence
             SetAllSkillsUsable(true);
             _playerController?.SetJumpMultiplier(1f);
             _levelTimer?.StartTimer();
+            AnalyticsService.Track("gameplay_started",
+                AnalyticsParam.Of("level_index", levelIndex),
+                AnalyticsParam.Of("level_number", levelIndex + 1));
             Debug.Log("[MemoryPhaseController] Memory phase ended. Playing.");
         }
 
@@ -116,6 +145,7 @@ namespace JebbyJump.Sequence
                 Debug.Log("[Sequence] Skipped to Row " + platform.RowIndex + " — expected Row " + _sequenceManager.CurrentStepIndex + ". Wrong.");
                 _feedbackUI?.ShowMessage("Wrong color!", 0.9f);
                 WrongLanding?.Invoke();
+                EmitPlayerDamaged("wrong_color");
                 _progressTracker?.LoseLife();
                 return;
             }
@@ -132,6 +162,7 @@ namespace JebbyJump.Sequence
                 if (TryShieldAbsorb()) { RespawnAfterShield(); return; }
                 _feedbackUI?.ShowMessage("Wrong color!", 0.9f);
                 WrongLanding?.Invoke();
+                EmitPlayerDamaged("wrong_color");
                 _progressTracker?.LoseLife();
             }
         }
@@ -141,6 +172,7 @@ namespace JebbyJump.Sequence
             if (_phase != Phase.Playing) return;
             if (TryShieldAbsorb()) { /* no respawn — Jebby keeps position after cactus block */ return; }
             _feedbackUI?.ShowMessage("Ouch! Cactus!", 0.9f);
+            EmitPlayerDamaged("hazard");
             _progressTracker?.LoseLife();
         }
 
@@ -173,7 +205,29 @@ namespace JebbyJump.Sequence
             SetAllSkillsUsable(false);
             _levelTimer?.StopTimer();
             _phase = Phase.Completed;
+            int levelIndex = _levelSession != null
+                ? _levelSession.CurrentLevelIndex : 0;
+            AnalyticsService.Track("level_failed",
+                AnalyticsParam.Of("level_index", levelIndex),
+                AnalyticsParam.Of("level_number", levelIndex + 1),
+                AnalyticsParam.Of("reason", "lives_depleted"));
             Debug.Log("[MemoryPhaseController] Game over!");
+        }
+
+        // Emits player_damaged just before a life is deducted, so
+        // remaining_lives reflects the post-hit count. source is known at
+        // the call site (wrong_color / hazard).
+        private void EmitPlayerDamaged(string source)
+        {
+            int levelIndex = _levelSession != null
+                ? _levelSession.CurrentLevelIndex : 0;
+            int remaining = _progressTracker != null
+                ? Mathf.Max(0, _progressTracker.Lives - 1) : 0;
+            AnalyticsService.Track("player_damaged",
+                AnalyticsParam.Of("level_index", levelIndex),
+                AnalyticsParam.Of("level_number", levelIndex + 1),
+                AnalyticsParam.Of("remaining_lives", remaining),
+                AnalyticsParam.Of("source", source));
         }
 
         private void ApplySessionConfig()
@@ -189,13 +243,16 @@ namespace JebbyJump.Sequence
         {
             if (_levelSession == null || _levelSession.IsFinalLevel) return;
             _levelSession.AdvanceToNextLevel();
-            RestartLevel();
+            RestartLevel("next_level");
         }
 
-        public void RestartLevel()
+        // source labels the attempt for analytics ("retry" by default,
+        // "next_level" from StartNextLevel). No effect on restart behavior.
+        public void RestartLevel(string source = "retry")
         {
             if (_sequenceManager == null || _spawner == null || _progressTracker == null) return;
 
+            _attemptSource = source;
             ResetAllSkillsForLevel();
             _playerAnimator?.ResetToIdle();
             _levelTimer?.ResetTimer();

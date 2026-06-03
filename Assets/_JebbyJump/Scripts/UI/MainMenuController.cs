@@ -1,3 +1,4 @@
+using JebbyJump.Analytics;
 using JebbyJump.Flow;
 using JebbyJump.Progression;
 using UnityEngine;
@@ -69,13 +70,18 @@ namespace JebbyJump.UI
                 return;
             }
 
-            PendingLevelSelection.Index =
-                LevelProgressStore.GetContinueIndex(_catalog.Count);
+            int target = LevelProgressStore.GetContinueIndex(_catalog.Count);
+            PendingLevelSelection.Index = target;
+            PendingLevelSelection.Source = "continue";
+            AnalyticsService.Track("main_menu_continue_clicked",
+                AnalyticsParam.Of("target_level_index", target),
+                AnalyticsParam.Of("target_level_number", target + 1));
             SceneLoader.LoadGame();
         }
 
         private void OnStartClicked()
         {
+            AnalyticsService.Track("main_menu_level_select_clicked");
             if (_levelSelect == null)
             {
                 Debug.LogWarning(
@@ -89,6 +95,7 @@ namespace JebbyJump.UI
 
         private void OnSettingsClicked()
         {
+            AnalyticsService.Track("main_menu_settings_opened");
             if (_settingsPanel == null)
             {
                 Debug.LogWarning(

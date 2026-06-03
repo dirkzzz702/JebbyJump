@@ -1,4 +1,5 @@
 using System;
+using JebbyJump.Analytics;
 using JebbyJump.Audio;
 using JebbyJump.Settings;
 using UnityEngine;
@@ -100,6 +101,9 @@ namespace JebbyJump.UI
             if (_initializing) return;
             AudioSettingsStore.MusicVolume = value;
             _applier?.ApplyAll();
+            AnalyticsService.Track("settings_changed",
+                AnalyticsParam.Of("setting_name", "music_volume"),
+                AnalyticsParam.Of("value", AudioSettingsStore.MusicVolume));
         }
 
         private void OnSfxChanged(float value)
@@ -107,6 +111,9 @@ namespace JebbyJump.UI
             if (_initializing) return;
             AudioSettingsStore.SfxVolume = value;
             _applier?.ApplyAll();
+            AnalyticsService.Track("settings_changed",
+                AnalyticsParam.Of("setting_name", "sfx_volume"),
+                AnalyticsParam.Of("value", AudioSettingsStore.SfxVolume));
         }
 
         private void OnMuteChanged(bool value)
@@ -114,6 +121,9 @@ namespace JebbyJump.UI
             if (_initializing) return;
             AudioSettingsStore.Muted = value;
             _applier?.ApplyAll();
+            AnalyticsService.Track("settings_changed",
+                AnalyticsParam.Of("setting_name", "muted"),
+                AnalyticsParam.Of("value", value));
         }
 
         private void OnResetClicked()
@@ -121,6 +131,9 @@ namespace JebbyJump.UI
             AudioSettingsStore.ResetToDefaults();
             PopulateFromStore();
             _applier?.ApplyAll();
+            AnalyticsService.Track("settings_changed",
+                AnalyticsParam.Of("setting_name", "reset_defaults"),
+                AnalyticsParam.Of("value", true));
         }
     }
 }
