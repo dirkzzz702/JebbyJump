@@ -1,5 +1,6 @@
 using System;
 using JebbyJump.Progression;
+using JebbyJump.Rewards;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,6 +16,7 @@ namespace JebbyJump.UI
         [SerializeField] private TextMeshProUGUI _levelNumberText;
         [SerializeField] private TextMeshProUGUI _bestTimeText;
         [SerializeField] private TextMeshProUGUI _bestRankText;
+        [SerializeField] private TextMeshProUGUI _starsText;
         [SerializeField] private GameObject _lockedOverlay;
         [SerializeField] private Image _background;
 
@@ -44,7 +46,8 @@ namespace JebbyJump.UI
             int levelIndex,
             LevelCardState state,
             string bestTimeDisplay,
-            string bestRankDisplay)
+            string bestRankDisplay,
+            int stars)
         {
             LevelIndex = levelIndex;
             bool isUnlocked = state != LevelCardState.Locked;
@@ -57,6 +60,9 @@ namespace JebbyJump.UI
 
             if (_bestRankText != null)
                 _bestRankText.text = bestRankDisplay;
+
+            if (_starsText != null)
+                _starsText.text = StarRewardFormatter.Label(stars);
 
             if (_lockedOverlay != null)
                 _lockedOverlay.SetActive(!isUnlocked);

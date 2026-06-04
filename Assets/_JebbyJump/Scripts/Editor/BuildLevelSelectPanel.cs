@@ -269,7 +269,12 @@ public static class BuildLevelSelectPanel
         if (existing != null)
         {
             var c = existing.GetComponent<LevelSelectCard>();
-            if (c != null) return c;
+            if (c != null)
+            {
+                EnsureStarsOnCardPrefab();
+                return AssetDatabase.LoadAssetAtPath<GameObject>(CardPrefabPath)
+                    .GetComponent<LevelSelectCard>();
+            }
             Debug.LogWarning(
                 "[Scaffold] " + CardPrefabPath
                 + " exists but has no LevelSelectCard component. "
@@ -324,6 +329,16 @@ public static class BuildLevelSelectPanel
         rankRT.sizeDelta = new Vector2(170f, 30f);
         rankGO.GetComponent<TextMeshProUGUI>().color = Color.black;
 
+        var starsGO = CreateText(root.transform, "StarsText",
+            "Stars --", 22, FontStyles.Normal);
+        var starsRT = starsGO.GetComponent<RectTransform>();
+        starsRT.anchorMin = new Vector2(0.5f, 0.5f);
+        starsRT.anchorMax = new Vector2(0.5f, 0.5f);
+        starsRT.pivot     = new Vector2(0.5f, 0.5f);
+        starsRT.anchoredPosition = new Vector2(0f, -86f);
+        starsRT.sizeDelta = new Vector2(170f, 30f);
+        starsGO.GetComponent<TextMeshProUGUI>().color = Color.black;
+
         var lockedGO = new GameObject(
             "LockedOverlay",
             typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
@@ -345,6 +360,8 @@ public static class BuildLevelSelectPanel
             bestGO.GetComponent<TextMeshProUGUI>();
         so.FindProperty("_bestRankText").objectReferenceValue =
             rankGO.GetComponent<TextMeshProUGUI>();
+        so.FindProperty("_starsText").objectReferenceValue =
+            starsGO.GetComponent<TextMeshProUGUI>();
         so.FindProperty("_lockedOverlay").objectReferenceValue = lockedGO;
         so.FindProperty("_background").objectReferenceValue = bg;
         so.ApplyModifiedPropertiesWithoutUndo();
@@ -355,6 +372,70 @@ public static class BuildLevelSelectPanel
         return savedPrefab != null
             ? savedPrefab.GetComponent<LevelSelectCard>()
             : null;
+    }
+
+    // Idempotently ensures an existing LevelSelectCard prefab has a
+    // StarsText line (cloned from BestRank, placed below it) wired into
+    // LevelSelectCard._starsText. Re-runs only re-wire; no duplicate.
+    private static void EnsureStarsOnCardPrefab()
+    {
+        var root = PrefabUtility.LoadPrefabContents(CardPrefabPath);
+        try
+        {
+            var card = root.GetComponent<LevelSelectCard>();
+            if (card == null)
+            {
+                Debug.LogWarning(
+                    "[Scaffold] Card prefab has no LevelSelectCard; "
+                    + "skipping StarsText upgrade.");
+                return;
+            }
+
+            var starsTf = root.transform.Find("StarsText");
+            if (starsTf == null)
+            {
+                var rankTf = root.transform.Find("BestRank");
+                if (rankTf == null)
+                {
+                    Debug.LogWarning(
+                        "[Scaffold] Card prefab has no BestRank template; "
+                        + "cannot add StarsText.");
+                    return;
+                }
+                var clone = Object.Instantiate(
+                    rankTf.gameObject, root.transform);
+                clone.name = "StarsText";
+                var rankRT = rankTf.GetComponent<RectTransform>();
+                var rt = clone.GetComponent<RectTransform>();
+                rt.anchorMin = rankRT.anchorMin;
+                rt.anchorMax = rankRT.anchorMax;
+                rt.pivot = rankRT.pivot;
+                rt.sizeDelta = rankRT.sizeDelta;
+                rt.anchoredPosition =
+                    rankRT.anchoredPosition + new Vector2(0f, -34f);
+                var tmp = clone.GetComponent<TextMeshProUGUI>();
+                if (tmp != null) tmp.text = "Stars --";
+                starsTf = clone.transform;
+                Debug.Log("[Scaffold] Added StarsText to card prefab.");
+            }
+            else
+            {
+                Debug.Log(
+                    "[Scaffold] StarsText already on card prefab - reusing.");
+            }
+
+            var so = new SerializedObject(card);
+            so.FindProperty("_starsText").objectReferenceValue =
+                starsTf.GetComponent<TextMeshProUGUI>();
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            PrefabUtility.SaveAsPrefabAsset(root, CardPrefabPath);
+            Debug.Log("[Scaffold] Wired LevelSelectCard._starsText.");
+        }
+        finally
+        {
+            PrefabUtility.UnloadPrefabContents(root);
+        }
     }
 
     private static void WireController(

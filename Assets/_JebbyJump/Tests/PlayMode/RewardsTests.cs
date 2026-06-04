@@ -118,5 +118,23 @@ namespace JebbyJump.Tests
             Assert.AreEqual(0, StarRewardStore.GetStars(5));
             Assert.AreEqual(0, StarRewardStore.GetTotalStars(LevelCount));
         }
+
+        // ---- StarRewardFormatter ----
+
+        [Test]
+        public void Formatter_FormatsZeroToThree()
+        {
+            Assert.AreEqual("Stars 0/3", StarRewardFormatter.Label(0));
+            Assert.AreEqual("Stars 1/3", StarRewardFormatter.Label(1));
+            Assert.AreEqual("Stars 2/3", StarRewardFormatter.Label(2));
+            Assert.AreEqual("Stars 3/3", StarRewardFormatter.Label(3));
+        }
+
+        [Test]
+        public void Formatter_ClampsOutOfRange()
+        {
+            Assert.AreEqual("Stars 3/3", StarRewardFormatter.Label(5));
+            Assert.AreEqual("Stars 0/3", StarRewardFormatter.Label(-1));
+        }
     }
 }

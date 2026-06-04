@@ -158,6 +158,7 @@ P6A — Analytics / Event Tracking Foundation          : complete (local debug s
 P6B — Analytics Event Review / Provider-Ready Cleanup : complete (central catalog + payload sanitization; settings_changed kept noisy/debounce-later; rank_earned stays removed; local-only)
 P6C — Reward / Economy Design Spec                   : complete (design spec only; no runtime/economy code; implementation deferred to P7)
 P7A — Stars-Only Mastery Reward Foundation           : complete (local Stars only: S/A=3, B=2, C=1, fail=0; never decreases; not spendable; no economy/ads/backend; Level Select stars deferred to P7B)
+P7B — Level Select Stars Display                     : complete (read-only "Stars N/3" per card from StarRewardStore; no writes/analytics; no economy/ads/backend; visual confirmation deferred)
 ```
 
 P6C produced a design-only reward/economy spec (no code). See

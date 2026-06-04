@@ -3,6 +3,7 @@ using JebbyJump.Analytics;
 using JebbyJump.Flow;
 using JebbyJump.Level;
 using JebbyJump.Progression;
+using JebbyJump.Rewards;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -107,8 +108,12 @@ namespace JebbyJump.UI
                     ? $"Rank {rank.Value}"
                     : "Rank --";
 
+                // Read-only display of stored best stars (P7A store).
+                // Level Select never writes stars or emits analytics.
+                int stars = StarRewardStore.GetStars(i);
+
                 var state = LevelCardClassifier.Classify(unlocked, hasBest);
-                card.Bind(i, state, bestText, rankText);
+                card.Bind(i, state, bestText, rankText, stars);
                 card.Clicked += OnCardClicked;
                 _spawned.Add(card);
             }

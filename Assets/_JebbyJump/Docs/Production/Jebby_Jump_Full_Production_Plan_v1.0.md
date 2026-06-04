@@ -298,6 +298,7 @@ Launch target:
 | P6B   | Analytics Event Review / Provider-Ready Cleanup  | complete (central catalog + payload sanitization; local-only) |
 | P6C   | Reward / Economy Design Spec                     | complete (design spec only; no runtime/economy code)      |
 | P7A   | Stars-Only Mastery Reward Foundation             | complete (local Stars only; no Spark Coins/Gems/shop/ads) |
+| P7B   | Level Select Stars Display                       | complete (read-only "Stars N/3" per card; no economy/ads) |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -473,9 +474,26 @@ wardrobe, ads, IAP, backend, cloud save, or paid currency.
   best**. No backend/provider/network.
 - Reset: `Jebby Jump/Reset/Reset Stars`, and Stars are included in
   `Reset Everything`. Reset Local Progress / Reset Best Times unchanged.
-- Deferred: **Level Select card star display → P7B** (avoids card layout
-  redesign); Spark Coins / Rainbow Gems / cosmetics / shop / ads remain
+- Deferred: Spark Coins / Rainbow Gems / cosmetics / shop / ads remain
   deferred per P6C. Reward numbers stay placeholders pending P4B + analytics.
+
+## P7B — Level Select Stars Display
+
+Status: implemented. Scope: shows each level's **stored best Stars** as
+`Stars N/3` on its Level Select card. Pure read-only display - Level Select
+calls `StarRewardStore.GetStars(i)` only (no writes), emits no analytics, and
+does not change unlock/best/rank/tint behavior. No Spark Coins, Rainbow Gems,
+shop, wardrobe, ads, backend, or paid currency.
+
+- `LevelSelectCard` gains a null-safe `_starsText` set via the pure
+  `StarRewardFormatter.Label(stars)` (clamped 0..3). Locked/unlocked/completed
+  states and the locked overlay are unchanged.
+- Card prefab carries a `StarsText` line below Rank (y=-86), added by the
+  idempotent `Jebby Jump/Scaffold/Build Level Select Panel`: re-running
+  upgrades/re-wires the existing prefab without duplicating. No grid/panel
+  redesign.
+- Visual confirmation joins the deferred manual-UI-QA backlog (alongside the
+  P7A result-panel Stars visual).
 
 ## Open Decisions Before Implementation
 

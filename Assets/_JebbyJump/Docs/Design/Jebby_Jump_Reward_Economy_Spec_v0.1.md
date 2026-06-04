@@ -10,9 +10,12 @@ playtest + analytics data.
 > stars (S/A=3, B=2, C=1, completed-no-rank=1, failure=0), best-only and
 > never decreasing, not a spendable currency. Result panel shows `Stars: N/3`;
 > local `reward_granted` / `star_total_changed` analytics fire only on
-> improvement. **Still deferred:** Spark Coins, Rainbow Gems, cosmetics, shop,
-> ads, paid currency, and Level Select star display (→ P7B). Reward numbers
-> remain placeholders pending P4B + analytics.
+> improvement. Reward numbers remain placeholders pending P4B + analytics.
+>
+> **P7B update (implemented):** stored best stars now also show on each
+> **Level Select card** as `Stars N/3` (read-only from `StarRewardStore`; no
+> writes, no analytics, no layout redesign). **Still deferred:** Spark Coins,
+> Rainbow Gems, cosmetics, shop, ads, paid currency.
 
 ---
 
