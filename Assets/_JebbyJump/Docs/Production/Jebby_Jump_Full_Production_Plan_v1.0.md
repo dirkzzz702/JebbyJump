@@ -299,6 +299,7 @@ Launch target:
 | P6C   | Reward / Economy Design Spec                     | complete (design spec only; no runtime/economy code)      |
 | P7A   | Stars-Only Mastery Reward Foundation             | complete (local Stars only; no Spark Coins/Gems/shop/ads) |
 | P7B   | Level Select Stars Display                       | complete (read-only "Stars N/3" per card; no economy/ads) |
+| P7C   | Reward UI Copy / Visual QA Checklist             | complete (docs/checklist only; manual visual QA deferred) |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -494,6 +495,21 @@ shop, wardrobe, ads, backend, or paid currency.
   redesign.
 - Visual confirmation joins the deferred manual-UI-QA backlog (alongside the
   P7A result-panel Stars visual).
+
+## P7C — Reward UI Copy / Visual QA Checklist
+
+Status: implemented as **docs/checklist only**. No runtime/code/scene/prefab/
+test/package changes. Deliverable:
+`Assets/_JebbyJump/Docs/QA/Jebby_Jump_Reward_UI_Visual_QA_Checklist_v0.1.md` -
+a 14-section manual visual-QA + copy checklist for the P7A/P7B Stars UI
+(result panel + Level Select), with pass/fail criteria, locked/unlocked/
+completed scenarios, reset/replay scenarios, and accessibility checks.
+
+Documents (does NOT change) the copy difference: result panel `Stars: N/3`
+(with colon, + "New Star Best!") vs Level Select `Stars N/3` (no colon); a
+future approved polish phase may standardize it. All deferred manual visual
+QA (P5B-P5F, P7A, P7B) and P4B remain deferred and are explicitly listed as
+NOT complete. No star-reward semantics, analytics, or economy changes.
 
 ## Open Decisions Before Implementation
 

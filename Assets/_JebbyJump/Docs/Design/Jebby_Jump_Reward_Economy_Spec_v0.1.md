@@ -16,6 +16,12 @@ playtest + analytics data.
 > **Level Select card** as `Stars N/3` (read-only from `StarRewardStore`; no
 > writes, no analytics, no layout redesign). **Still deferred:** Spark Coins,
 > Rainbow Gems, cosmetics, shop, ads, paid currency.
+>
+> **P7C update (docs only):** a manual visual-QA + copy checklist for the
+> Stars UI was added at
+> `Assets/_JebbyJump/Docs/QA/Jebby_Jump_Reward_UI_Visual_QA_Checklist_v0.1.md`.
+> No code/UI change; the result-panel vs Level Select copy difference is
+> documented (not fixed). Manual visual QA for the Stars UI remains deferred.
 
 ---
 

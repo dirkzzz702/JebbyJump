@@ -159,7 +159,14 @@ P6B — Analytics Event Review / Provider-Ready Cleanup : complete (central cata
 P6C — Reward / Economy Design Spec                   : complete (design spec only; no runtime/economy code; implementation deferred to P7)
 P7A — Stars-Only Mastery Reward Foundation           : complete (local Stars only: S/A=3, B=2, C=1, fail=0; never decreases; not spendable; no economy/ads/backend; Level Select stars deferred to P7B)
 P7B — Level Select Stars Display                     : complete (read-only "Stars N/3" per card from StarRewardStore; no writes/analytics; no economy/ads/backend; visual confirmation deferred)
+P7C — Reward UI Copy / Visual QA Checklist           : complete (docs/checklist only; no runtime/code/scene changes; manual visual QA still deferred)
 ```
+
+P7C added a manual visual-QA + copy checklist for the Stars UI:
+`Assets/_JebbyJump/Docs/QA/Jebby_Jump_Reward_UI_Visual_QA_Checklist_v0.1.md`.
+It documents the result-panel vs Level Select copy difference
+("Stars: N/3" vs "Stars N/3") without changing it, and preserves all
+deferred manual visual QA (P5B-P5F, P7A, P7B) and P4B as NOT complete.
 
 P6C produced a design-only reward/economy spec (no code). See
 `Assets/_JebbyJump/Docs/Design/Jebby_Jump_Reward_Economy_Spec_v0.1.md`.
