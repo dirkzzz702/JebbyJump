@@ -23,7 +23,8 @@
       "Bash(ls \"Assets/_JebbyJump/Docs/Design/\")",
       "mcp__coplay-mcp__stop_game",
       "mcp__coplay-mcp__execute_script",
-      "mcp__coplay-mcp__get_unity_editor_state"
+      "mcp__coplay-mcp__get_unity_editor_state",
+      "Bash(tasklist:*)"
     ],
     "additionalDirectories": [
       "\\tmp"
