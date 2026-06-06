@@ -25,6 +25,23 @@ namespace JebbyJump.Tests
             AssertAllConstStringsSnakeCase(typeof(AnalyticsParams));
         }
 
+        // Pins the reward analytics wire names so a rename can't silently
+        // break the contract a future provider/dashboard depends on. The
+        // generic snake_case test above would still pass on a rename.
+        [Test]
+        public void RewardConstants_HaveStableWireNames()
+        {
+            Assert.AreEqual("reward_granted", AnalyticsEvents.RewardGranted);
+            Assert.AreEqual("star_total_changed", AnalyticsEvents.StarTotalChanged);
+            Assert.AreEqual("reward_type", AnalyticsParams.RewardType);
+            Assert.AreEqual("amount", AnalyticsParams.Amount);
+            Assert.AreEqual("total_for_level", AnalyticsParams.TotalForLevel);
+            Assert.AreEqual("previous_for_level", AnalyticsParams.PreviousForLevel);
+            Assert.AreEqual("old_total", AnalyticsParams.OldTotal);
+            Assert.AreEqual("new_total", AnalyticsParams.NewTotal);
+            Assert.AreEqual("delta", AnalyticsParams.Delta);
+        }
+
         private static void AssertAllConstStringsSnakeCase(System.Type type)
         {
             var consts = type.GetFields(

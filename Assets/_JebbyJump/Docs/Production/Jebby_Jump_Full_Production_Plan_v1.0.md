@@ -301,6 +301,7 @@ Launch target:
 | P7B   | Level Select Stars Display                       | complete (read-only "Stars N/3" per card; no economy/ads) |
 | P7C   | Reward UI Copy / Visual QA Checklist             | complete (docs/checklist only; manual visual QA deferred) |
 | P7D   | Reward UI Copy Consistency Polish                | complete (Stars UI copy standardized to "Stars: N/3")     |
+| P7E   | Reward Foundation Closure / Regression Guardrails | complete (coverage reviewed; reward wire names pinned)    |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -524,6 +525,26 @@ improvement). No scene/prefab changes, no `StarRewardStore`/`StarReward
 Calculator`/analytics semantic changes, no economy. Formatter tests updated to
 the colon form (suite still 51). Manual visual QA of the standardized copy
 remains DEFERRED / NOT VERIFIED.
+
+## P7E - Reward Foundation Closure / Automated Regression Guardrails
+
+Status: implemented. The Stars reward foundation (P7A-P7D) is **closed for
+now**. Automated coverage was reviewed and found sufficient: `RewardsTests`
+covers `StarRewardCalculator` (all rank cases), `StarRewardStore` (default,
+store, never-decrease, clamp 0..3, negative no-op, total sum, non-positive
+count, reset), and `StarRewardFormatter` (0..3 + clamp); `AnalyticsCatalogTests`
+format-checks all event/param consts. The one gap - the reward analytics
+**wire names** were only format-checked, not value-pinned - is closed by a
+single new test (`RewardConstants_HaveStableWireNames`) asserting
+`reward_granted` / `star_total_changed` / `reward_type` / `amount` /
+`total_for_level` / `previous_for_level` / `old_total` / `new_total` / `delta`.
+Suite is now 52. No code/semantic change to any `StarReward*` type, analytics
+values, HUD, Level Select, scenes, or prefabs; no economy/ads/backend.
+Reward emit behaviour in `HUDController.GrantStars` remains
+manual/log-verified (MonoBehaviour, by design). Manual visual QA stays
+DEFERRED / NOT VERIFIED. Preferred next phase: **P8A Cosmetic Wardrobe Design
+Spec (docs-only)**; alternatives are a Spark Coins design spec or pausing
+economy work until manual QA + P4B playtest.
 
 ## Open Decisions Before Implementation
 

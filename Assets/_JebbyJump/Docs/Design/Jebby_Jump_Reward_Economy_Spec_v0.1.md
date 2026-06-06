@@ -28,6 +28,13 @@ playtest + analytics data.
 > `StarRewardFormatter.Label` source (Level Select changed `Stars N/3` ->
 > `Stars: N/3`). Copy-only; no reward-store/calculator/analytics/economy
 > change. Manual visual QA remains deferred / not verified.
+>
+> **P7E update (closure):** the Stars reward foundation is **closed for now**.
+> Automated coverage was reviewed (calculator / store / formatter / analytics
+> catalog) and the reward analytics wire names are now pinned by a test. No
+> Spark Coins, Rainbow Gems, shop, ads, or backend added. Manual visual QA
+> remains deferred / not verified. Preferred next phase: a docs-only
+> **Cosmetic Wardrobe design spec** (cosmetic-first), per this document.
 
 ---
 

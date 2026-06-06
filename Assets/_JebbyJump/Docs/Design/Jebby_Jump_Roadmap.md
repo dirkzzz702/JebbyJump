@@ -161,7 +161,14 @@ P7A — Stars-Only Mastery Reward Foundation           : complete (local Stars o
 P7B — Level Select Stars Display                     : complete (read-only "Stars N/3" per card from StarRewardStore; no writes/analytics; no economy/ads/backend; visual confirmation deferred)
 P7C — Reward UI Copy / Visual QA Checklist           : complete (docs/checklist only; no runtime/code/scene changes; manual visual QA still deferred)
 P7D — Reward UI Copy Consistency Polish              : complete (Stars UI copy standardized to "Stars: N/3" via single StarRewardFormatter; Level Select changed "Stars N/3" -> "Stars: N/3"; no scene/prefab/economy changes; manual visual QA still deferred)
+P7E — Reward Foundation Closure / Regression Guardrails : complete (Stars reward foundation closed; automated coverage reviewed; reward analytics wire names pinned by test; no economy/ads/backend; manual visual QA still deferred/NOT VERIFIED)
 ```
+
+The Stars reward foundation (P7A-P7E) is **closed for now**. Automated
+coverage (calculator, store, formatter, analytics catalog + pinned reward
+wire names) is in place; manual visual QA remains DEFERRED / NOT VERIFIED.
+Preferred next phase: **P8A Cosmetic Wardrobe Design Spec (docs-only)** -
+cosmetic-first, no shop/ads/backend yet.
 
 P7C added a manual visual-QA + copy checklist for the Stars UI:
 `Assets/_JebbyJump/Docs/QA/Jebby_Jump_Reward_UI_Visual_QA_Checklist_v0.1.md`.

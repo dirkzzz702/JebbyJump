@@ -1,9 +1,16 @@
 # Jebby Jump - Reward UI Copy / Visual QA Checklist v0.1
 
-Status: CHECKLIST ONLY (P7C). Defines the manual visual QA to run later for
-the Stars UI added in P7A/P7B. No code/scene/prefab/runtime changes. None of
-the checks below have been performed yet - they remain DEFERRED until someone
-actually runs them in the editor or on a device.
+Status: CHECKLIST ONLY (P7C; copy standardized P7D; foundation closed P7E).
+Defines the manual visual QA to run later for the Stars UI added in P7A/P7B.
+No code/scene/prefab/runtime changes from this document. None of the checks
+below have been performed yet - they remain DEFERRED / NOT VERIFIED until
+someone actually runs them in the editor or on a device.
+
+> **P7E note:** the Stars reward foundation is closed for now. Automated
+> coverage (calculator / store / formatter / analytics catalog, plus pinned
+> reward analytics wire names) is in place. The manual visual checks in this
+> document are still DEFERRED / NOT VERIFIED - automated coverage does not
+> substitute for them.
 
 ---
 
