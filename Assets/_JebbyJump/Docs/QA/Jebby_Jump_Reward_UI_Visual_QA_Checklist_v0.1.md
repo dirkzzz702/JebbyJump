@@ -30,8 +30,12 @@ belong to a later, separately-approved polish phase.
 
 | Where | Source | Exact text |
 |---|---|---|
-| Result panel | `HUDController.GrantStars` | `Stars: N/3` (with colon), plus `  (New Star Best!)` appended when the stored best increases |
-| Level Select card | `StarRewardFormatter.Label` | `Stars N/3` (no colon) |
+| Result panel | `HUDController.GrantStars` -> `StarRewardFormatter.Label` | `Stars: N/3`, plus `  (New Star Best!)` appended when the stored best increases |
+| Level Select card | `StarRewardFormatter.Label` | `Stars: N/3` |
+
+> P7D standardized both surfaces to `Stars: N/3` via the single
+> `StarRewardFormatter.Label` source. (Earlier the Level Select card used
+> `Stars N/3` with no colon.) Manual visual verification remains deferred.
 
 Mechanics (P7A/P7B, unchanged here): Stars are **local, per-level, best-only,
 clamped 0..3**. Mapping: S/A = 3, B = 2, C = 1, completed-with-no-rank-config
@@ -72,10 +76,10 @@ State B: partial progress - mix of 1/3, 2/3, 3/3 and locked levels
 ## 6. Level Select Stars checklist
 
 ```text
-[ ] Fresh install / after Reset Everything -> every card shows "Stars 0/3"
-[ ] After clearing a level with C -> that card shows "Stars 1/3"
-[ ] After improving that level to B -> "Stars 2/3"
-[ ] After improving to A/S -> "Stars 3/3"
+[ ] Fresh install / after Reset Everything -> every card shows "Stars: 0/3"
+[ ] After clearing a level with C -> that card shows "Stars: 1/3"
+[ ] After improving that level to B -> "Stars: 2/3"
+[ ] After improving to A/S -> "Stars: 3/3"
 [ ] Replay with a lower rank -> card stays at the previous best stars
 [ ] Locked card -> still clearly locked: locked overlay visually dominant,
     button non-interactable; Stars text does NOT make it look playable
@@ -91,7 +95,7 @@ State B: partial progress - mix of 1/3, 2/3, 3/3 and locked levels
 ## 7. Reset / replay scenarios
 
 ```text
-[ ] Jebby Jump/Reset/Reset Stars -> all cards return to "Stars 0/3"
+[ ] Jebby Jump/Reset/Reset Stars -> all cards return to "Stars: 0/3"
 [ ] Jebby Jump/Reset/Reset Everything -> progress, best times, AND stars cleared
 [ ] Replay without improvement -> no star change, no reward_granted in the log
 [ ] Replay with improvement -> stars increase; reward_granted +
@@ -102,9 +106,9 @@ State B: partial progress - mix of 1/3, 2/3, 3/3 and locked levels
 
 | State | Tint | Locked overlay | Button | Best / Rank | Stars |
 |---|---|---|---|---|---|
-| Locked | dim/gray | visible (dominant) | non-interactable | "Best --" / "Rank --" | "Stars 0/3" (must not imply playable) |
-| Unlocked, uncleared | normal | hidden | interactable | "Best --" / "Rank --" | "Stars 0/3" |
-| Completed | completed tint | hidden | interactable | real Best / Rank | "Stars N/3" (1-3) |
+| Locked | dim/gray | visible (dominant) | non-interactable | "Best --" / "Rank --" | "Stars: 0/3" (must not imply playable) |
+| Unlocked, uncleared | normal | hidden | interactable | "Best --" / "Rank --" | "Stars: 0/3" |
+| Completed | completed tint | hidden | interactable | real Best / Rank | "Stars: N/3" (1-3) |
 
 ```text
 [ ] Each state matches the row above on screen
@@ -112,23 +116,17 @@ State B: partial progress - mix of 1/3, 2/3, 3/3 and locked levels
 
 ## 9. Copy consistency notes
 
-Current wording differs between the two surfaces:
+**STANDARDIZED in P7D.** Both surfaces now use the same wording, sourced
+from the single `StarRewardFormatter.Label`:
 
 ```text
-Result panel:      "Stars: N/3"   (with colon, + "(New Star Best!)")
-Level Select card: "Stars N/3"    (no colon)
+Result panel:      "Stars: N/3"   (+ "(New Star Best!)" on improvement)
+Level Select card: "Stars: N/3"
 ```
 
-This is **documented, not changed** in P7C. A future, separately-approved
-polish phase MAY standardize the wording. Options to consider then:
-
-```text
-"Stars: N/3" everywhere
-"Stars N/3" everywhere
-"N/3 Stars"
-```
-
-Do not change UI copy as part of this checklist phase.
+The earlier inconsistency (P7C documented the Level Select card as
+`Stars N/3` with no colon) is resolved - the colon form is used everywhere.
+Manual visual verification of the standardized copy remains DEFERRED.
 
 ## 10. Accessibility / readability checks
 

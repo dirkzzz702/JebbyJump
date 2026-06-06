@@ -22,6 +22,12 @@ playtest + analytics data.
 > `Assets/_JebbyJump/Docs/QA/Jebby_Jump_Reward_UI_Visual_QA_Checklist_v0.1.md`.
 > No code/UI change; the result-panel vs Level Select copy difference is
 > documented (not fixed). Manual visual QA for the Stars UI remains deferred.
+>
+> **P7D update (implemented):** the Stars UI copy is standardized to
+> `Stars: N/3` across the result panel and Level Select via the single
+> `StarRewardFormatter.Label` source (Level Select changed `Stars N/3` ->
+> `Stars: N/3`). Copy-only; no reward-store/calculator/analytics/economy
+> change. Manual visual QA remains deferred / not verified.
 
 ---
 

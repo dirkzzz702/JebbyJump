@@ -316,7 +316,7 @@ namespace JebbyJump.UI
             if (_levelCompleteStarsText != null)
             {
                 _levelCompleteStarsText.text =
-                    $"Stars: {starsThisClear}/{StarRewardCalculator.MaxStars}"
+                    StarRewardFormatter.Label(starsThisClear)
                     + (improved ? "  (New Star Best!)" : string.Empty);
             }
 

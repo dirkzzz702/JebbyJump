@@ -300,6 +300,7 @@ Launch target:
 | P7A   | Stars-Only Mastery Reward Foundation             | complete (local Stars only; no Spark Coins/Gems/shop/ads) |
 | P7B   | Level Select Stars Display                       | complete (read-only "Stars N/3" per card; no economy/ads) |
 | P7C   | Reward UI Copy / Visual QA Checklist             | complete (docs/checklist only; manual visual QA deferred) |
+| P7D   | Reward UI Copy Consistency Polish                | complete (Stars UI copy standardized to "Stars: N/3")     |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -510,6 +511,19 @@ Documents (does NOT change) the copy difference: result panel `Stars: N/3`
 future approved polish phase may standardize it. All deferred manual visual
 QA (P5B-P5F, P7A, P7B) and P4B remain deferred and are explicitly listed as
 NOT complete. No star-reward semantics, analytics, or economy changes.
+
+## P7D — Reward UI Copy Consistency Polish
+
+Status: implemented. Copy-only. The Stars UI wording is standardized to
+**`Stars: N/3`** across both surfaces via the single `StarRewardFormatter
+.Label` source: the formatter now returns `Stars: N/3` (Level Select picks it
+up automatically; previously `Stars N/3`), and `HUDController.GrantStars` uses
+the formatter instead of building the string inline (result panel text
+unchanged at `Stars: N/3`, still appending `(New Star Best!)` only on
+improvement). No scene/prefab changes, no `StarRewardStore`/`StarReward
+Calculator`/analytics semantic changes, no economy. Formatter tests updated to
+the colon form (suite still 51). Manual visual QA of the standardized copy
+remains DEFERRED / NOT VERIFIED.
 
 ## Open Decisions Before Implementation
 
