@@ -162,7 +162,17 @@ P7B — Level Select Stars Display                     : complete (read-only "St
 P7C — Reward UI Copy / Visual QA Checklist           : complete (docs/checklist only; no runtime/code/scene changes; manual visual QA still deferred)
 P7D — Reward UI Copy Consistency Polish              : complete (Stars UI copy standardized to "Stars: N/3" via single StarRewardFormatter; Level Select changed "Stars N/3" -> "Stars: N/3"; no scene/prefab/economy changes; manual visual QA still deferred)
 P7E — Reward Foundation Closure / Regression Guardrails : complete (Stars reward foundation closed; automated coverage reviewed; reward analytics wire names pinned by test; no economy/ads/backend; manual visual QA still deferred/NOT VERIFIED)
+P8  — Cosmetic Wardrobe Design Spec                  : complete (design spec only; no runtime/wardrobe code; outfits-first, Stars-gated unlocks recommended with PLACEHOLDER thresholds; no shop/Spark Coins/Rainbow Gems currency/ads/backend; implementation deferred to future P9A)
 ```
+
+P8 produced a design-only cosmetic wardrobe spec (no code). See
+`Assets/_JebbyJump/Docs/Design/Jebby_Jump_Cosmetic_Wardrobe_Spec_v0.1.md`.
+Cosmetic-first, child-safe; preserves Jebby's identity (Art Bible Design Lock
+Rule). Recommended first wardrobe implementation after P8 / future P9A:
+Stars-gated direct outfit unlocks (Stars gate but are NOT consumed; thresholds
+are PLACEHOLDERS pending P4B + level count + balance review). The rainbow-gem
+visual MOTIF stays as identity/art; the Rainbow Gems CURRENCY remains deferred
+and unimplemented.
 
 The Stars reward foundation (P7A-P7E) is **closed for now**. Automated
 coverage (calculator, store, formatter, analytics catalog + pinned reward

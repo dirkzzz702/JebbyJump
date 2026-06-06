@@ -35,6 +35,16 @@ playtest + analytics data.
 > Spark Coins, Rainbow Gems, shop, ads, or backend added. Manual visual QA
 > remains deferred / not verified. Preferred next phase: a docs-only
 > **Cosmetic Wardrobe design spec** (cosmetic-first), per this document.
+>
+> **P8 update (docs only):** the cosmetic wardrobe design spec was added at
+> `Assets/_JebbyJump/Docs/Design/Jebby_Jump_Cosmetic_Wardrobe_Spec_v0.1.md`.
+> Cosmetic-first, outfits-first; recommended first wardrobe implementation
+> (future P9A) is **Stars-gated direct outfit unlocks** - Stars gate but are
+> NOT consumed; thresholds are PLACEHOLDERS pending P4B + level count +
+> balance. No shop / Spark Coins / Rainbow Gems currency / ads / backend in
+> P8. (The rainbow-gem visual motif stays as identity art; the Rainbow Gems
+> currency stays deferred.) No reward-store/calculator/analytics/economy
+> code change.
 
 ---
 

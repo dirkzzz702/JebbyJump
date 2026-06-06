@@ -302,6 +302,7 @@ Launch target:
 | P7C   | Reward UI Copy / Visual QA Checklist             | complete (docs/checklist only; manual visual QA deferred) |
 | P7D   | Reward UI Copy Consistency Polish                | complete (Stars UI copy standardized to "Stars: N/3")     |
 | P7E   | Reward Foundation Closure / Regression Guardrails | complete (coverage reviewed; reward wire names pinned)    |
+| P8    | Cosmetic Wardrobe Design Spec                    | complete (design spec only; no runtime; outfits-first, Stars-gated) |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -545,6 +546,29 @@ manual/log-verified (MonoBehaviour, by design). Manual visual QA stays
 DEFERRED / NOT VERIFIED. Preferred next phase: **P8A Cosmetic Wardrobe Design
 Spec (docs-only)**; alternatives are a Spark Coins design spec or pausing
 economy work until manual QA + P4B playtest.
+
+## P8 - Cosmetic Wardrobe Design Spec
+
+Status: implemented as **design spec only**. No runtime/wardrobe/inventory/
+shop/currency code, no UI/scene/prefab, no art import. Full spec:
+`Assets/_JebbyJump/Docs/Design/Jebby_Jump_Cosmetic_Wardrobe_Spec_v0.1.md`.
+
+Direction: **cosmetic-only, outfits-first**, child-safe, preserving Jebby's
+identity (Art Bible Design Lock Rule). Initial outfit set: Classic Color
+Knight (default, always unlocked; = GDD/Art Bible "Classic Cavalier"), Forest
+Cavalier, Sunshine Knight, Aqua Knight, Silver Dreamer. Recommended first
+wardrobe implementation after P8 / future P9A: **Stars-gated direct outfit
+unlocks** - Stars gate unlocks but are **NOT consumed**; all star thresholds
+are **STRICT PLACEHOLDERS** pending P4B + final level count + reward/balance
+review. Future data model, analytics events, and art requirements are
+documented as proposals only.
+
+Currency stance: no shop, no Spark Coins, no Rainbow Gems **currency**, no
+paid currency in P8 or the recommended near-term wardrobe. Distinct from that:
+the **rainbow-gem visual motif** remains an allowed/required part of Jebby's
+identity and art. Manual visual QA (P5B-P5F, P7A, P7B) and P4B remain
+DEFERRED / NOT VERIFIED. Recommended next phase: P9A Wardrobe Data Model +
+Local Ownership Store (only after explicit approval).
 
 ## Open Decisions Before Implementation
 
