@@ -5,6 +5,7 @@
   <Project Path="JebbyJump.Settings.Runtime.csproj" />
   <Project Path="JebbyJump.Tests.PlayMode.csproj" />
   <Project Path="JebbyJump.Rewards.Runtime.csproj" />
+  <Project Path="JebbyJump.Wardrobe.Runtime.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="JebbyJump.Progression.Runtime.csproj" />
 </Solution>

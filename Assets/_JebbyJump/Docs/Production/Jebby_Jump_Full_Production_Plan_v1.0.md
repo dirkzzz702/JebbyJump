@@ -303,6 +303,7 @@ Launch target:
 | P7D   | Reward UI Copy Consistency Polish                | complete (Stars UI copy standardized to "Stars: N/3")     |
 | P7E   | Reward Foundation Closure / Regression Guardrails | complete (coverage reviewed; reward wire names pinned)    |
 | P8    | Cosmetic Wardrobe Design Spec                    | complete (design spec only; no runtime; outfits-first, Stars-gated) |
+| P9    | Wardrobe Foundation (local, cosmetic-only)       | complete (catalog + equipped store + Stars-gated unlock + text panel) |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -569,6 +570,44 @@ the **rainbow-gem visual motif** remains an allowed/required part of Jebby's
 identity and art. Manual visual QA (P5B-P5F, P7A, P7B) and P4B remain
 DEFERRED / NOT VERIFIED. Recommended next phase: P9A Wardrobe Data Model +
 Local Ownership Store (only after explicit approval).
+
+## P9 - Wardrobe Foundation (local, cosmetic-only)
+
+Status: implemented. First local wardrobe foundation per the P8 spec.
+**Cosmetic-only, offline/local, no art swap yet.** No shop, Spark Coins,
+Rainbow Gems currency, ads, IAP, or backend.
+
+- `JebbyJump.Wardrobe.Runtime` (new asmdef): `CosmeticItemDefinition` +
+  `WardrobeCatalog` (exactly the 5 P8 outfits; ids snake_case; thresholds
+  0/8/15/22/30 stored as **PLACEHOLDER** data); `WardrobeStore` (PlayerPrefs
+  key `jebby.wardrobe.equippedOutfit` only - ownership derived from Stars,
+  not persisted; unknown/null id -> `classic_color_knight`); pure
+  `WardrobeUnlockService` (Stars-gated; `IsUnlocked`/`GetState`/
+  `NormalizeEquippedId`; **Stars are NOT consumed**, no PlayerPrefs writes,
+  no `StarRewardStore` coupling - total stars passed in).
+- UI: `WardrobePanelController` - text-only outfit rows with Locked /
+  Unlocked / Equipped state, a preview + state label, Equip (disabled for
+  locked or already-equipped) and Back. Opened from a new Main Menu
+  **Wardrobe** button (stack: Continue / Level Select / Settings / Wardrobe
+  / Quit). Total stars read via `StarRewardStore.GetTotalStars(catalog.Count)`
+  (read-only). **No sprite swap, no PlayerAnimator coupling, no animation
+  change.** A future phase may apply the equipped outfit visually once art
+  assets exist.
+- Analytics (local/debug-only, extends the P6 catalog; wire names pinned by
+  test): `wardrobe_opened`, `cosmetic_previewed`, `cosmetic_equipped`,
+  `cosmetic_unlock_failed`. No `cosmetic_unlocked` (unlocks are passive/
+  derived). No spam during list population.
+- Reset: `Jebby Jump/Reset/Reset Wardrobe` (equipped -> default) and Stars
+  is included in **Reset Everything**; **Reset Stars** does NOT touch the
+  wardrobe.
+- Tests: `WardrobeTests` (catalog / store / unlock service) + pinned
+  wardrobe analytics wire names.
+
+Outfits are cosmetic-only and do not affect jump/speed/skills/damage/rank/
+time/progression/level validation. Thresholds are placeholders pending P4B +
+final level count + balance review. Manual visual QA of the Wardrobe panel
+is **DEFERRED / NOT VERIFIED**. Recommended next phase: P10A Wardrobe Visual
+QA / UI Polish Checklist.
 
 ## Open Decisions Before Implementation
 

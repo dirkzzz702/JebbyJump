@@ -1,9 +1,20 @@
 # Jebby Jump - Cosmetic Wardrobe Design Spec v0.1
 
-Status: DESIGN SPEC ONLY (P8). No runtime, no wardrobe/inventory/shop code,
-no currency, no ads, no art import. This document defines the future cosmetic
-wardrobe system shape so a later, separately-approved phase can implement it.
-All star thresholds here are STRICT PLACEHOLDERS (see section 8).
+Status: DESIGN SPEC (P8). The local foundation was implemented in **P9** (see
+note below). No art swap / currency / shop / ads / backend. All star
+thresholds here remain STRICT PLACEHOLDERS (see section 8).
+
+> **P9 update (implemented):** the local wardrobe foundation shipped -
+> `JebbyJump.Wardrobe.Runtime` (`CosmeticItemDefinition`, `WardrobeCatalog`
+> with the 5 outfits, `WardrobeStore` persisting only the equipped id, pure
+> Stars-gated `WardrobeUnlockService`), a text-only Wardrobe panel from a new
+> Main Menu Wardrobe button, local wardrobe analytics, Reset Wardrobe, and
+> pure tests. Stars **gate but are NOT consumed**; thresholds 0/8/15/22/30
+> are PLACEHOLDERS. **No art/sprite swap, no PlayerAnimator coupling, no
+> shop/Spark Coins/Rainbow Gems currency/ads/backend.** Outfits have no
+> gameplay effect. Manual visual QA of the panel remains DEFERRED / NOT
+> VERIFIED. Section 8's "Recommended first wardrobe implementation after P8 /
+> future P9A" is now realized by P9.
 
 ---
 

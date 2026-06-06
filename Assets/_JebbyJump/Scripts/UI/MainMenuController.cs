@@ -15,9 +15,11 @@ namespace JebbyJump.UI
         [SerializeField] private Button _continueButton;
         [SerializeField] private Button _startButton;
         [SerializeField] private Button _settingsButton;
+        [SerializeField] private Button _wardrobeButton;
         [SerializeField] private Button _quitButton;
         [SerializeField] private LevelSelectController _levelSelect;
         [SerializeField] private SettingsPanelController _settingsPanel;
+        [SerializeField] private WardrobePanelController _wardrobePanel;
         [SerializeField] private LevelCatalog _catalog;
 
         private void Awake()
@@ -28,6 +30,8 @@ namespace JebbyJump.UI
                 _startButton.onClick.AddListener(OnStartClicked);
             if (_settingsButton != null)
                 _settingsButton.onClick.AddListener(OnSettingsClicked);
+            if (_wardrobeButton != null)
+                _wardrobeButton.onClick.AddListener(OnWardrobeClicked);
             if (_quitButton != null)
                 _quitButton.onClick.AddListener(SceneLoader.QuitGame);
 
@@ -55,6 +59,8 @@ namespace JebbyJump.UI
                 _startButton.onClick.RemoveListener(OnStartClicked);
             if (_settingsButton != null)
                 _settingsButton.onClick.RemoveListener(OnSettingsClicked);
+            if (_wardrobeButton != null)
+                _wardrobeButton.onClick.RemoveListener(OnWardrobeClicked);
             if (_quitButton != null)
                 _quitButton.onClick.RemoveListener(SceneLoader.QuitGame);
         }
@@ -104,6 +110,21 @@ namespace JebbyJump.UI
                 return;
             }
             _settingsPanel.Open();
+        }
+
+        private void OnWardrobeClicked()
+        {
+            // wardrobe_opened analytics is emitted by the panel's Open() so
+            // it fires regardless of entry point; no emit here to avoid a
+            // duplicate.
+            if (_wardrobePanel == null)
+            {
+                Debug.LogWarning(
+                    "[MainMenu] No WardrobePanelController assigned; "
+                    + "Wardrobe click ignored.");
+                return;
+            }
+            _wardrobePanel.Open();
         }
     }
 }

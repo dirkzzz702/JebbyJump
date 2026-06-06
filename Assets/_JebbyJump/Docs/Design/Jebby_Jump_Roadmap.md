@@ -163,6 +163,7 @@ P7C — Reward UI Copy / Visual QA Checklist           : complete (docs/checklis
 P7D — Reward UI Copy Consistency Polish              : complete (Stars UI copy standardized to "Stars: N/3" via single StarRewardFormatter; Level Select changed "Stars N/3" -> "Stars: N/3"; no scene/prefab/economy changes; manual visual QA still deferred)
 P7E — Reward Foundation Closure / Regression Guardrails : complete (Stars reward foundation closed; automated coverage reviewed; reward analytics wire names pinned by test; no economy/ads/backend; manual visual QA still deferred/NOT VERIFIED)
 P8  — Cosmetic Wardrobe Design Spec                  : complete (design spec only; no runtime/wardrobe code; outfits-first, Stars-gated unlocks recommended with PLACEHOLDER thresholds; no shop/Spark Coins/Rainbow Gems currency/ads/backend; implementation deferred to future P9A)
+P9  — Wardrobe Foundation (local, cosmetic-only)     : complete (WardrobeCatalog 5 outfits; WardrobeStore equipped-id only; pure Stars-gated WardrobeUnlockService; text-only Wardrobe panel from Main Menu; Stars gate but are NOT consumed; thresholds 0/8/15/22/30 are PLACEHOLDERS; no art/sprite swap, no shop/Spark Coins/Rainbow Gems currency/ads/backend; outfits have no gameplay effect; visual QA DEFERRED/NOT VERIFIED)
 ```
 
 P8 produced a design-only cosmetic wardrobe spec (no code). See

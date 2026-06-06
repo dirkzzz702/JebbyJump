@@ -42,6 +42,22 @@ namespace JebbyJump.Tests
             Assert.AreEqual("delta", AnalyticsParams.Delta);
         }
 
+        // Pins the wardrobe analytics wire names (P9) for the same
+        // contract-stability reason as the reward names above.
+        [Test]
+        public void WardrobeConstants_HaveStableWireNames()
+        {
+            Assert.AreEqual("wardrobe_opened", AnalyticsEvents.WardrobeOpened);
+            Assert.AreEqual("cosmetic_previewed", AnalyticsEvents.CosmeticPreviewed);
+            Assert.AreEqual("cosmetic_equipped", AnalyticsEvents.CosmeticEquipped);
+            Assert.AreEqual("cosmetic_unlock_failed", AnalyticsEvents.CosmeticUnlockFailed);
+            Assert.AreEqual("cosmetic_id", AnalyticsParams.CosmeticId);
+            Assert.AreEqual("cosmetic_category", AnalyticsParams.CosmeticCategory);
+            Assert.AreEqual("required_stars", AnalyticsParams.RequiredStars);
+            Assert.AreEqual("current_stars", AnalyticsParams.CurrentStars);
+            Assert.AreEqual("is_owned", AnalyticsParams.IsOwned);
+        }
+
         private static void AssertAllConstStringsSnakeCase(System.Type type)
         {
             var consts = type.GetFields(

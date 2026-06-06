@@ -1,0 +1,166 @@
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using JebbyJump.Wardrobe;
+using NUnit.Framework;
+
+namespace JebbyJump.Tests
+{
+    // Pure logic for the P9 wardrobe foundation: catalog, equipped-id
+    // store, and Stars-gated unlock service. No scene/UI. SetUp/TearDown
+    // clear the equipped-outfit key so tests do not leak.
+    public class WardrobeTests
+    {
+        private static readonly Regex SnakeCase =
+            new Regex("^[a-z][a-z0-9_]*$");
+
+        [SetUp]
+        public void SetUp() => WardrobeStore.Reset();
+
+        [TearDown]
+        public void TearDown() => WardrobeStore.Reset();
+
+        // ---- WardrobeCatalog ----
+
+        [Test]
+        public void Catalog_HasExactlyFiveOutfits()
+        {
+            Assert.AreEqual(5, WardrobeCatalog.Outfits.Count);
+        }
+
+        [Test]
+        public void Catalog_IdsAreUniqueNonEmptySnakeCase()
+        {
+            var seen = new HashSet<string>();
+            foreach (var o in WardrobeCatalog.Outfits)
+            {
+                Assert.IsFalse(string.IsNullOrEmpty(o.Id));
+                Assert.IsTrue(SnakeCase.IsMatch(o.Id),
+                    o.Id + " is not snake_case");
+                Assert.IsTrue(seen.Add(o.Id), "duplicate id: " + o.Id);
+            }
+        }
+
+        [Test]
+        public void Catalog_DefaultExistsAndIsAlwaysUnlocked()
+        {
+            var def = WardrobeCatalog.GetById(WardrobeCatalog.DefaultOutfitId);
+            Assert.IsNotNull(def);
+            Assert.AreEqual("classic_color_knight", def.Id);
+            Assert.IsTrue(def.AlwaysUnlocked);
+            Assert.AreEqual(0, def.RequiredStars);
+        }
+
+        [Test]
+        public void Catalog_ThresholdsMatchP8Placeholders()
+        {
+            Assert.AreEqual(0, WardrobeCatalog.GetById("classic_color_knight").RequiredStars);
+            Assert.AreEqual(8, WardrobeCatalog.GetById("forest_cavalier").RequiredStars);
+            Assert.AreEqual(15, WardrobeCatalog.GetById("sunshine_knight").RequiredStars);
+            Assert.AreEqual(22, WardrobeCatalog.GetById("aqua_knight").RequiredStars);
+            Assert.AreEqual(30, WardrobeCatalog.GetById("silver_dreamer").RequiredStars);
+        }
+
+        [Test]
+        public void Catalog_GetById_HandlesNullAndUnknown()
+        {
+            Assert.IsNull(WardrobeCatalog.GetById(null));
+            Assert.IsNull(WardrobeCatalog.GetById(""));
+            Assert.IsNull(WardrobeCatalog.GetById("does_not_exist"));
+            Assert.IsFalse(WardrobeCatalog.Exists("does_not_exist"));
+            Assert.IsTrue(WardrobeCatalog.Exists("forest_cavalier"));
+        }
+
+        // ---- WardrobeStore ----
+
+        [Test]
+        public void Store_DefaultEquippedIsClassic()
+        {
+            Assert.AreEqual("classic_color_knight",
+                WardrobeStore.GetEquippedOutfitId());
+        }
+
+        [Test]
+        public void Store_SetsKnownId()
+        {
+            Assert.AreEqual("forest_cavalier",
+                WardrobeStore.SetEquippedOutfitId("forest_cavalier"));
+            Assert.AreEqual("forest_cavalier",
+                WardrobeStore.GetEquippedOutfitId());
+        }
+
+        [Test]
+        public void Store_UnknownOrNullFallsBackToDefault()
+        {
+            WardrobeStore.SetEquippedOutfitId("nope");
+            Assert.AreEqual("classic_color_knight",
+                WardrobeStore.GetEquippedOutfitId());
+            WardrobeStore.SetEquippedOutfitId(null);
+            Assert.AreEqual("classic_color_knight",
+                WardrobeStore.GetEquippedOutfitId());
+        }
+
+        [Test]
+        public void Store_ResetReturnsToDefault()
+        {
+            WardrobeStore.SetEquippedOutfitId("aqua_knight");
+            WardrobeStore.Reset();
+            Assert.AreEqual("classic_color_knight",
+                WardrobeStore.GetEquippedOutfitId());
+        }
+
+        // ---- WardrobeUnlockService ----
+
+        [Test]
+        public void Unlock_DefaultUnlockedAtZeroStars()
+        {
+            var def = WardrobeCatalog.GetById("classic_color_knight");
+            Assert.IsTrue(WardrobeUnlockService.IsUnlocked(def, 0));
+        }
+
+        [Test]
+        public void Unlock_ForestLockedBelow8_UnlockedAt8()
+        {
+            var def = WardrobeCatalog.GetById("forest_cavalier");
+            Assert.IsFalse(WardrobeUnlockService.IsUnlocked(def, 7));
+            Assert.IsTrue(WardrobeUnlockService.IsUnlocked(def, 8));
+            Assert.IsTrue(WardrobeUnlockService.IsUnlocked(def, 9));
+        }
+
+        [Test]
+        public void Unlock_SunshineLockedBelow15_UnlockedAt15()
+        {
+            var def = WardrobeCatalog.GetById("sunshine_knight");
+            Assert.IsFalse(WardrobeUnlockService.IsUnlocked(def, 14));
+            Assert.IsTrue(WardrobeUnlockService.IsUnlocked(def, 15));
+        }
+
+        [Test]
+        public void Unlock_StateEquippedOnlyWhenUnlockedAndMatches()
+        {
+            var forest = WardrobeCatalog.GetById("forest_cavalier");
+            // Unlocked + equipped id matches -> Equipped
+            Assert.AreEqual(WardrobeItemState.Equipped,
+                WardrobeUnlockService.GetState(forest, "forest_cavalier", 8));
+            // Unlocked + not equipped -> Unlocked
+            Assert.AreEqual(WardrobeItemState.Unlocked,
+                WardrobeUnlockService.GetState(forest, "classic_color_knight", 8));
+            // Locked even if id matches -> Locked (cannot be equipped-state)
+            Assert.AreEqual(WardrobeItemState.Locked,
+                WardrobeUnlockService.GetState(forest, "forest_cavalier", 0));
+        }
+
+        [Test]
+        public void Unlock_NormalizeUnknownOrLockedFallsBackToDefault()
+        {
+            // unknown stored id -> default
+            Assert.AreEqual("classic_color_knight",
+                WardrobeUnlockService.NormalizeEquippedId("nope", 100));
+            // locked stored id (Silver needs 30) at 0 stars -> default
+            Assert.AreEqual("classic_color_knight",
+                WardrobeUnlockService.NormalizeEquippedId("silver_dreamer", 0));
+            // unlocked stored id stays
+            Assert.AreEqual("forest_cavalier",
+                WardrobeUnlockService.NormalizeEquippedId("forest_cavalier", 8));
+        }
+    }
+}

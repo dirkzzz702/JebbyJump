@@ -1,5 +1,6 @@
 using JebbyJump.Progression;
 using JebbyJump.Rewards;
+using JebbyJump.Wardrobe;
 using UnityEditor;
 using UnityEngine;
 
@@ -53,12 +54,20 @@ public static class ResetProgressTool
         Debug.Log("[ResetProgress] Mastery stars cleared for all levels.");
     }
 
+    [MenuItem("Jebby Jump/Reset/Reset Wardrobe")]
+    public static void ResetWardrobe()
+    {
+        WardrobeStore.Reset();
+        Debug.Log("[ResetProgress] Equipped outfit reset to default.");
+    }
+
     [MenuItem("Jebby Jump/Reset/Reset Everything")]
     public static void ResetEverything()
     {
         ResetLocalProgress();
         ResetBestTimes();
         ResetStars();
+        ResetWardrobe();
         Debug.Log("[ResetProgress] Full reset complete.");
     }
 

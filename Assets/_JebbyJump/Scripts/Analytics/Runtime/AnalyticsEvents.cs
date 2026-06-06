@@ -34,6 +34,11 @@ namespace JebbyJump.Analytics
 
         public const string RewardGranted               = "reward_granted";
         public const string StarTotalChanged            = "star_total_changed";
+
+        public const string WardrobeOpened              = "wardrobe_opened";
+        public const string CosmeticPreviewed           = "cosmetic_previewed";
+        public const string CosmeticEquipped            = "cosmetic_equipped";
+        public const string CosmeticUnlockFailed        = "cosmetic_unlock_failed";
     }
 
     // Central catalog of analytics parameter keys. Same stability contract
@@ -67,5 +72,10 @@ namespace JebbyJump.Analytics
         public const string OldTotal           = "old_total";
         public const string NewTotal           = "new_total";
         public const string Delta              = "delta";
+        public const string CosmeticId         = "cosmetic_id";
+        public const string CosmeticCategory   = "cosmetic_category";
+        public const string RequiredStars      = "required_stars";
+        public const string CurrentStars       = "current_stars";
+        public const string IsOwned            = "is_owned";
     }
 }

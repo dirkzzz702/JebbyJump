@@ -167,8 +167,14 @@ P5E Pause -> Settings visible flow ................... DEFERRED
 P5F PauseButton visual confirmation .................. DEFERRED
 P7A Result Panel Stars visual confirmation ........... DEFERRED
 P7B Level Select Stars visual confirmation ........... DEFERRED
+P9  Wardrobe panel visual flow ....................... DEFERRED / NOT VERIFIED
 P4B manual playtest + balance tuning ................. DEFERRED
 ```
+
+P9 added a text-only Wardrobe panel (Main Menu -> Wardrobe): outfit rows with
+Locked / Unlocked / Equipped state, preview + Equip/Back. Its visual flow
+(rows readable, locked outfits clearly not equippable, equip persists, Back
+returns, no overlap on mobile) is DEFERRED / NOT VERIFIED. No art/sprite swap.
 
 ## 13. Pass / fail criteria
 
