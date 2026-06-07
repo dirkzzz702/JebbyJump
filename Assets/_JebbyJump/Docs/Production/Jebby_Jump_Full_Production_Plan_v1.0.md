@@ -304,6 +304,7 @@ Launch target:
 | P7E   | Reward Foundation Closure / Regression Guardrails | complete (coverage reviewed; reward wire names pinned)    |
 | P8    | Cosmetic Wardrobe Design Spec                    | complete (design spec only; no runtime; outfits-first, Stars-gated) |
 | P9    | Wardrobe Foundation (local, cosmetic-only)       | complete (catalog + equipped store + Stars-gated unlock + text panel) |
+| P10   | Wardrobe Visual QA / Art Readiness Plan          | complete (docs/checklist only; manual visual QA deferred) |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -608,6 +609,28 @@ time/progression/level validation. Thresholds are placeholders pending P4B +
 final level count + balance review. Manual visual QA of the Wardrobe panel
 is **DEFERRED / NOT VERIFIED**. Recommended next phase: P10A Wardrobe Visual
 QA / UI Polish Checklist.
+
+## P10 - Wardrobe Visual QA / Art Readiness Plan
+
+Status: implemented as **docs/checklist only**. No code/scene/prefab/asset/
+test/runtime changes; no art/sprite swap. Deliverable:
+`Assets/_JebbyJump/Docs/QA/Jebby_Jump_Wardrobe_Visual_QA_and_Art_Readiness_Plan_v0.1.md`
+- a 22-section plan covering (P10A) the manual visual-QA checklist for the P9
+Wardrobe panel (entry, layout, state matrix at 0/8/15/22/30 Stars, preview/
+equip, reset/persistence, analytics, accessibility, copy, pass/fail,
+screenshots) and (P10B/C) art-production + sprite-swap readiness.
+
+It records the **actual** P9 UI copy ("Selected: <name>", "Locked (N Stars)",
+"Equip", "Back") and the real `PlayerAnimator` contract (params Speed/
+IsGrounded/VerticalVelocity + Land/Hurt/Victory triggers + Idle; single
+SpriteRenderer with flipX) - future outfit art must author idle/run/jump/fall/
+land/hurt/victory and preserve that contract (an AnimatorOverrideController per
+outfit is the recommended sprite-swap mechanism). The rainbow-gem **motif**
+(identity/art) is kept distinct from the Rainbow Gems **currency** (deferred).
+
+Manual visual QA of the Wardrobe panel remains **DEFERRED / NOT VERIFIED**
+(nothing captured or claimed in P10). Recommended next phase: P11A Wardrobe UI
+Polish (if QA finds issues) or P11B Art Asset Production Spec.
 
 ## Open Decisions Before Implementation
 

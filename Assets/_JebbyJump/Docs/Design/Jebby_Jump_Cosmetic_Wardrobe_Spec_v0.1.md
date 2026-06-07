@@ -15,6 +15,13 @@ thresholds here remain STRICT PLACEHOLDERS (see section 8).
 > gameplay effect. Manual visual QA of the panel remains DEFERRED / NOT
 > VERIFIED. Section 8's "Recommended first wardrobe implementation after P8 /
 > future P9A" is now realized by P9.
+>
+> **P10 update (docs only):** a wardrobe visual-QA checklist + art / sprite-
+> swap readiness plan was added at
+> `Assets/_JebbyJump/Docs/QA/Jebby_Jump_Wardrobe_Visual_QA_and_Art_Readiness_Plan_v0.1.md`
+> (records actual P9 UI copy + the real PlayerAnimator contract; required
+> outfit states idle/run/jump/fall/land/hurt/victory; sprite-swap options).
+> No art/sprite swap implemented; manual visual QA remains deferred.
 
 ---
 

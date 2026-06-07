@@ -164,7 +164,16 @@ P7D — Reward UI Copy Consistency Polish              : complete (Stars UI copy
 P7E — Reward Foundation Closure / Regression Guardrails : complete (Stars reward foundation closed; automated coverage reviewed; reward analytics wire names pinned by test; no economy/ads/backend; manual visual QA still deferred/NOT VERIFIED)
 P8  — Cosmetic Wardrobe Design Spec                  : complete (design spec only; no runtime/wardrobe code; outfits-first, Stars-gated unlocks recommended with PLACEHOLDER thresholds; no shop/Spark Coins/Rainbow Gems currency/ads/backend; implementation deferred to future P9A)
 P9  — Wardrobe Foundation (local, cosmetic-only)     : complete (WardrobeCatalog 5 outfits; WardrobeStore equipped-id only; pure Stars-gated WardrobeUnlockService; text-only Wardrobe panel from Main Menu; Stars gate but are NOT consumed; thresholds 0/8/15/22/30 are PLACEHOLDERS; no art/sprite swap, no shop/Spark Coins/Rainbow Gems currency/ads/backend; outfits have no gameplay effect; visual QA DEFERRED/NOT VERIFIED)
+P10 — Wardrobe Visual QA / Art Readiness Plan        : complete (docs/checklist only; manual visual QA still DEFERRED/NOT VERIFIED; no art/sprite-swap; no shop/Spark Coins/Rainbow Gems currency/ads/backend)
 ```
+
+P10 added a manual visual-QA checklist for the P9 Wardrobe panel plus an
+art-production + sprite-swap readiness plan:
+`Assets/_JebbyJump/Docs/QA/Jebby_Jump_Wardrobe_Visual_QA_and_Art_Readiness_Plan_v0.1.md`.
+Docs-only; records actual P9 UI copy and the real PlayerAnimator contract
+(states idle/run/jump/fall/land/hurt/victory) for future art. Manual visual
+QA stays DEFERRED / NOT VERIFIED. Preferred next phase: P11A Wardrobe UI Polish
+(if QA finds issues) or P11B Art Asset Production Spec.
 
 P8 produced a design-only cosmetic wardrobe spec (no code). See
 `Assets/_JebbyJump/Docs/Design/Jebby_Jump_Cosmetic_Wardrobe_Spec_v0.1.md`.

@@ -176,6 +176,11 @@ Locked / Unlocked / Equipped state, preview + Equip/Back. Its visual flow
 (rows readable, locked outfits clearly not equippable, equip persists, Back
 returns, no overlap on mobile) is DEFERRED / NOT VERIFIED. No art/sprite swap.
 
+P10 detailed the full Wardrobe visual-QA checklist + art/sprite-swap readiness
+plan in `Jebby_Jump_Wardrobe_Visual_QA_and_Art_Readiness_Plan_v0.1.md` (this
+QA folder). Use that document for the Wardrobe panel manual checks; it remains
+DEFERRED / NOT VERIFIED.
+
 ## 13. Pass / fail criteria
 
 ```text
