@@ -305,6 +305,7 @@ Launch target:
 | P8    | Cosmetic Wardrobe Design Spec                    | complete (design spec only; no runtime; outfits-first, Stars-gated) |
 | P9    | Wardrobe Foundation (local, cosmetic-only)       | complete (catalog + equipped store + Stars-gated unlock + text panel) |
 | P10   | Wardrobe Visual QA / Art Readiness Plan          | complete (docs/checklist only; manual visual QA deferred) |
+| P11   | Wardrobe Visual Application Technical Foundation  | complete (Wardrobe.Visual asmdef: resolver + PlayerOutfitVisualController on Jebby.prefab; equipped outfit applied on Start as safe no-op until art; 76/76 tests; no gameplay/economy/art assets) |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -631,6 +632,39 @@ outfit is the recommended sprite-swap mechanism). The rainbow-gem **motif**
 Manual visual QA of the Wardrobe panel remains **DEFERRED / NOT VERIFIED**
 (nothing captured or claimed in P10). Recommended next phase: P11A Wardrobe UI
 Polish (if QA finds issues) or P11B Art Asset Production Spec.
+
+## P11 - Wardrobe Visual Application Technical Foundation
+
+Status: **implemented** (functional foundation; no final art). The equipped
+outfit id now has a safe visual application path:
+`WardrobeStore.GetEquippedOutfitId()` -> `OutfitVisualCatalog` (resolver) ->
+`PlayerOutfitVisualController` -> player `Animator`/`SpriteRenderer`.
+
+A new `JebbyJump.Wardrobe.Visual` asmdef (references
+`JebbyJump.Wardrobe.Runtime`) holds `OutfitVisualDefinition` (`OutfitId`,
+`DisplayName`, `HasVisualOverride`, `RuntimeAnimatorController
+AnimatorControllerOverride`), the pure asset-free `OutfitVisualCatalog`, and the
+`PlayerOutfitVisualController` MonoBehaviour. The controller is attached to
+`Jebby.prefab` (wired to the existing Animator + SpriteRenderer) via the
+idempotent `AttachPlayerOutfitVisual` editor scaffold; the Game scene instance
+inherits it, so `Game.unity` is not edited.
+
+In P11 every outfit resolves to `HasVisualOverride=false` /
+`AnimatorControllerOverride=null` (no art yet), so the on-Start apply is a
+**no-op** - Jebby is visually unchanged and the default outfit maps to the
+current visuals. The controller only assigns
+`Animator.runtimeAnimatorController` when a definition carries a non-null
+override, and never touches Animator parameters/state names or SpriteRenderer
+flipX. Future outfit art (an `AnimatorOverrideController` or sprite-sheet) plugs
+into the resolver without changing the controller.
+
+9 new PlayMode tests cover resolution + fallback + the controller's no-op apply
+(76/76 pass). No art/sprite/animation assets; no `WardrobeCatalog`/`Store`/
+`UnlockService`/`StarReward*`/analytics changes; no gameplay/rank/progression/
+economy changes; no shop/Spark Coins/Rainbow Gems currency/ads/backend.
+**Known limitation:** non-default outfits still look like the default Jebby
+until art is added (by design). Manual visual QA remains **DEFERRED / NOT
+VERIFIED**. Recommended next phase: P12A First Outfit Art Asset Request Pack.
 
 ## Open Decisions Before Implementation
 

@@ -165,7 +165,20 @@ P7E — Reward Foundation Closure / Regression Guardrails : complete (Stars rewa
 P8  — Cosmetic Wardrobe Design Spec                  : complete (design spec only; no runtime/wardrobe code; outfits-first, Stars-gated unlocks recommended with PLACEHOLDER thresholds; no shop/Spark Coins/Rainbow Gems currency/ads/backend; implementation deferred to future P9A)
 P9  — Wardrobe Foundation (local, cosmetic-only)     : complete (WardrobeCatalog 5 outfits; WardrobeStore equipped-id only; pure Stars-gated WardrobeUnlockService; text-only Wardrobe panel from Main Menu; Stars gate but are NOT consumed; thresholds 0/8/15/22/30 are PLACEHOLDERS; no art/sprite swap, no shop/Spark Coins/Rainbow Gems currency/ads/backend; outfits have no gameplay effect; visual QA DEFERRED/NOT VERIFIED)
 P10 — Wardrobe Visual QA / Art Readiness Plan        : complete (docs/checklist only; manual visual QA still DEFERRED/NOT VERIFIED; no art/sprite-swap; no shop/Spark Coins/Rainbow Gems currency/ads/backend)
+P11 — Wardrobe Visual Application Technical Foundation : complete (new JebbyJump.Wardrobe.Visual asmdef: OutfitVisualDefinition + OutfitVisualCatalog resolver + PlayerOutfitVisualController wired onto Jebby.prefab, Game.unity untouched; equipped outfit applied on Start; every outfit HasVisualOverride=false no-op so Jebby is visually unchanged until art exists; default maps to current visuals; 9 new PlayMode tests, 76/76 pass; no art/sprite/anim assets; no gameplay/rank/progression/economy changes; no shop/Spark Coins/Rainbow Gems currency/ads/backend; manual visual QA DEFERRED/NOT VERIFIED)
 ```
+
+P11 implemented the wardrobe visual application technical foundation: a new
+`JebbyJump.Wardrobe.Visual` asmdef (`OutfitVisualDefinition`,
+`OutfitVisualCatalog` resolver, `PlayerOutfitVisualController`). The controller
+is wired onto `Jebby.prefab` (the Game scene inherits it; Game.unity is not
+edited) and, on Start, applies the equipped outfit id from `WardrobeStore`.
+Every outfit currently resolves to a no-op (`HasVisualOverride=false`) because
+no art exists yet, so Jebby is visually unchanged; the default outfit maps to
+the current visuals. The path is the future seam for an
+`AnimatorOverrideController` / sprite-sheet. 9 new PlayMode tests (76/76 pass);
+no art/sprite/anim assets; no gameplay/economy changes; manual visual QA stays
+DEFERRED / NOT VERIFIED.
 
 P10 added a manual visual-QA checklist for the P9 Wardrobe panel plus an
 art-production + sprite-swap readiness plan:

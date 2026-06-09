@@ -48,6 +48,7 @@ GameObject:
   - component: {fileID: 6290850186715018952}
   - component: {fileID: 8449094507652424235}
   - component: {fileID: 8719887537957937891}
+  - component: {fileID: 7389760335648996145}
   m_Layer: 6
   m_Name: Jebby
   m_TagString: Player
@@ -276,3 +277,19 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &7389760335648996145
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8296823959736851068}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8aedbb7ed0f882d49b4eed3112aa9929, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: JebbyJump.Wardrobe.Visual::JebbyJump.Wardrobe.Visual.PlayerOutfitVisualController
+  _animator: {fileID: 8719887537957937891}
+  _spriteRenderer: {fileID: 8576872347281431571}
+  _applyOnStart: 1
+  _lastAppliedOutfitId: 

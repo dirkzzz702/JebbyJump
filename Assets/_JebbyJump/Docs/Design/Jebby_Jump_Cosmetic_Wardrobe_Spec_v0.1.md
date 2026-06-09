@@ -22,6 +22,19 @@ thresholds here remain STRICT PLACEHOLDERS (see section 8).
 > (records actual P9 UI copy + the real PlayerAnimator contract; required
 > outfit states idle/run/jump/fall/land/hurt/victory; sprite-swap options).
 > No art/sprite swap implemented; manual visual QA remains deferred.
+>
+> **P11 update (implemented):** the equipped outfit id now has a safe visual
+> application path. A new `JebbyJump.Wardrobe.Visual` asmdef adds
+> `OutfitVisualDefinition`, `OutfitVisualCatalog` (resolver), and a
+> `PlayerOutfitVisualController` wired onto the Jebby prefab (Game.unity is not
+> edited - the scene inherits the prefab). On Start it applies the equipped
+> outfit; every outfit currently resolves to `HasVisualOverride=false` (no art
+> yet), so the apply is a **no-op** and Jebby looks unchanged. The default
+> outfit maps to the current visuals. Final outfit art is still required;
+> sprite-swap is not visually meaningful until art exists. A future
+> `AnimatorOverrideController` / sprite-sheet plugs into the resolver without
+> changing the controller. No gameplay effect; no shop/Spark Coins/Rainbow Gems
+> currency/ads/backend. Manual visual QA remains DEFERRED / NOT VERIFIED.
 
 ---
 

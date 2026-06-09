@@ -7,6 +7,18 @@ have been performed - they remain DEFERRED / NOT VERIFIED until someone runs
 them in the editor or on a device. P10 does not capture screenshots or claim
 any visual QA was performed.
 
+P11 update (implemented, functional only): the equipped outfit now has a safe
+visual application path - a new `JebbyJump.Wardrobe.Visual` asmdef
+(`OutfitVisualDefinition`, `OutfitVisualCatalog` resolver) and a
+`PlayerOutfitVisualController` wired onto `Jebby.prefab` (Game.unity untouched).
+On Start it applies the equipped outfit, but every outfit currently resolves to
+`HasVisualOverride=false` (no art yet), so it is a **no-op** - non-default
+outfits still look like the default Jebby. Final outfit art is still required;
+sprite-swap is not visually meaningful until art exists. A future
+`AnimatorOverrideController` / sprite-sheet plugs into the resolver. The P11
+wardrobe visual application flow is itself DEFERRED / NOT VERIFIED (manual QA
+intentionally skipped).
+
 ---
 
 ## 1. Purpose
@@ -332,9 +344,12 @@ Option C - palette/recolor + small accessory overlays
 Recommended FIRST visual implementation: **Option A or C** (preserve the
 Animator parameter contract via an AnimatorOverrideController for A; keep base
 silhouette for C). Avoid layered mix-and-match (B) until the base wardrobe
-flow is proven. Equipped id is already available via
-`WardrobeStore.GetEquippedOutfitId()` for a future apply step; P9 deliberately
-left it disconnected from `PlayerAnimator`/`SpriteRenderer`.
+flow is proven. Equipped id is available via
+`WardrobeStore.GetEquippedOutfitId()`; P9 left it disconnected, and **P11**
+connected it through `OutfitVisualCatalog` -> `PlayerOutfitVisualController`
+(attached to `Jebby.prefab`). That apply path is live but a **no-op** until an
+outfit supplies a non-null `AnimatorControllerOverride` - so Option A/C art
+plugs straight into the existing resolver/controller without code changes.
 
 ## 20. Future implementation phases (recommend only; do not start)
 
@@ -359,6 +374,7 @@ P5F PauseButton visual confirmation .................. DEFERRED
 P7A Result Panel Stars visual confirmation ........... DEFERRED
 P7B Level Select Stars visual confirmation ........... DEFERRED
 P9  Wardrobe panel visual flow ....................... DEFERRED / NOT VERIFIED
+P11 Wardrobe visual application flow ................. DEFERRED / NOT VERIFIED
 P4B manual playtest + balance tuning ................. DEFERRED
 ```
 
