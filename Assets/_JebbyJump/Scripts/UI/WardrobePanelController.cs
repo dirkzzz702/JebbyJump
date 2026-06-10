@@ -137,7 +137,10 @@ namespace JebbyJump.UI
                     AnalyticsParam.Of(AnalyticsParams.CurrentStars, totalStars));
             }
 
-            string equippedId = WardrobeStore.GetEquippedOutfitId();
+            // Normalize like Rebuild does, so a known-but-locked stored id
+            // (e.g. after a dev Stars reset) still displays as default.
+            string equippedId = WardrobeUnlockService.NormalizeEquippedId(
+                WardrobeStore.GetEquippedOutfitId(), totalStars);
             RefreshLabels(totalStars, equippedId);
         }
 

@@ -149,6 +149,27 @@ namespace JebbyJump.Tests
                 WardrobeUnlockService.GetState(forest, "forest_cavalier", 0));
         }
 
+        // Pins the display rule the wardrobe panel relies on (both on open
+        // and after a row click): when the stored equip is known but locked
+        // at the current Stars (e.g. after a dev Stars reset), the
+        // normalized id makes the DEFAULT row read Equipped and the locked
+        // outfit read Locked - no state where nothing is Equipped.
+        [Test]
+        public void Unlock_NormalizedLockedEquip_DefaultReadsEquipped()
+        {
+            const int totalStars = 0; // silver_dreamer (30) is locked
+            string normalized = WardrobeUnlockService.NormalizeEquippedId(
+                "silver_dreamer", totalStars);
+            Assert.AreEqual("classic_color_knight", normalized);
+
+            var classic = WardrobeCatalog.GetById("classic_color_knight");
+            var silver = WardrobeCatalog.GetById("silver_dreamer");
+            Assert.AreEqual(WardrobeItemState.Equipped,
+                WardrobeUnlockService.GetState(classic, normalized, totalStars));
+            Assert.AreEqual(WardrobeItemState.Locked,
+                WardrobeUnlockService.GetState(silver, normalized, totalStars));
+        }
+
         [Test]
         public void Unlock_NormalizeUnknownOrLockedFallsBackToDefault()
         {
