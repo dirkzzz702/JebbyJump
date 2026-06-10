@@ -1,0 +1,316 @@
+# Jebby Jump - First Outfit Art Asset Request Pack v0.1
+
+Status: ART REQUEST PACK + PIPELINE READINESS (P12). This specifies exactly
+what art is needed for the first wardrobe outfit (Forest Cavalier) and how it
+plugs into the existing P11 visual application path. No final art is produced
+or imported in P12. All values below are RECORDED FROM the current default
+Jebby assets (so new outfit art matches) - do not change existing import
+settings here. Manual visual QA remains DEFERRED / NOT VERIFIED.
+
+---
+
+## 1. Purpose
+
+P11 wired a safe visual application path
+(`WardrobeStore -> OutfitVisualCatalog -> PlayerOutfitVisualController ->
+Animator/SpriteRenderer`) but every outfit is a no-op because no outfit art
+exists. This pack defines the first real outfit's art requirements so art can
+be authored to spec, and documents the AnimatorOverrideController pipeline that
+will carry it into the game without touching gameplay. It answers: which outfit
+first, what assets, what sizes/pivots/transparency/naming, and how the art
+plugs into the resolver.
+
+This document is a request/spec only. It does not import art, create art
+folders, or change runtime behavior.
+
+## 2. Current wardrobe state
+
+```text
+WardrobeCatalog: classic_color_knight (default, 0 Stars, always),
+  forest_cavalier (8), sunshine_knight (15), aqua_knight (22),
+  silver_dreamer (30). Star thresholds are PLACEHOLDERS.
+WardrobeStore persists only the equipped id (jebby.wardrobe.equippedOutfit).
+Unlock is derived from total Stars (not consumed); ownership not persisted.
+P11 visual path: OutfitVisualCatalog resolves every outfit to a no-op
+  definition (HasVisualOverride=false); PlayerOutfitVisualController applies
+  on Start. Non-default outfits currently look like default Jebby.
+P12 adds the OutfitVisualApplier seam + tests (no production art).
+```
+
+## 3. First outfit selected
+
+Selected: **Forest Cavalier** (`forest_cavalier`).
+
+```text
+Reasons:
+- Art Bible "Initial Outfit Candidates" already ranks it #1.
+- First non-default rung on the Star ladder (unlocks at 8 Stars, PLACEHOLDER).
+- Strong, readable theme change (green leaf-cavalier) without altering Jebby's
+  identity; low art risk (vs Silver Dreamer's premium night theme at 30).
+- Good proof of the wardrobe visual pipeline.
+```
+
+Do not start with Silver Dreamer (premium/night, 30-Star, higher risk).
+Sunshine Knight is the only alternative, and only if art direction later
+prefers it; current canon prefers Forest Cavalier.
+
+## 4. Jebby identity guardrails (from Art Bible)
+
+Jebby the Color Knight is a Cavalier-inspired humanoid fantasy color knight,
+**not a dog**: warm/kind eyes, brown-and-ivory flowing ear-like hair (long
+ear-feather silhouette), small cape, little boots, rainbow gem badge, chibi
+proportions; friendly, brave, child-safe.
+
+Design Lock Rule (Art Bible section 2.3) - outfits MAY change:
+
+```text
+Cape color | Clothing theme | Boots | Decorative accessories | VFX color
+| Small hat / trim / seasonal detail
+```
+
+Outfits MUST NOT change:
+
+```text
+Jebby's face identity | Chibi proportions | Warm eyes
+| Long ear-feather / hair silhouette | Rainbow gem motif
+| Friendly brave personality | Core Cavalier-inspired softness
+```
+
+Clarify: the rainbow / color-memory motif is **visual identity**. The Rainbow
+Gems **currency** remains deferred / not implemented and is out of scope.
+
+## 5. Forest Cavalier visual direction
+
+```text
+Theme: forest / gentle adventure / leaf-cape knight (warm, friendly).
+
+Palette: soft green cape; warm brown boots; small leaf accent; natural gold
+  trim; keep Jebby's brown-and-ivory face and ear-hair identity. (Default cape
+  is blue #315ACF; changing cape color to green is allowed by the Design Lock.)
+
+Allowed changes: cape color (-> green); trim; small leaf detail; boot accent;
+  badge/brooch accent color; subtle sparkle/leaf VFX later.
+
+Must not change: face identity; warm eyes; head shape; long ear-feather/hair
+  silhouette; chibi/core body proportions; friendly personality; main
+  silhouette readability; rainbow gem motif.
+
+Art Bible "fragments" (component breakdown, not the unlock mechanic):
+  Forest Cape, Leaf Brooch, Green Boots, Forest Tunic, Nature Feather.
+
+Avoid: armor-heavy design; weapon focus; scary forest/monster tone; dark
+  camouflage; realistic dog look; overly detailed leaves that hurt mobile
+  readability.
+```
+
+## 6. Required animation states (actual contract)
+
+The base controller `JebbyAnimator.controller` defines exactly these 7 states;
+the outfit must supply art for each. Do NOT rename states/params/triggers.
+
+```text
+State    Driven by (default clip)   Trigger/condition (PlayerAnimator)
+idle     Jebby_Idle.anim            default state; Speed<0.1 & IsGrounded
+run      Jebby_Run.anim             Speed>=0.1 & IsGrounded
+jump     Jebby_Jump.anim            !IsGrounded & VerticalVelocity>0.1
+fall     Jebby_Fall.anim            !IsGrounded & VerticalVelocity<-0.1
+land     Jebby_Land.anim            LandTrigger
+hurt     Jebby_Hurt.anim            HurtTrigger
+victory  Jebby_Victory.anim         VictoryTrigger
+```
+
+Animator parameters (do not rename): `Speed` (float), `IsGrounded` (bool),
+`VerticalVelocity` (float), `LandTrigger`, `HurtTrigger`, `VictoryTrigger`
+(triggers). Default state: `Idle`.
+
+Per state, the outfit art must have:
+
+```text
+- same canvas size and pivot as the matching default sprite
+- same pixels-per-unit and approximate bounds
+- same facing direction (right), mirror-safe for SpriteRenderer flipX
+- consistent outline/shading with default Jebby
+- transparent RGBA
+```
+
+## 7. Sprite / canvas / pivot / PPU requirements (recorded from default)
+
+From `spr_jebby_idle_01.png.meta` (match these for every Forest Cavalier sprite):
+
+```text
+Texture Type:        Sprite (2D and UI)
+Sprite Mode:         Single
+Pixels Per Unit:     100
+Pivot:               Custom (0.5, 0) = bottom-center
+Filter Mode:         Bilinear
+Mesh Type:           Tight
+Alpha Is Transparency: true
+Compression:         Normal quality
+Idle source size:    1122 x 1402 px (per-state sizes follow each default
+                     spr_jebby_<state>_01 source; keep bounds consistent)
+```
+
+Important: do NOT change existing import settings in P12. Apply these settings
+only when real Forest Cavalier art is actually imported (a later phase).
+
+## 8. Transparency / alpha requirements
+
+```text
+- Background fully transparent RGBA; corner alpha = 0.
+- No baked checkerboard, no white/opaque background, no white halo/matte ring.
+- alphaIsTransparency = true (premultiplied edge handling), matching default.
+- Clean anti-aliased edges; no stray semi-transparent pixels outside silhouette.
+```
+
+## 9. File naming convention
+
+Default outfit uses `spr_jebby_<state>_01.png`. Outfit sprites add the outfit id:
+
+```text
+spr_jebby_forest_cavalier_idle_01.png
+spr_jebby_forest_cavalier_run_01.png
+spr_jebby_forest_cavalier_jump_01.png
+spr_jebby_forest_cavalier_fall_01.png
+spr_jebby_forest_cavalier_land_01.png
+spr_jebby_forest_cavalier_hurt_01.png
+spr_jebby_forest_cavalier_victory_01.png
+```
+
+If a single sheet is preferred: `spr_jebby_forest_cavalier_sheet.png`
+(sliced into the 7 states). Per-state PNGs match the current default layout
+and are the recommended default.
+
+Animation clips (one per state):
+
+```text
+anim_jebby_forest_cavalier_idle.anim ... _victory.anim
+```
+
+(Note: existing default clips are named `Jebby_<State>.anim`; the new
+`anim_jebby_forest_cavalier_<state>.anim` form is recommended for outfit clips
+- see open question 16.2.)
+
+Override controller (see section 11 for the extension note):
+
+```text
+aoc_jebby_forest_cavalier.overrideController
+```
+
+## 10. Folder structure (documented only - not created in P12)
+
+Recommended future location for the outfit's assets:
+
+```text
+Assets/_JebbyJump/Art/Characters/Jebby/Outfits/ForestCavalier/
+  Sprites/       (spr_jebby_forest_cavalier_<state>_01.png or _sheet.png)
+  Animations/    (anim_jebby_forest_cavalier_<state>.anim)
+  Controllers/   (aoc_jebby_forest_cavalier.overrideController)
+  Source/        (working files: .aseprite/.psd - kept out of build if large)
+  QA/            (reference exports, alpha checks)
+```
+
+P12 creates none of these folders or files; this is the target for a future
+art phase.
+
+## 11. AnimatorOverrideController pipeline assumptions
+
+Preferred pipeline (confirmed viable because the default is already a full,
+clip-driven controller): an **AnimatorOverrideController per outfit** whose
+**base = `JebbyAnimator.controller`** (GUID `20a1a3f7e0d7c9b48832bacbfe4bcdb0`),
+overriding each of the 7 default clips with the Forest Cavalier clip.
+
+```text
+Forest Cavalier sprites
+  -> 7 clips anim_jebby_forest_cavalier_<state>.anim
+  -> aoc_jebby_forest_cavalier (base = JebbyAnimator; override the 7 clips)
+  -> OutfitVisualCatalog maps forest_cavalier -> that controller (a
+     RuntimeAnimatorController) with HasVisualOverride=true
+  -> PlayerOutfitVisualController / OutfitVisualApplier assigns it to
+     Animator.runtimeAnimatorController
+```
+
+Why this fits: it preserves all Animator parameters, triggers, states, and
+transitions (and SpriteRenderer flipX), so movement/gameplay are untouched -
+only the clips (visuals) swap. It maps directly onto P11's
+`OutfitVisualDefinition.AnimatorControllerOverride`
+(`RuntimeAnimatorController`), and P12's `OutfitVisualApplier` already assigns
+it when present (covered by tests with an in-memory controller).
+
+Do not: rename Animator params/triggers; change movement code; add new gameplay
+states; tint `SpriteRenderer.color` as a shortcut.
+
+Note: a Unity AnimatorOverrideController asset has the extension
+`.overrideController` (the base AnimatorController uses `.controller`). The
+`aoc_` prefix names the override.
+
+## 12. Asset QA checklist (for the future art pass)
+
+```text
+[ ] All 7 states delivered (idle/run/jump/fall/land/hurt/victory).
+[ ] Each matches default canvas size, pivot (0.5,0), PPU 100, Bilinear, Tight.
+[ ] Transparent RGBA; corner alpha 0; no halo/checkerboard/opaque bg.
+[ ] Faces right; mirror-safe under flipX (no text/asymmetry that breaks mirror).
+[ ] Identity preserved: face, warm eyes, ear-feather silhouette, chibi
+    proportions, rainbow gem motif (Design Lock section 2.3).
+[ ] Only allowed changes used: cape->green, trim, leaf accent, boots, VFX.
+[ ] Readable at mobile size; leaf detail not noisy.
+[ ] Consistent outline/shading with default Jebby.
+```
+
+## 13. Import checklist (for the future art pass - not run in P12)
+
+```text
+[ ] Place sprites under Outfits/ForestCavalier/Sprites/.
+[ ] Set Sprite (2D and UI), Single, PPU 100, pivot Custom (0.5,0),
+    Bilinear, Mesh Tight, Alpha Is Transparency on (match default).
+[ ] Author 7 clips; build aoc_jebby_forest_cavalier (base JebbyAnimator).
+[ ] Register forest_cavalier -> override in OutfitVisualCatalog (replace the
+    no-op def with HasVisualOverride=true). Do not touch other outfits.
+[ ] Verify in play: equip Forest Cavalier -> visuals swap; movement/rank
+    unchanged; default still works.
+```
+
+## 14. Manual visual QA checklist (DEFERRED / NOT VERIFIED)
+
+```text
+[ ] With Forest Cavalier art + override, Jebby visibly changes to the leaf
+    cavalier in all 7 states, identity preserved.
+[ ] flipX mirroring correct when running left.
+[ ] No flicker/wrong-clip on state transitions.
+[ ] Equipping back to Classic restores default visuals.
+[ ] Readable on a phone in portrait.
+```
+
+None of these are performed or claimed in P12 (no art exists). Manual visual QA
+is intentionally skipped for now and stays DEFERRED / NOT VERIFIED.
+
+## 15. Out-of-scope (P12)
+
+```text
+- Final/AI art generation or import; sprite sheets; .anim/.controller/
+  .overrideController assets; multi-outfit swap; layered overlay; palette
+  shader; SpriteRenderer tinting.
+- Changing OutfitVisualCatalog to return a real override (stays no-op).
+- WardrobeCatalog ids/thresholds; WardrobeStore keys; WardrobeUnlockService;
+  StarReward*; PlayerAnimator params/triggers/states; flipX.
+- Shop / Spark Coins / Rainbow Gems currency / ads / IAP / backend / cloud save.
+- Outfit gameplay stats / power (see open question 16.3).
+```
+
+## 16. Open questions
+
+```text
+16.1 Single sheet vs 7 per-state PNGs for delivery? (recommend per-state to
+     match the current default layout; revisit if atlasing is preferred.)
+16.2 Outfit clip naming: new anim_jebby_forest_cavalier_<state>.anim vs match
+     the existing default Jebby_<State>.anim style? (recommend the outfit-
+     prefixed form for clarity.)
+16.3 Art Bible lists "possible later soft bonuses" (e.g., Forest Cavalier small
+     fall-recovery effect). These are explicitly future/optional and conflict
+     with the current cosmetic-only rule -> remain DEFERRED / unimplemented;
+     outfits have no gameplay effect in this pack.
+16.4 Final Star thresholds (currently 0/8/15/22/30) remain PLACEHOLDERS pending
+     P4B + level count + balance review.
+16.5 Idle source is 1122x1402; confirm a single target canvas for all states or
+     allow per-state bounds (must keep pivot/PPU consistent either way).
+```

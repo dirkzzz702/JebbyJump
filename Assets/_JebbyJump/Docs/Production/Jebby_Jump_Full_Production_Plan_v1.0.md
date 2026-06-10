@@ -306,6 +306,7 @@ Launch target:
 | P9    | Wardrobe Foundation (local, cosmetic-only)       | complete (catalog + equipped store + Stars-gated unlock + text panel) |
 | P10   | Wardrobe Visual QA / Art Readiness Plan          | complete (docs/checklist only; manual visual QA deferred) |
 | P11   | Wardrobe Visual Application Technical Foundation  | complete (Wardrobe.Visual asmdef: resolver + PlayerOutfitVisualController on Jebby.prefab; equipped outfit applied on Start as safe no-op until art; 76/76 tests; no gameplay/economy/art assets) |
+| P12   | First Outfit Art Asset Request Pack / Visual Pipeline Readiness | complete (docs + test seam; Forest Cavalier pack; OutfitVisualApplier seam + 4 tests, 80/80; catalog stays no-op; no art assets) |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -665,6 +666,36 @@ economy changes; no shop/Spark Coins/Rainbow Gems currency/ads/backend.
 **Known limitation:** non-default outfits still look like the default Jebby
 until art is added (by design). Manual visual QA remains **DEFERRED / NOT
 VERIFIED**. Recommended next phase: P12A First Outfit Art Asset Request Pack.
+
+## P12 - First Outfit Art Asset Request Pack / Visual Pipeline Readiness
+
+Status: **implemented** (docs + minimal test seam; no final art). Deliverable:
+`Assets/_JebbyJump/Docs/Art/Jebby_Jump_First_Outfit_Art_Asset_Request_Pack_v0.1.md`
+- a 16-section pack selecting **Forest Cavalier** (Art Bible's #1 first-outfit
+candidate) and specifying identity guardrails (Design Lock section 2.3), the
+actual 7 animation states (idle/run/jump/fall/land/hurt/victory), actual sprite
+import settings (Sprite Single, PPU 100, pivot (0.5,0) bottom-center, Bilinear,
+Mesh Tight, Alpha Is Transparency), transparency rules, file naming
+(`spr_jebby_forest_cavalier_<state>_01.png`), the future asset folder layout,
+and the AnimatorOverrideController pipeline (base = `JebbyAnimator`, override
+the 7 default clips).
+
+Code: a pure-static `OutfitVisualApplier` (single source of truth for the apply
+rule) was extracted, and `PlayerOutfitVisualController.ApplyOutfit` delegates to
+it with **identical behavior** (the catalog still returns a no-op definition for
+every outfit). 4 new PlayMode tests prove an override controller is assigned
+only when a definition carries one (in-memory controller; no committed asset).
+**80/80 PlayMode tests pass** (76 + 4).
+
+No final art / sprite / animation / `.controller` / `.overrideController`
+assets; no `OutfitVisualCatalog`/`WardrobeCatalog`/`WardrobeStore`/
+`WardrobeUnlockService`/`StarReward*`/`PlayerAnimator` changes; no
+`SpriteRenderer` tint; no shop/Spark Coins/Rainbow Gems currency/ads/backend.
+Outfit gameplay perks (an Art Bible "possible later" idea) stay deferred -
+outfits remain cosmetic-only. **Known limitation:** non-default outfits still
+look like the default Jebby until art exists. Manual visual QA remains
+**DEFERRED / NOT VERIFIED**. Recommended next phase: P13A Generate / Request
+Forest Cavalier Art Assets.
 
 ## Open Decisions Before Implementation
 

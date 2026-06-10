@@ -19,6 +19,16 @@ sprite-swap is not visually meaningful until art exists. A future
 wardrobe visual application flow is itself DEFERRED / NOT VERIFIED (manual QA
 intentionally skipped).
 
+P12 update (docs + test seam): the First Outfit Art Asset Request Pack for
+Forest Cavalier was added
+(`Assets/_JebbyJump/Docs/Art/Jebby_Jump_First_Outfit_Art_Asset_Request_Pack_v0.1.md`):
+first outfit choice, identity guardrails, the 7 animation states, actual sprite
+import settings, naming/folder conventions, and the AnimatorOverrideController
+pipeline (base JebbyAnimator). A pure-static OutfitVisualApplier seam + 4
+override-assignment tests were added (80/80 pass); the catalog stays no-op for
+all outfits and no art is imported. The P12 first outfit art pipeline / asset
+readiness is DEFERRED / NOT VERIFIED (manual QA intentionally skipped).
+
 ---
 
 ## 1. Purpose
@@ -375,6 +385,7 @@ P7A Result Panel Stars visual confirmation ........... DEFERRED
 P7B Level Select Stars visual confirmation ........... DEFERRED
 P9  Wardrobe panel visual flow ....................... DEFERRED / NOT VERIFIED
 P11 Wardrobe visual application flow ................. DEFERRED / NOT VERIFIED
+P12 First outfit art pipeline / asset readiness ...... DEFERRED / NOT VERIFIED
 P4B manual playtest + balance tuning ................. DEFERRED
 ```
 

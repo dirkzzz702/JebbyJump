@@ -1,7 +1,9 @@
+using System.Text.RegularExpressions;
 using JebbyJump.Wardrobe;
 using JebbyJump.Wardrobe.Visual;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace JebbyJump.Tests
 {
@@ -12,6 +14,7 @@ namespace JebbyJump.Tests
     public class OutfitVisualTests
     {
         private GameObject _go;
+        private AnimatorOverrideController _aoc;
 
         [SetUp]
         public void SetUp() => WardrobeStore.Reset();
@@ -21,6 +24,8 @@ namespace JebbyJump.Tests
         {
             if (_go != null) Object.DestroyImmediate(_go);
             _go = null;
+            if (_aoc != null) Object.DestroyImmediate(_aoc);
+            _aoc = null;
             WardrobeStore.Reset();
         }
 
@@ -29,6 +34,13 @@ namespace JebbyJump.Tests
             // No Animator/SpriteRenderer wired - exercises the null-safe path.
             _go = new GameObject("OutfitVisualTestPlayer");
             return _go.AddComponent<PlayerOutfitVisualController>();
+        }
+
+        // Bare GameObject with an Animator, for OutfitVisualApplier tests.
+        private Animator NewAnimator()
+        {
+            _go = new GameObject("OutfitVisualTestAnimator");
+            return _go.AddComponent<Animator>();
         }
 
         // ---- OutfitVisualCatalog / resolver ----
@@ -124,6 +136,76 @@ namespace JebbyJump.Tests
             var c = NewController();
             c.ApplyEquippedOutfit();
             Assert.AreEqual("forest_cavalier", c.CurrentOutfitId);
+        }
+
+        // ---- OutfitVisualApplier (override-assignment rule) ----
+        // P12 seam: production catalog never returns an override (no art yet);
+        // these use an in-memory AnimatorOverrideController (no committed asset)
+        // to prove the future override path assigns correctly.
+
+        // Proves the applier ATTEMPTS the override assignment for an
+        // override-bearing definition. An empty in-memory
+        // AnimatorOverrideController is rejected by Unity (it logs an error),
+        // and that error is emitted ONLY if the assignment was actually
+        // attempted - so consuming the expected error proves the positive
+        // branch ran, without needing a committed/editor controller asset.
+        // (Asserting the assigned value would require a valid controller, i.e.
+        // editor/asset APIs - out of P12 scope. The cases below prove the
+        // applier does NOT assign when it should not.)
+        [Test]
+        public void Applier_AttemptsAssign_WhenDefinitionCarriesOverride()
+        {
+            var animator = NewAnimator();
+            _aoc = new AnimatorOverrideController();
+            var def = new OutfitVisualDefinition(
+                "forest_cavalier", "Forest Cavalier", true, _aoc);
+
+            LogAssert.Expect(LogType.Error,
+                new Regex("Could not set Runtime Animator Controller"));
+
+            var applied = OutfitVisualApplier.Apply(animator, def);
+
+            Assert.AreEqual("forest_cavalier", applied);
+        }
+
+        [Test]
+        public void Applier_DoesNotAssign_WhenHasVisualOverrideFalse()
+        {
+            var animator = NewAnimator();
+            _aoc = new AnimatorOverrideController();
+            // Override present but flag false -> must NOT assign.
+            var def = new OutfitVisualDefinition(
+                "forest_cavalier", "Forest Cavalier", false, _aoc);
+
+            var applied = OutfitVisualApplier.Apply(animator, def);
+
+            Assert.AreEqual("forest_cavalier", applied);
+            Assert.IsNull(animator.runtimeAnimatorController);
+        }
+
+        [Test]
+        public void Applier_DoesNotAssign_WhenOverrideNull()
+        {
+            var animator = NewAnimator();
+            var def = new OutfitVisualDefinition(
+                "forest_cavalier", "Forest Cavalier", true, null);
+
+            var applied = OutfitVisualApplier.Apply(animator, def);
+
+            Assert.AreEqual("forest_cavalier", applied);
+            Assert.IsNull(animator.runtimeAnimatorController);
+        }
+
+        [Test]
+        public void Applier_NullAnimator_DoesNotThrow()
+        {
+            _aoc = new AnimatorOverrideController();
+            var def = new OutfitVisualDefinition(
+                "forest_cavalier", "Forest Cavalier", true, _aoc);
+
+            string applied = null;
+            Assert.DoesNotThrow(() => applied = OutfitVisualApplier.Apply(null, def));
+            Assert.AreEqual("forest_cavalier", applied);
         }
     }
 }

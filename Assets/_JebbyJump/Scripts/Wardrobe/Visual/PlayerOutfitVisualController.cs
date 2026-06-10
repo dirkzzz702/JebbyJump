@@ -38,21 +38,13 @@ namespace JebbyJump.Wardrobe.Visual
             => ApplyOutfit(WardrobeStore.GetEquippedOutfitId());
 
         // Applies the given outfit id. null/unknown fall back to the default
-        // via the resolver. Only assigns a runtime controller when the
-        // definition actually carries a non-null override (never in P11).
+        // via the resolver; the apply rule (assign a runtime controller only
+        // when the definition carries a non-null override) lives in
+        // OutfitVisualApplier. No-op for all P12 outfits (no art yet).
         public void ApplyOutfit(string outfitId)
         {
             var def = OutfitVisualCatalog.GetVisualForOutfit(outfitId);
-
-            if (def.HasVisualOverride
-                && def.AnimatorControllerOverride != null
-                && _animator != null)
-            {
-                _animator.runtimeAnimatorController =
-                    def.AnimatorControllerOverride;
-            }
-
-            _lastAppliedOutfitId = def.OutfitId;
+            _lastAppliedOutfitId = OutfitVisualApplier.Apply(_animator, def);
         }
     }
 }

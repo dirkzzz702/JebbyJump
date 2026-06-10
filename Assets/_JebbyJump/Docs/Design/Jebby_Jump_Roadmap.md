@@ -166,7 +166,21 @@ P8  — Cosmetic Wardrobe Design Spec                  : complete (design spec o
 P9  — Wardrobe Foundation (local, cosmetic-only)     : complete (WardrobeCatalog 5 outfits; WardrobeStore equipped-id only; pure Stars-gated WardrobeUnlockService; text-only Wardrobe panel from Main Menu; Stars gate but are NOT consumed; thresholds 0/8/15/22/30 are PLACEHOLDERS; no art/sprite swap, no shop/Spark Coins/Rainbow Gems currency/ads/backend; outfits have no gameplay effect; visual QA DEFERRED/NOT VERIFIED)
 P10 — Wardrobe Visual QA / Art Readiness Plan        : complete (docs/checklist only; manual visual QA still DEFERRED/NOT VERIFIED; no art/sprite-swap; no shop/Spark Coins/Rainbow Gems currency/ads/backend)
 P11 — Wardrobe Visual Application Technical Foundation : complete (new JebbyJump.Wardrobe.Visual asmdef: OutfitVisualDefinition + OutfitVisualCatalog resolver + PlayerOutfitVisualController wired onto Jebby.prefab, Game.unity untouched; equipped outfit applied on Start; every outfit HasVisualOverride=false no-op so Jebby is visually unchanged until art exists; default maps to current visuals; 9 new PlayMode tests, 76/76 pass; no art/sprite/anim assets; no gameplay/rank/progression/economy changes; no shop/Spark Coins/Rainbow Gems currency/ads/backend; manual visual QA DEFERRED/NOT VERIFIED)
+P12 — First Outfit Art Asset Request Pack / Visual Pipeline Readiness : complete (docs + minimal test seam; Forest Cavalier first-outfit art request pack; OutfitVisualApplier pure-static apply seam + 4 override-assignment tests, 80/80 pass; catalog stays no-op for all outfits; no art/sprite/anim/controller assets; AnimatorOverrideController over JebbyAnimator recommended for first art; no gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED)
 ```
+
+P12 produced the First Outfit Art Asset Request Pack for Forest Cavalier
+(`Assets/_JebbyJump/Docs/Art/Jebby_Jump_First_Outfit_Art_Asset_Request_Pack_v0.1.md`):
+the selected first outfit (Art Bible #1), identity guardrails, the actual 7
+animation states, actual sprite import settings (PPU 100, pivot (0.5,0),
+Bilinear), naming/folder conventions, and the AnimatorOverrideController
+pipeline (base `JebbyAnimator`). It also added a pure-static
+`OutfitVisualApplier` seam (single source of truth for the apply rule; behavior
+unchanged) + 4 override-assignment tests (80/80 pass) using an in-memory
+controller. No final art is imported; the catalog stays no-op for all outfits,
+so Jebby is visually unchanged. No gameplay/economy changes; manual visual QA
+stays DEFERRED / NOT VERIFIED. Preferred next phase: P13A generate/request
+Forest Cavalier art.
 
 P11 implemented the wardrobe visual application technical foundation: a new
 `JebbyJump.Wardrobe.Visual` asmdef (`OutfitVisualDefinition`,

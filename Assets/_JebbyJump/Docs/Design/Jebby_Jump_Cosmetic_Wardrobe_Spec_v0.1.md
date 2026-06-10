@@ -35,6 +35,17 @@ thresholds here remain STRICT PLACEHOLDERS (see section 8).
 > `AnimatorOverrideController` / sprite-sheet plugs into the resolver without
 > changing the controller. No gameplay effect; no shop/Spark Coins/Rainbow Gems
 > currency/ads/backend. Manual visual QA remains DEFERRED / NOT VERIFIED.
+>
+> **P12 update (docs + test seam):** the First Outfit Art Asset Request Pack for
+> **Forest Cavalier** was added at
+> `Assets/_JebbyJump/Docs/Art/Jebby_Jump_First_Outfit_Art_Asset_Request_Pack_v0.1.md`
+> (identity guardrails, the 7 animation states, actual sprite import settings,
+> naming/folder conventions, and the AnimatorOverrideController pipeline over
+> `JebbyAnimator`). A pure-static `OutfitVisualApplier` seam was added and
+> `ApplyOutfit` delegates to it with unchanged behavior; 4 tests prove override
+> assignment (80/80 pass). No final art imported; the catalog stays no-op for
+> all outfits; outfits remain cosmetic-only (Art Bible "possible later" perks
+> stay deferred). Manual visual QA remains DEFERRED / NOT VERIFIED.
 
 ---
 
