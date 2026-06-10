@@ -1,5 +1,8 @@
 # Jebby Jump — Full Production Plan v1.0
 
+> NOTE: superseded by `Jebby_Jump_Full_Production_Plan_v1.0.md` (same folder)
+> — phase status and all P5+ updates are maintained there, not here.
+
 ## Confirmed Product Direction
 
 Jebby Jump is now moving from MVP to full production.

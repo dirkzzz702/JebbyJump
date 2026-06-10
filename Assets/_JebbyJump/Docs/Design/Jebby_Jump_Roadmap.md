@@ -277,6 +277,22 @@ Visual polish (low priority)  [DEFERRED / NOT VERIFIED]
   - Main Menu button stack spacing
   - Level Select card spacing / readability
 
+P7A — Result Panel Stars visual confirmation  [DEFERRED / NOT VERIFIED]
+  - "Stars: N/3" (+ "(New Star Best!)") renders correctly on the result panel
+
+P7B — Level Select Stars visual confirmation  [DEFERRED / NOT VERIFIED]
+  - per-card "Stars: N/3" readable across locked/unlocked/completed states
+
+P9 — Wardrobe panel visible flow  [DEFERRED / NOT VERIFIED]
+  - rows/states/preview/Equip/Back render and behave correctly
+    (see Jebby_Jump_Wardrobe_Visual_QA_and_Art_Readiness_Plan_v0.1.md)
+
+P11 — Wardrobe visual application flow  [DEFERRED / NOT VERIFIED]
+  - equipped outfit applied on spawn (no-op until art; nothing visibly changes)
+
+P12 — First outfit art pipeline / asset readiness  [DEFERRED / NOT VERIFIED]
+  - Forest Cavalier pack not yet exercised; no art exists
+
 P4B — Manual playtest + balance tuning  [DEFERRED — awaiting tester data]
   - per-level clear-time feel, fairness, S/A/B/C threshold tuning
   - LevelConfig values and TimeRankConfig thresholds remain provisional
