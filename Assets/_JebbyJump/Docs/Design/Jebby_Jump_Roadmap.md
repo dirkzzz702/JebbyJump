@@ -170,6 +170,20 @@ P12 — First Outfit Art Asset Request Pack / Visual Pipeline Readiness : comple
 P13 — Forest Cavalier Art Intake Prep (Mode A)        : complete-but-BLOCKED ON ART (no Forest Cavalier art exists in repo or working folders; nothing imported; no override wired; OutfitVisualCatalog stays no-op for every outfit; read-only editor QA gate added: Jebby Jump/QA/Check Outfit Sprite Alpha; next step: provide/generate the 7 state sprites per the P12 pack, then run import phase; no gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED)
 ```
 
+Pre-P13 outfit-agnostic review (maintenance pass, no refactor needed): the
+wardrobe/visual code was audited for Forest-Cavalier or "5 outfits forever"
+assumptions and found already generic - the only `forest_cavalier` in
+production code is the catalog data entry; `OutfitVisualCatalog`/`Applier`/
+`PlayerOutfitVisualController` are id-agnostic and any unknown/future id
+safely resolves to the default visuals. Jebby remains ONE playable character;
+outfits are cosmetic appearance variants only. The current 5-outfit catalog is
+the MVP initial runtime set; the 8-design board's extra outfits (Crimson Hero,
+Rookie Page, Pastel Prince) stay a documented future pool, NOT runtime (per
+the Cosmetic Wardrobe Spec section 6). Three guardrail tests were added:
+catalog ids+order pinned, future candidate ids not runtime-visible, and
+future/arbitrary ids resolving safely to default visuals. No runtime behavior,
+ids, thresholds, display names, or save keys changed.
+
 P13 ran as Mode A (no art available): Forest Cavalier art intake was
 attempted but no art exists in the repo or provided working folders, and no
 generation source was approved, so nothing was imported and no override was

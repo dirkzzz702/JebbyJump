@@ -68,6 +68,22 @@ namespace JebbyJump.Tests
                 OutfitVisualCatalog.GetVisualForOutfit("does_not_exist").OutfitId);
         }
 
+        // Future/arbitrary outfit ids (e.g. the 8-design board's future pool)
+        // must resolve safely to the default visuals until they are actually
+        // added to the runtime catalog - the visual layer is outfit-agnostic.
+        [Test]
+        public void Resolver_FutureCandidateIdsResolveSafelyToDefault()
+        {
+            foreach (var id in new[]
+                { "crimson_hero", "rookie_page", "pastel_prince" })
+            {
+                var def = OutfitVisualCatalog.GetVisualForOutfit(id);
+                Assert.AreEqual(WardrobeCatalog.DefaultOutfitId, def.OutfitId, id);
+                Assert.IsFalse(def.HasVisualOverride, id);
+                Assert.IsNull(def.AnimatorControllerOverride, id);
+            }
+        }
+
         [Test]
         public void Resolver_DefaultHasNoOverride()
         {

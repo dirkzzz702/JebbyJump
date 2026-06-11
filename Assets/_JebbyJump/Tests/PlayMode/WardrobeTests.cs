@@ -60,6 +60,37 @@ namespace JebbyJump.Tests
             Assert.AreEqual(30, WardrobeCatalog.GetById("silver_dreamer").RequiredStars);
         }
 
+        // Pins the approved runtime catalog ids AND their order (the panel
+        // builds rows in catalog order). Changing the set or order requires
+        // explicit approval - update this test alongside that approval.
+        [Test]
+        public void Catalog_OrderAndIdsArePinned()
+        {
+            var expected = new[]
+            {
+                "classic_color_knight",
+                "forest_cavalier",
+                "sunshine_knight",
+                "aqua_knight",
+                "silver_dreamer",
+            };
+            Assert.AreEqual(expected.Length, WardrobeCatalog.Outfits.Count);
+            for (int i = 0; i < expected.Length; i++)
+                Assert.AreEqual(expected[i], WardrobeCatalog.Outfits[i].Id,
+                    "catalog order/id changed at index " + i);
+        }
+
+        // The 8-design art board's extra outfits (Crimson Hero, Rookie Page,
+        // Pastel Prince) are a FUTURE pool - documented only, not runtime.
+        // Adding them to WardrobeCatalog requires explicit approval.
+        [Test]
+        public void Catalog_FutureCandidateIdsAreNotRuntime()
+        {
+            Assert.IsFalse(WardrobeCatalog.Exists("crimson_hero"));
+            Assert.IsFalse(WardrobeCatalog.Exists("rookie_page"));
+            Assert.IsFalse(WardrobeCatalog.Exists("pastel_prince"));
+        }
+
         [Test]
         public void Catalog_GetById_HandlesNullAndUnknown()
         {
