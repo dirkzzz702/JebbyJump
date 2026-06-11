@@ -307,6 +307,7 @@ Launch target:
 | P10   | Wardrobe Visual QA / Art Readiness Plan          | complete (docs/checklist only; manual visual QA deferred) |
 | P11   | Wardrobe Visual Application Technical Foundation  | complete (Wardrobe.Visual asmdef: resolver + PlayerOutfitVisualController on Jebby.prefab; equipped outfit applied on Start as safe no-op until art; 76/76 tests; no gameplay/economy/art assets) |
 | P12   | First Outfit Art Asset Request Pack / Visual Pipeline Readiness | complete (docs + test seam; Forest Cavalier pack; OutfitVisualApplier seam + 4 tests, 80/80; catalog stays no-op; no art assets) |
+| P13   | Forest Cavalier Art Intake Prep (Mode A)         | BLOCKED ON ART (no art exists; nothing imported; catalog stays no-op; read-only sprite QA gate added) |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -696,6 +697,30 @@ outfits remain cosmetic-only. **Known limitation:** non-default outfits still
 look like the default Jebby until art exists. Manual visual QA remains
 **DEFERRED / NOT VERIFIED**. Recommended next phase: P13A Generate / Request
 Forest Cavalier Art Assets.
+
+## P13 - Forest Cavalier Art Intake Prep (Mode A - blocked on art)
+
+Status: ran as **Mode A (no art available)**. Intake was attempted: no Forest
+Cavalier art exists in the repo or the provided working folders, and no
+generation source was approved, so **nothing was imported** - no sprites, no
+clips, no AnimatorOverrideController, no `Art/Characters/Jebby/Outfits/`
+folders. `OutfitVisualCatalog` remains no-op for every outfit and
+`forest_cavalier` still looks like default Jebby.
+
+Added: a read-only editor QA gate for future outfit-art intake -
+`Jebby Jump/QA/Check Outfit Sprite Alpha` (`CheckOutfitSpriteAlpha`, editor
+only). It validates selected textures (or, with nothing selected, the 7
+default Jebby sprites) against the recorded contract: Sprite type, Single
+mode, PPU 100, pivot Custom (0.5, 0), Alpha Is Transparency on, and fully
+transparent corner pixels (decoded from the PNG bytes, so Read/Write does not
+need to be enabled). It never modifies importers or assets.
+
+No gameplay/economy changes; no Wardrobe/StarReward semantics changed; no
+shop/Spark Coins/Rainbow Gems currency/ads/backend. Manual visual QA remains
+**DEFERRED / NOT VERIFIED**. **P13 is blocked on art**: provide or externally
+generate the 7 state sprites per the P12 pack, then run the import phase
+(Mode B: import + clips + `aoc_jebby_forest_cavalier` + catalog wiring +
+tests).
 
 ## Open Decisions Before Implementation
 

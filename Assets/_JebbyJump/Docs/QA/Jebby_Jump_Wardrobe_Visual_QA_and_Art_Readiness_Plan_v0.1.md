@@ -29,6 +29,14 @@ override-assignment tests were added (80/80 pass); the catalog stays no-op for
 all outfits and no art is imported. The P12 first outfit art pipeline / asset
 readiness is DEFERRED / NOT VERIFIED (manual QA intentionally skipped).
 
+P13 update (Mode A - blocked on art): intake was attempted but no Forest
+Cavalier art exists, so nothing was imported and no override was wired; the
+catalog stays no-op. A read-only editor QA gate was added for future intake
+("Jebby Jump/QA/Check Outfit Sprite Alpha": Sprite/Single, PPU 100, pivot
+(0.5,0), Alpha Is Transparency, transparent corners). Next step: provide or
+externally generate the 7 state sprites per the P12 pack. The P13 Forest
+Cavalier art / visual prototype is DEFERRED / NOT VERIFIED.
+
 ---
 
 ## 1. Purpose
@@ -386,6 +394,7 @@ P7B Level Select Stars visual confirmation ........... DEFERRED
 P9  Wardrobe panel visual flow ....................... DEFERRED / NOT VERIFIED
 P11 Wardrobe visual application flow ................. DEFERRED / NOT VERIFIED
 P12 First outfit art pipeline / asset readiness ...... DEFERRED / NOT VERIFIED
+P13 Forest Cavalier art / visual prototype ........... DEFERRED / NOT VERIFIED
 P4B manual playtest + balance tuning ................. DEFERRED
 ```
 

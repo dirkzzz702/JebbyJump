@@ -7,6 +7,17 @@ or imported in P12. All values below are RECORDED FROM the current default
 Jebby assets (so new outfit art matches) - do not change existing import
 settings here. Manual visual QA remains DEFERRED / NOT VERIFIED.
 
+P13 status (Mode A - blocked on art): intake was attempted; no Forest
+Cavalier art exists in the repo or in the provided working folders, and no
+art was generated (no approved generation source). Nothing was imported;
+`OutfitVisualCatalog` remains no-op for every outfit and no override is
+wired. NEXT STEP: provide or externally generate the 7 state sprites per
+this pack, then run the import phase (P13 Mode B: import + clips +
+`aoc_jebby_forest_cavalier` + catalog wiring + tests). A read-only editor
+QA gate now exists for intake: `Jebby Jump/QA/Check Outfit Sprite Alpha`
+(validates Sprite/Single, PPU 100, pivot (0.5, 0), Alpha Is Transparency,
+and fully transparent corners; see section 13).
+
 ---
 
 ## 1. Purpose
@@ -141,7 +152,8 @@ From `spr_jebby_idle_01.png.meta` (match these for every Forest Cavalier sprite)
 Texture Type:        Sprite (2D and UI)
 Sprite Mode:         Single
 Pixels Per Unit:     100
-Pivot:               Custom (0.5, 0) = bottom-center
+Pivot:               Bottom Center preset = (0.5, 0)
+                     (Custom (0.5, 0) is equivalent and also acceptable)
 Filter Mode:         Bilinear
 Mesh Type:           Tight
 Alpha Is Transparency: true
@@ -261,6 +273,9 @@ Note: a Unity AnimatorOverrideController asset has the extension
 
 ```text
 [ ] Place sprites under Outfits/ForestCavalier/Sprites/.
+[ ] Run "Jebby Jump/QA/Check Outfit Sprite Alpha" on the new sprites
+    (P13 read-only gate: Sprite/Single, PPU 100, pivot (0.5,0),
+    Alpha Is Transparency, transparent corners) - all must PASS.
 [ ] Set Sprite (2D and UI), Single, PPU 100, pivot Custom (0.5,0),
     Bilinear, Mesh Tight, Alpha Is Transparency on (match default).
 [ ] Author 7 clips; build aoc_jebby_forest_cavalier (base JebbyAnimator).

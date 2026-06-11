@@ -46,6 +46,15 @@ thresholds here remain STRICT PLACEHOLDERS (see section 8).
 > assignment (80/80 pass). No final art imported; the catalog stays no-op for
 > all outfits; outfits remain cosmetic-only (Art Bible "possible later" perks
 > stay deferred). Manual visual QA remains DEFERRED / NOT VERIFIED.
+>
+> **P13 update (Mode A - blocked on art):** Forest Cavalier art intake was
+> attempted; no art exists anywhere and none was generated, so nothing was
+> imported and no override was wired - the catalog stays no-op and
+> `forest_cavalier` still looks like default Jebby. A read-only editor QA
+> gate was added for future intake (`Jebby Jump/QA/Check Outfit Sprite
+> Alpha`). Next step: provide/generate the 7 state sprites per the P12 pack.
+> Outfits remain cosmetic-only; manual visual QA remains DEFERRED / NOT
+> VERIFIED.
 
 ---
 

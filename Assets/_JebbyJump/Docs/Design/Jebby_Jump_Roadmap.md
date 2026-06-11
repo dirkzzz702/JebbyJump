@@ -167,7 +167,18 @@ P9  — Wardrobe Foundation (local, cosmetic-only)     : complete (WardrobeCatal
 P10 — Wardrobe Visual QA / Art Readiness Plan        : complete (docs/checklist only; manual visual QA still DEFERRED/NOT VERIFIED; no art/sprite-swap; no shop/Spark Coins/Rainbow Gems currency/ads/backend)
 P11 — Wardrobe Visual Application Technical Foundation : complete (new JebbyJump.Wardrobe.Visual asmdef: OutfitVisualDefinition + OutfitVisualCatalog resolver + PlayerOutfitVisualController wired onto Jebby.prefab, Game.unity untouched; equipped outfit applied on Start; every outfit HasVisualOverride=false no-op so Jebby is visually unchanged until art exists; default maps to current visuals; 9 new PlayMode tests, 76/76 pass; no art/sprite/anim assets; no gameplay/rank/progression/economy changes; no shop/Spark Coins/Rainbow Gems currency/ads/backend; manual visual QA DEFERRED/NOT VERIFIED)
 P12 — First Outfit Art Asset Request Pack / Visual Pipeline Readiness : complete (docs + minimal test seam; Forest Cavalier first-outfit art request pack; OutfitVisualApplier pure-static apply seam + 4 override-assignment tests, 80/80 pass; catalog stays no-op for all outfits; no art/sprite/anim/controller assets; AnimatorOverrideController over JebbyAnimator recommended for first art; no gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED)
+P13 — Forest Cavalier Art Intake Prep (Mode A)        : complete-but-BLOCKED ON ART (no Forest Cavalier art exists in repo or working folders; nothing imported; no override wired; OutfitVisualCatalog stays no-op for every outfit; read-only editor QA gate added: Jebby Jump/QA/Check Outfit Sprite Alpha; next step: provide/generate the 7 state sprites per the P12 pack, then run import phase; no gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED)
 ```
+
+P13 ran as Mode A (no art available): Forest Cavalier art intake was
+attempted but no art exists in the repo or provided working folders, and no
+generation source was approved, so nothing was imported and no override was
+wired - `forest_cavalier` still looks like default Jebby. The phase added a
+read-only editor QA gate for future intake ("Jebby Jump/QA/Check Outfit
+Sprite Alpha": Sprite/Single, PPU 100, pivot (0.5,0), Alpha Is Transparency,
+transparent corners) verified against the 7 default Jebby sprites. P13 is
+BLOCKED ON ART; next step is to provide or externally generate the 7 Forest
+Cavalier state sprites per the P12 pack, then run the import phase (Mode B).
 
 P12 produced the First Outfit Art Asset Request Pack for Forest Cavalier
 (`Assets/_JebbyJump/Docs/Art/Jebby_Jump_First_Outfit_Art_Asset_Request_Pack_v0.1.md`):
@@ -292,6 +303,9 @@ P11 — Wardrobe visual application flow  [DEFERRED / NOT VERIFIED]
 
 P12 — First outfit art pipeline / asset readiness  [DEFERRED / NOT VERIFIED]
   - Forest Cavalier pack not yet exercised; no art exists
+
+P13 — Forest Cavalier art / visual prototype  [DEFERRED / NOT VERIFIED]
+  - blocked on art (Mode A); no import, no override, no visual change yet
 
 P4B — Manual playtest + balance tuning  [DEFERRED — awaiting tester data]
   - per-level clear-time feel, fairness, S/A/B/C threshold tuning
