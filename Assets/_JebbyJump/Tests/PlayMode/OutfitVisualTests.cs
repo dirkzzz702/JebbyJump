@@ -15,6 +15,7 @@ namespace JebbyJump.Tests
     {
         private GameObject _go;
         private AnimatorOverrideController _aoc;
+        private OutfitVisualLibrary _library;
 
         [SetUp]
         public void SetUp() => WardrobeStore.Reset();
@@ -26,7 +27,15 @@ namespace JebbyJump.Tests
             _go = null;
             if (_aoc != null) Object.DestroyImmediate(_aoc);
             _aoc = null;
+            if (_library != null) Object.DestroyImmediate(_library);
+            _library = null;
             WardrobeStore.Reset();
+        }
+
+        private OutfitVisualLibrary NewLibrary()
+        {
+            _library = ScriptableObject.CreateInstance<OutfitVisualLibrary>();
+            return _library;
         }
 
         private PlayerOutfitVisualController NewController()
@@ -68,20 +77,91 @@ namespace JebbyJump.Tests
                 OutfitVisualCatalog.GetVisualForOutfit("does_not_exist").OutfitId);
         }
 
-        // Future/arbitrary outfit ids (e.g. the 8-design board's future pool)
-        // must resolve safely to the default visuals until they are actually
-        // added to the runtime catalog - the visual layer is outfit-agnostic.
+        // The P13 catalog additions resolve to themselves; the STATIC layer
+        // still carries no override (overrides come only from the serialized
+        // OutfitVisualLibrary). Arbitrary unknown ids keep falling back to
+        // default - the visual layer stays outfit-agnostic.
         [Test]
-        public void Resolver_FutureCandidateIdsResolveSafelyToDefault()
+        public void Resolver_P13AdditionsResolveToThemselves_NoStaticOverride()
         {
             foreach (var id in new[]
                 { "crimson_hero", "rookie_page", "pastel_prince" })
             {
                 var def = OutfitVisualCatalog.GetVisualForOutfit(id);
-                Assert.AreEqual(WardrobeCatalog.DefaultOutfitId, def.OutfitId, id);
+                Assert.AreEqual(id, def.OutfitId);
                 Assert.IsFalse(def.HasVisualOverride, id);
                 Assert.IsNull(def.AnimatorControllerOverride, id);
             }
+        }
+
+        // ---- OutfitVisualLibrary (serialized override layer) ----
+
+        [Test]
+        public void Library_EntryProvidesOverrideForResolvedOutfit()
+        {
+            var lib = NewLibrary();
+            _aoc = new AnimatorOverrideController();
+            lib.AddEntry("forest_cavalier", _aoc);
+
+            var def = OutfitVisualCatalog.GetVisualForOutfit(
+                "forest_cavalier", lib);
+            Assert.IsTrue(def.HasVisualOverride);
+            Assert.AreSame(_aoc, def.AnimatorControllerOverride);
+            Assert.AreEqual("forest_cavalier", def.OutfitId);
+        }
+
+        [Test]
+        public void Library_OutfitWithoutEntryStaysNoOp()
+        {
+            var lib = NewLibrary();
+            _aoc = new AnimatorOverrideController();
+            lib.AddEntry("forest_cavalier", _aoc);
+
+            var def = OutfitVisualCatalog.GetVisualForOutfit("aqua_knight", lib);
+            Assert.IsFalse(def.HasVisualOverride);
+            Assert.IsNull(def.AnimatorControllerOverride);
+            Assert.AreEqual("aqua_knight", def.OutfitId);
+        }
+
+        [Test]
+        public void Library_UnknownIdNormalizesBeforeLookup()
+        {
+            var lib = NewLibrary();
+            _aoc = new AnimatorOverrideController();
+            lib.AddEntry(WardrobeCatalog.DefaultOutfitId, _aoc);
+
+            // Unknown id -> default id -> default's library entry applies.
+            var def = OutfitVisualCatalog.GetVisualForOutfit("does_not_exist", lib);
+            Assert.AreEqual(WardrobeCatalog.DefaultOutfitId, def.OutfitId);
+            Assert.IsTrue(def.HasVisualOverride);
+            Assert.AreSame(_aoc, def.AnimatorControllerOverride);
+        }
+
+        [Test]
+        public void Library_NullLibraryOrNullControllerStaysNoOp()
+        {
+            var defNoLib = OutfitVisualCatalog.GetVisualForOutfit(
+                "forest_cavalier", null);
+            Assert.IsFalse(defNoLib.HasVisualOverride);
+
+            var lib = NewLibrary();
+            lib.AddEntry("forest_cavalier", null);
+            Assert.IsFalse(lib.TryGetOverride("forest_cavalier", out _));
+            var def = OutfitVisualCatalog.GetVisualForOutfit(
+                "forest_cavalier", lib);
+            Assert.IsFalse(def.HasVisualOverride);
+        }
+
+        [Test]
+        public void Library_AddEntryReplacesExistingForSameId()
+        {
+            var lib = NewLibrary();
+            _aoc = new AnimatorOverrideController();
+            lib.AddEntry("forest_cavalier", null);
+            lib.AddEntry("forest_cavalier", _aoc);
+            Assert.AreEqual(1, lib.Count);
+            Assert.IsTrue(lib.TryGetOverride("forest_cavalier", out var c));
+            Assert.AreSame(_aoc, c);
         }
 
         [Test]

@@ -291,5 +291,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: JebbyJump.Wardrobe.Visual::JebbyJump.Wardrobe.Visual.PlayerOutfitVisualController
   _animator: {fileID: 8719887537957937891}
   _spriteRenderer: {fileID: 8576872347281431571}
+  _library: {fileID: 11400000, guid: 360b908d3c3754c4c8e0406394ea8c7e, type: 2}
   _applyOnStart: 1
   _lastAppliedOutfitId: 

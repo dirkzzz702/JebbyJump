@@ -168,7 +168,29 @@ P10 — Wardrobe Visual QA / Art Readiness Plan        : complete (docs/checklis
 P11 — Wardrobe Visual Application Technical Foundation : complete (new JebbyJump.Wardrobe.Visual asmdef: OutfitVisualDefinition + OutfitVisualCatalog resolver + PlayerOutfitVisualController wired onto Jebby.prefab, Game.unity untouched; equipped outfit applied on Start; every outfit HasVisualOverride=false no-op so Jebby is visually unchanged until art exists; default maps to current visuals; 9 new PlayMode tests, 76/76 pass; no art/sprite/anim assets; no gameplay/rank/progression/economy changes; no shop/Spark Coins/Rainbow Gems currency/ads/backend; manual visual QA DEFERRED/NOT VERIFIED)
 P12 — First Outfit Art Asset Request Pack / Visual Pipeline Readiness : complete (docs + minimal test seam; Forest Cavalier first-outfit art request pack; OutfitVisualApplier pure-static apply seam + 4 override-assignment tests, 80/80 pass; catalog stays no-op for all outfits; no art/sprite/anim/controller assets; AnimatorOverrideController over JebbyAnimator recommended for first art; no gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED)
 P13 — Forest Cavalier Art Intake Prep (Mode A)        : complete-but-BLOCKED ON ART (no Forest Cavalier art exists in repo or working folders; nothing imported; no override wired; OutfitVisualCatalog stays no-op for every outfit; read-only editor QA gate added: Jebby Jump/QA/Check Outfit Sprite Alpha; next step: provide/generate the 7 state sprites per the P12 pack, then run import phase; no gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED)
+P13 Mode B — Outfit Art Import + Visual Wiring (7 sets) : complete (user-provided palette-transfer PROTOTYPE art, 7 outfits x 7 states, 49/49 QA-gate PASS; sprites+clips+AnimatorOverrideControllers under Art/Characters/Jebby/Outfits/; new OutfitVisualLibrary SO wired into Jebby.prefab PlayerOutfitVisualController; WardrobeCatalog expanded 5->8 with approved rookie_page(4)/crimson_hero(12)/pastel_prince(26) PLACEHOLDER thresholds, original five untouched; equipping a non-default outfit now visibly swaps Jebby's sprites on spawn; cosmetic-only, no gameplay/economy changes; 89/89 tests; manual visual QA DEFERRED/NOT VERIFIED)
 ```
+
+P13 Mode B (art arrived): the user supplied 7 complete outfit sprite sets
+(palette transfer from the approved default poses - PROTOTYPE status, not
+final-art-certified). All 49 sprites passed independent validation (exact
+default sizes 1122x1402, true RGBA, corners alpha=0) and the editor QA gate
+(49/49 after import). The `ImportOutfitVisuals` scaffold (idempotent)
+configured import settings to the default-Jebby contract, generated 7
+single-frame clips per outfit (settings copied from the default
+`Jebby_<State>` clips), built one `aoc_jebby_<id>.overrideController` per
+outfit over `JebbyAnimator`, registered all 7 in the new
+`OutfitVisualLibrary` ScriptableObject, and wired the library into
+`PlayerOutfitVisualController` on `Jebby.prefab`. The static
+`OutfitVisualCatalog` stays asset-free; overrides come only from the
+serialized library. With user approval the catalog expanded 5 -> 8
+(rookie_page 4, crimson_hero 12, pastel_prince 26 - STRICT PLACEHOLDERS;
+original five ids/thresholds untouched; ladder ascending 0..30, all
+reachable with 10 levels). Equipping any non-default outfit now visibly
+changes Jebby at spawn. Animator params/triggers/states, flipX,
+PlayerAnimator, and default Jebby assets are untouched; outfits remain
+cosmetic-only. 89/89 PlayMode tests pass. Manual visual QA of the new
+outfits remains DEFERRED / NOT VERIFIED.
 
 Pre-P13 outfit-agnostic review (maintenance pass, no refactor needed): the
 wardrobe/visual code was audited for Forest-Cavalier or "5 outfits forever"
@@ -318,8 +340,10 @@ P11 — Wardrobe visual application flow  [DEFERRED / NOT VERIFIED]
 P12 — First outfit art pipeline / asset readiness  [DEFERRED / NOT VERIFIED]
   - Forest Cavalier pack not yet exercised; no art exists
 
-P13 — Forest Cavalier art / visual prototype  [DEFERRED / NOT VERIFIED]
-  - blocked on art (Mode A); no import, no override, no visual change yet
+P13 — Outfit visual prototypes (7 sets)  [DEFERRED / NOT VERIFIED]
+  - art imported + wired (Mode B) but RENDERED appearance never checked:
+    per-outfit look in all 7 states, flipX mirroring, state transitions,
+    equip->spawn swap, return-to-default - all unverified on screen
 
 P4B — Manual playtest + balance tuning  [DEFERRED — awaiting tester data]
   - per-level clear-time feel, fairness, S/A/B/C threshold tuning

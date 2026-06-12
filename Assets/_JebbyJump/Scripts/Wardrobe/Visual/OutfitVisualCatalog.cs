@@ -33,8 +33,26 @@ namespace JebbyJump.Wardrobe.Visual
                 animatorControllerOverride: null);
         }
 
+        // Library-aware resolution: same id normalization as above, then the
+        // serialized library supplies the per-outfit override controller (if
+        // any). Outfits without a library entry stay no-op (default visuals).
+        public static OutfitVisualDefinition GetVisualForOutfit(
+            string outfitId, OutfitVisualLibrary library)
+        {
+            var def = GetVisualForOutfit(outfitId);
+            if (library != null
+                && library.TryGetOverride(def.OutfitId, out var controller))
+            {
+                return new OutfitVisualDefinition(
+                    def.OutfitId, def.DisplayName,
+                    hasVisualOverride: true,
+                    animatorControllerOverride: controller);
+            }
+            return def;
+        }
+
         // True only when the resolved definition carries a visual override.
-        // Always false in P11 (no art).
+        // Always false without a library (the static layer is asset-free).
         public static bool HasVisual(string outfitId)
             => GetVisualForOutfit(outfitId).HasVisualOverride;
     }

@@ -37,6 +37,18 @@ catalog stays no-op. A read-only editor QA gate was added for future intake
 externally generate the 7 state sprites per the P12 pack. The P13 Forest
 Cavalier art / visual prototype is DEFERRED / NOT VERIFIED.
 
+P13 Mode B update (art imported): 7 complete outfit sets (PROTOTYPE
+palette-transfer art) were imported and wired - per-outfit clips + override
+controllers (base JebbyAnimator) registered in the OutfitVisualLibrary SO on
+the Jebby prefab. The runtime catalog is now EIGHT outfits (approved):
+classic 0, rookie_page 4, forest_cavalier 8, crimson_hero 12,
+sunshine_knight 15, aqua_knight 22, pastel_prince 26, silver_dreamer 30 -
+all thresholds remain PLACEHOLDERS. NOTE: section 8's 5-outfit state matrix
+predates this expansion; extend it to the 8-outfit ladder when the manual QA
+run actually happens. Rendered appearance of every outfit (all 7 states,
+flipX, transitions, equip->spawn swap, return to default) remains DEFERRED /
+NOT VERIFIED.
+
 ---
 
 ## 1. Purpose
@@ -394,7 +406,7 @@ P7B Level Select Stars visual confirmation ........... DEFERRED
 P9  Wardrobe panel visual flow ....................... DEFERRED / NOT VERIFIED
 P11 Wardrobe visual application flow ................. DEFERRED / NOT VERIFIED
 P12 First outfit art pipeline / asset readiness ...... DEFERRED / NOT VERIFIED
-P13 Forest Cavalier art / visual prototype ........... DEFERRED / NOT VERIFIED
+P13 Outfit visual prototypes (7 sets, Mode B) ........ DEFERRED / NOT VERIFIED
 P4B manual playtest + balance tuning ................. DEFERRED
 ```
 

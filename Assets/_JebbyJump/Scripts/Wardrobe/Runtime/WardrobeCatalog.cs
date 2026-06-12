@@ -2,11 +2,12 @@ using System.Collections.Generic;
 
 namespace JebbyJump.Wardrobe
 {
-    // The fixed P9 outfit catalog (the P8 initial five). Ids are stable
-    // snake_case wire keys; display names match P8. Star thresholds are
-    // P8 PLACEHOLDERS (pending P4B + level count + balance review) and
-    // are stored here as data only - not tuned. Outfits are cosmetic-only
-    // with no gameplay effect.
+    // The fixed runtime outfit catalog: the P8/P9 initial five plus the
+    // three remaining 8-design-board outfits approved in P13 (art import).
+    // Ids are stable snake_case wire keys. Star thresholds are PLACEHOLDERS
+    // (pending P4B + level count + balance review) and are stored here as
+    // data only - not tuned. Outfits are cosmetic-only with no gameplay
+    // effect; Jebby remains one playable character.
     //
     // "Classic Color Knight" maps to the Art Bible / GDD "Classic Cavalier"
     // default identity.
@@ -14,6 +15,10 @@ namespace JebbyJump.Wardrobe
     {
         public const string DefaultOutfitId = "classic_color_knight";
 
+        // Ordered by ascending Star threshold (panel row order). The three
+        // P13 additions (rookie_page, crimson_hero, pastel_prince - approved
+        // from the 8-design board) interleave without touching the original
+        // five ids/thresholds. All thresholds remain PLACEHOLDERS.
         private static readonly CosmeticItemDefinition[] _outfits =
         {
             new CosmeticItemDefinition(
@@ -22,10 +27,20 @@ namespace JebbyJump.Wardrobe
                 "Default Jebby the Color Knight.",
                 0, true),
             new CosmeticItemDefinition(
+                "rookie_page", "Rookie Page",
+                CosmeticCategory.Outfit,
+                "Cheerful starter theme.",
+                4, false),   // PLACEHOLDER threshold
+            new CosmeticItemDefinition(
                 "forest_cavalier", "Forest Cavalier",
                 CosmeticCategory.Outfit,
                 "Woodland theme.",
                 8, false),   // PLACEHOLDER threshold
+            new CosmeticItemDefinition(
+                "crimson_hero", "Crimson Hero",
+                CosmeticCategory.Outfit,
+                "Bold crimson theme.",
+                12, false),  // PLACEHOLDER threshold
             new CosmeticItemDefinition(
                 "sunshine_knight", "Sunshine Knight",
                 CosmeticCategory.Outfit,
@@ -36,6 +51,11 @@ namespace JebbyJump.Wardrobe
                 CosmeticCategory.Outfit,
                 "Water theme.",
                 22, false),  // PLACEHOLDER threshold
+            new CosmeticItemDefinition(
+                "pastel_prince", "Pastel Prince",
+                CosmeticCategory.Outfit,
+                "Soft pastel theme.",
+                26, false),  // PLACEHOLDER threshold
             new CosmeticItemDefinition(
                 "silver_dreamer", "Silver Dreamer",
                 CosmeticCategory.Outfit,

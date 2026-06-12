@@ -5,20 +5,23 @@ namespace JebbyJump.Wardrobe.Visual
     // Reads the equipped outfit id and applies the matching visual
     // definition to the player's Animator/SpriteRenderer layer.
     //
-    // P11: every outfit resolves to a no-op definition (no art yet), so this
-    // never modifies the Animator or SpriteRenderer - Jebby looks unchanged.
-    // It only records the resolved outfit id. The apply path is real and
-    // ready: once a definition carries a non-null AnimatorControllerOverride
-    // (a future AnimatorOverrideController), it is assigned to the Animator.
+    // Overrides come from the serialized OutfitVisualLibrary (per-outfit
+    // AnimatorOverrideControllers over the default JebbyAnimator). Outfits
+    // without a library entry are no-op: the Animator keeps its serialized
+    // default controller, so Jebby looks unchanged. Applied once in Start()
+    // (scene load resets the Animator, so equipping the default outfit needs
+    // no restore); there is intentionally no live mid-scene re-sync.
     //
     // Does NOT touch Animator parameters/state names or SpriteRenderer flipX
-    // - those stay owned by PlayerAnimator. Applies in Start() so it runs
-    // after sibling components have initialized in Awake().
+    // - those stay owned by PlayerAnimator. Cosmetic only - no gameplay.
     [DisallowMultipleComponent]
     public sealed class PlayerOutfitVisualController : MonoBehaviour
     {
         [SerializeField] private Animator _animator;
         [SerializeField] private SpriteRenderer _spriteRenderer;
+        // Serialized outfit-id -> override-controller mapping; null-safe
+        // (no library = every outfit stays no-op / default visuals).
+        [SerializeField] private OutfitVisualLibrary _library;
         [SerializeField] private bool _applyOnStart = true;
         [SerializeField] private string _lastAppliedOutfitId;
 
@@ -38,12 +41,12 @@ namespace JebbyJump.Wardrobe.Visual
             => ApplyOutfit(WardrobeStore.GetEquippedOutfitId());
 
         // Applies the given outfit id. null/unknown fall back to the default
-        // via the resolver; the apply rule (assign a runtime controller only
-        // when the definition carries a non-null override) lives in
-        // OutfitVisualApplier. No-op for all P12 outfits (no art yet).
+        // via the resolver; the serialized library supplies the per-outfit
+        // override controller (outfits without an entry stay no-op = default
+        // visuals); the apply rule lives in OutfitVisualApplier.
         public void ApplyOutfit(string outfitId)
         {
-            var def = OutfitVisualCatalog.GetVisualForOutfit(outfitId);
+            var def = OutfitVisualCatalog.GetVisualForOutfit(outfitId, _library);
             _lastAppliedOutfitId = OutfitVisualApplier.Apply(_animator, def);
         }
     }

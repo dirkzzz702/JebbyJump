@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: aoc_jebby_crimson_hero
+  m_Controller: {fileID: 9100000, guid: 20a1a3f7e0d7c9b48832bacbfe4bcdb0, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: bc6f55cff0b4047499fa81561a87a2e6, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 386a2124011efb745999ad24827da27c, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: be51c7d2abf04ed4d93d16e865845192, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 3ccedfffa915f194a9843e6cb2ae9695, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 899e71270a3914247a14eb8fcf31edde, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 2dcb8ddeb42479449a0b2c20178e0733, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: f45cd632b0fd51c40970080fe33d513a, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: ee54fc2ae5e0d884e8e8fbf6b9059907, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 4f3a4312c1edfc744b762d9cffdcee95, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: a1f539518aa333c4ebf2de1a9b0150aa, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: c0e90e75ee176d54f8e3d42acb6628e5, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: b16f96700159dd440a58cb518b343171, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 26957a49b563fa443aeee6c34f595dac, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 1904e5f0b3203f548a014e25ceaa8677, type: 2}

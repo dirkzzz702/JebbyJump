@@ -22,9 +22,11 @@ namespace JebbyJump.Tests
         // ---- WardrobeCatalog ----
 
         [Test]
-        public void Catalog_HasExactlyFiveOutfits()
+        public void Catalog_HasExactlyEightOutfits()
         {
-            Assert.AreEqual(5, WardrobeCatalog.Outfits.Count);
+            // P9 initial five + the three 8-design-board outfits approved
+            // in P13 (art import).
+            Assert.AreEqual(8, WardrobeCatalog.Outfits.Count);
         }
 
         [Test]
@@ -51,27 +53,37 @@ namespace JebbyJump.Tests
         }
 
         [Test]
-        public void Catalog_ThresholdsMatchP8Placeholders()
+        public void Catalog_ThresholdsMatchPlaceholders()
         {
+            // P8 originals unchanged; P13 additions interleave. All values
+            // remain PLACEHOLDERS pending P4B + balance review.
             Assert.AreEqual(0, WardrobeCatalog.GetById("classic_color_knight").RequiredStars);
+            Assert.AreEqual(4, WardrobeCatalog.GetById("rookie_page").RequiredStars);
             Assert.AreEqual(8, WardrobeCatalog.GetById("forest_cavalier").RequiredStars);
+            Assert.AreEqual(12, WardrobeCatalog.GetById("crimson_hero").RequiredStars);
             Assert.AreEqual(15, WardrobeCatalog.GetById("sunshine_knight").RequiredStars);
             Assert.AreEqual(22, WardrobeCatalog.GetById("aqua_knight").RequiredStars);
+            Assert.AreEqual(26, WardrobeCatalog.GetById("pastel_prince").RequiredStars);
             Assert.AreEqual(30, WardrobeCatalog.GetById("silver_dreamer").RequiredStars);
         }
 
         // Pins the approved runtime catalog ids AND their order (the panel
-        // builds rows in catalog order). Changing the set or order requires
-        // explicit approval - update this test alongside that approval.
+        // builds rows in catalog order; ascending Star threshold). Changing
+        // the set or order requires explicit approval - update this test
+        // alongside that approval. (Last approved: P13 art import expanded
+        // the catalog from 5 to 8.)
         [Test]
         public void Catalog_OrderAndIdsArePinned()
         {
             var expected = new[]
             {
                 "classic_color_knight",
+                "rookie_page",
                 "forest_cavalier",
+                "crimson_hero",
                 "sunshine_knight",
                 "aqua_knight",
+                "pastel_prince",
                 "silver_dreamer",
             };
             Assert.AreEqual(expected.Length, WardrobeCatalog.Outfits.Count);
@@ -80,15 +92,19 @@ namespace JebbyJump.Tests
                     "catalog order/id changed at index " + i);
         }
 
-        // The 8-design art board's extra outfits (Crimson Hero, Rookie Page,
-        // Pastel Prince) are a FUTURE pool - documented only, not runtime.
-        // Adding them to WardrobeCatalog requires explicit approval.
+        // The three P13 additions are runtime, Stars-gated (not always
+        // unlocked), and cosmetic-only like the rest of the catalog.
         [Test]
-        public void Catalog_FutureCandidateIdsAreNotRuntime()
+        public void Catalog_P13AdditionsAreRuntimeAndGated()
         {
-            Assert.IsFalse(WardrobeCatalog.Exists("crimson_hero"));
-            Assert.IsFalse(WardrobeCatalog.Exists("rookie_page"));
-            Assert.IsFalse(WardrobeCatalog.Exists("pastel_prince"));
+            foreach (var id in new[]
+                { "rookie_page", "crimson_hero", "pastel_prince" })
+            {
+                var def = WardrobeCatalog.GetById(id);
+                Assert.IsNotNull(def, id);
+                Assert.IsFalse(def.AlwaysUnlocked, id);
+                Assert.Greater(def.RequiredStars, 0, id);
+            }
         }
 
         [Test]

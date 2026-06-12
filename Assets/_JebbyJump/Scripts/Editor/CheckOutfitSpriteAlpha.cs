@@ -51,6 +51,27 @@ public static class CheckOutfitSpriteAlpha
         Check(paths);
     }
 
+    // Batchmode entry: checks every imported outfit sprite under
+    // Art/Characters/Jebby/Outfits/ (P13 intake verification).
+    public static void RunOnAllOutfitSprites()
+    {
+        var paths = new List<string>();
+        foreach (var guid in AssetDatabase.FindAssets("t:Texture2D",
+            new[] { "Assets/_JebbyJump/Art/Characters/Jebby/Outfits" }))
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            if (path.EndsWith(".png", System.StringComparison.OrdinalIgnoreCase))
+                paths.Add(path);
+        }
+        if (paths.Count == 0)
+        {
+            Debug.LogWarning("[OutfitQA] No outfit sprites found under "
+                + "Outfits/ - nothing to check.");
+            return;
+        }
+        Check(paths);
+    }
+
     private static void Check(List<string> paths)
     {
         int pass = 0, fail = 0;

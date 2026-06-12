@@ -55,6 +55,18 @@ thresholds here remain STRICT PLACEHOLDERS (see section 8).
 > Alpha`). Next step: provide/generate the 7 state sprites per the P12 pack.
 > Outfits remain cosmetic-only; manual visual QA remains DEFERRED / NOT
 > VERIFIED.
+>
+> **P13 Mode B update (art imported, catalog expanded):** the user supplied 7
+> complete outfit sprite sets (palette-transfer PROTOTYPE art; 49/49 QA-gate
+> PASS). Each outfit now has 7 clips + an `aoc_jebby_<id>` override controller
+> (base `JebbyAnimator`) registered in the new `OutfitVisualLibrary` SO, wired
+> into the Jebby prefab - equipping a non-default outfit visibly swaps Jebby's
+> sprites at spawn. With approval the runtime catalog expanded **5 -> 8**:
+> rookie_page (4), crimson_hero (12), pastel_prince (26) - STRICT PLACEHOLDER
+> thresholds, original five untouched; section 6's "initial set" is therefore
+> superseded by the full 8-design board as the runtime set. Outfits remain
+> cosmetic-only (no gameplay effect); manual visual QA of the rendered outfits
+> remains DEFERRED / NOT VERIFIED.
 
 ---
 
