@@ -169,7 +169,25 @@ P11 — Wardrobe Visual Application Technical Foundation : complete (new JebbyJu
 P12 — First Outfit Art Asset Request Pack / Visual Pipeline Readiness : complete (docs + minimal test seam; Forest Cavalier first-outfit art request pack; OutfitVisualApplier pure-static apply seam + 4 override-assignment tests, 80/80 pass; catalog stays no-op for all outfits; no art/sprite/anim/controller assets; AnimatorOverrideController over JebbyAnimator recommended for first art; no gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED)
 P13 — Forest Cavalier Art Intake Prep (Mode A)        : complete-but-BLOCKED ON ART (no Forest Cavalier art exists in repo or working folders; nothing imported; no override wired; OutfitVisualCatalog stays no-op for every outfit; read-only editor QA gate added: Jebby Jump/QA/Check Outfit Sprite Alpha; next step: provide/generate the 7 state sprites per the P12 pack, then run import phase; no gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED)
 P13 Mode B — Outfit Art Import + Visual Wiring (7 sets) : complete (user-provided palette-transfer PROTOTYPE art, 7 outfits x 7 states, 49/49 QA-gate PASS; sprites+clips+AnimatorOverrideControllers under Art/Characters/Jebby/Outfits/; new OutfitVisualLibrary SO wired into Jebby.prefab PlayerOutfitVisualController; WardrobeCatalog expanded 5->8 with approved rookie_page(4)/crimson_hero(12)/pastel_prince(26) PLACEHOLDER thresholds, original five untouched; equipping a non-default outfit now visibly swaps Jebby's sprites on spawn; cosmetic-only, no gameplay/economy changes; 89/89 tests; manual visual QA DEFERRED/NOT VERIFIED)
+P14 — Wardrobe Visual Expansion Stabilization          : complete (asset-integrity guardrails added: 5 editor PlayMode tests validate the REAL OutfitVisualLibrary asset (7 non-default entries, default intentionally absent), every AnimatorOverrideController's base=JebbyAnimator + 7 expected clip overrides, Jebby.prefab wiring, and end-to-end equipped-override apply through the real library; Wardrobe panel verified ALREADY structurally 8+-safe (P9 ScrollRect/Viewport/Content, data-driven rows, no fixed positions) so no UI refactor; 94/94 tests; no code/prefab/scene/art/threshold changes; manual visual QA DEFERRED/NOT VERIFIED)
 ```
+
+P14 stabilized the 8-outfit wardrobe after P13B. Inspection confirmed the
+wardrobe panel was ALREADY structurally ready for 8+ rows (the P9 scaffold
+built ScrollRect -> Viewport -> Content with a VerticalLayoutGroup +
+ContentSizeFitter, and rows are data-driven from WardrobeCatalog - 8 rows
+simply scroll), so no UI refactor was made; visual confirmation of the
+scrolling list remains deferred. The gap P14 closed: nothing automated
+validated the REAL assets. New `OutfitVisualAssetIntegrityTests` (editor
+PlayMode, AssetDatabase under UNITY_EDITOR) now pin: the OutfitVisualLibrary
+asset has entries for all 7 non-default outfits (default intentionally has
+NO entry - no-op/base JebbyAnimator at spawn); every aoc_jebby_<id> is based
+on JebbyAnimator and overrides exactly the 7 expected clips with correctly
+named outfit clips; Jebby.prefab's PlayerOutfitVisualController is wired to
+Animator/SpriteRenderer/library; and the real forest_cavalier override
+applies end-to-end (also documenting spawn-only semantics - re-applying
+default mid-scene does not clear the override by design). 94/94 PlayMode
+tests pass. No runtime code, prefab, scene, art, or threshold changes.
 
 P13 Mode B (art arrived): the user supplied 7 complete outfit sprite sets
 (palette transfer from the approved default poses - PROTOTYPE status, not
@@ -344,6 +362,10 @@ P13 — Outfit visual prototypes (7 sets)  [DEFERRED / NOT VERIFIED]
   - art imported + wired (Mode B) but RENDERED appearance never checked:
     per-outfit look in all 7 states, flipX mirroring, state transitions,
     equip->spawn swap, return-to-default - all unverified on screen
+
+P14 — 8-outfit wardrobe stabilization  [DEFERRED / NOT VERIFIED]
+  - asset wiring is test-verified, but the RENDERED 8-row scrolling panel
+    (row readability, scroll behavior, no overlap) was never checked
 
 P4B — Manual playtest + balance tuning  [DEFERRED — awaiting tester data]
   - per-level clear-time feel, fairness, S/A/B/C threshold tuning

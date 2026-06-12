@@ -49,6 +49,16 @@ run actually happens. Rendered appearance of every outfit (all 7 states,
 flipX, transitions, equip->spawn swap, return to default) remains DEFERRED /
 NOT VERIFIED.
 
+P14 update (stabilization): the panel's 8-row layout risk is structurally
+resolved - inspection confirmed the P9 scaffold already built a ScrollRect/
+Viewport/Content list with data-driven rows, so 8+ rows scroll (RENDERED
+scrolling/readability still needs the manual check below). Asset-integrity
+tests now pin the real OutfitVisualLibrary entries, every override
+controller's JebbyAnimator base + 7 clip overrides, and the Jebby prefab
+wiring (94/94). Spawn-only apply semantics are test-documented: re-applying
+the default mid-scene does not clear an active override; the swap-back
+happens at next spawn/scene load.
+
 ---
 
 ## 1. Purpose
@@ -407,6 +417,7 @@ P9  Wardrobe panel visual flow ....................... DEFERRED / NOT VERIFIED
 P11 Wardrobe visual application flow ................. DEFERRED / NOT VERIFIED
 P12 First outfit art pipeline / asset readiness ...... DEFERRED / NOT VERIFIED
 P13 Outfit visual prototypes (7 sets, Mode B) ........ DEFERRED / NOT VERIFIED
+P14 8-outfit wardrobe stabilization (rendered panel) . DEFERRED / NOT VERIFIED
 P4B manual playtest + balance tuning ................. DEFERRED
 ```
 

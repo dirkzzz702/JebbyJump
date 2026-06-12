@@ -67,6 +67,14 @@ thresholds here remain STRICT PLACEHOLDERS (see section 8).
 > superseded by the full 8-design board as the runtime set. Outfits remain
 > cosmetic-only (no gameplay effect); manual visual QA of the rendered outfits
 > remains DEFERRED / NOT VERIFIED.
+>
+> **P14 update (stabilization):** asset-integrity tests now pin the real
+> `OutfitVisualLibrary` entries (all 7 non-default outfits; default
+> intentionally no-op), each override controller's `JebbyAnimator` base + 7
+> clip overrides, and the Jebby prefab wiring (94/94 tests). The wardrobe
+> panel was verified already ScrollRect-based and data-driven, so 8+ rows
+> scroll without UI changes. Spawn-only apply semantics documented (no live
+> mid-scene re-sync). Manual visual QA remains DEFERRED / NOT VERIFIED.
 
 ---
 

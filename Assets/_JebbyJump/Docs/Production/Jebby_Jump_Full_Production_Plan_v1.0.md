@@ -309,6 +309,7 @@ Launch target:
 | P12   | First Outfit Art Asset Request Pack / Visual Pipeline Readiness | complete (docs + test seam; Forest Cavalier pack; OutfitVisualApplier seam + 4 tests, 80/80; catalog stays no-op; no art assets) |
 | P13   | Forest Cavalier Art Intake Prep (Mode A)         | superseded by Mode B below (was: blocked on art; QA gate added) |
 | P13B  | Outfit Art Import + Visual Wiring (7 sets)       | complete (prototype art imported, 49/49 QA PASS; OutfitVisualLibrary wired into prefab; catalog 5->8 approved; outfits visibly swap; 89/89 tests) |
+| P14   | Wardrobe Visual Expansion Stabilization          | complete (5 asset-integrity tests pin the real library/AOCs/prefab wiring; panel verified already ScrollRect-based for 8+ rows, no UI change; 94/94 tests) |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -757,6 +758,38 @@ default Jebby assets untouched; outfits remain cosmetic-only. 89/89 PlayMode
 tests pass (catalog guardrails updated for the approved expansion + 5 new
 library tests). Manual visual QA of the new outfits remains **DEFERRED / NOT
 VERIFIED**. Recommended next phase: P14A Outfit Visual QA / Polish pass.
+
+## P14 - Wardrobe Visual Expansion Stabilization
+
+Status: **complete**. Stabilization pass after P13B, no new features.
+
+UI readiness: inspection confirmed the wardrobe panel was **already
+structurally 8+-safe** - the P9 scaffold built `ScrollRect -> Viewport ->
+Content (VerticalLayoutGroup + ContentSizeFitter)` and rows are created
+data-driven from `WardrobeCatalog` with no hardcoded count or positions, so
+the 8 rows scroll. No UI/scene/prefab change was made; visual confirmation
+of the scrolling list stays deferred.
+
+Guardrails: new `OutfitVisualAssetIntegrityTests` (editor PlayMode,
+`AssetDatabase` under `UNITY_EDITOR`) validate the REAL assets, closing the
+gap where logic tests used only in-memory libraries: the
+`OutfitVisualLibrary` asset has non-null entries for all 7 non-default
+outfits and exactly 7 entries; the default outfit intentionally has NO entry
+(no-op apply; Animator keeps the serialized `JebbyAnimator` at spawn); every
+`aoc_jebby_<id>` is an AnimatorOverrideController based on `JebbyAnimator`
+overriding exactly the 7 expected clips with correctly named outfit clips;
+`Jebby.prefab`'s `PlayerOutfitVisualController` is wired to Animator,
+SpriteRenderer, and the library asset; and the real `forest_cavalier`
+override applies end-to-end through the real library. The end-to-end test
+also documents the **spawn-only semantics**: re-applying the default
+mid-scene does not clear an active override (by design; live mid-scene
+re-sync remains intentionally unimplemented).
+
+**94/94 PlayMode tests pass.** No runtime code, prefab, scene, art,
+threshold, gameplay, or economy changes. Manual visual QA remains
+**DEFERRED / NOT VERIFIED**. Recommended next: P15A Wardrobe Art Visual QA
+Checklist Execution or P15B Wardrobe UI Preview Thumbnail / Outfit Card
+Polish.
 
 ## Open Decisions Before Implementation
 
