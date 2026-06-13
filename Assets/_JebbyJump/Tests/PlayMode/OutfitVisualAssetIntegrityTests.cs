@@ -171,13 +171,17 @@ namespace JebbyJump.Tests
             Assert.AreSame(expected, animator.runtimeAnimatorController);
             Assert.AreEqual("forest_cavalier", ctrl.CurrentOutfitId);
 
-            // Spawn-only semantics: applying the (no-entry) default now
-            // records the id but does NOT clear the override in-scene.
+            // P17: applying the default RESTORES the captured default
+            // controller - but this controller captured null at Awake (its
+            // _animator was wired after AddComponent), so the restore is a
+            // NoOp here and the override remains. Real default restoration
+            // (with a captured JebbyAnimator) is covered by
+            // OutfitVisualLiveResyncTests editor integration.
             WardrobeStore.SetEquippedOutfitId(WardrobeCatalog.DefaultOutfitId);
             ctrl.ApplyEquippedOutfit();
             Assert.AreEqual(WardrobeCatalog.DefaultOutfitId, ctrl.CurrentOutfitId);
             Assert.AreSame(expected, animator.runtimeAnimatorController,
-                "default apply is no-op by design until next spawn");
+                "no captured default -> restore is NoOp; override stays");
         }
     }
 }

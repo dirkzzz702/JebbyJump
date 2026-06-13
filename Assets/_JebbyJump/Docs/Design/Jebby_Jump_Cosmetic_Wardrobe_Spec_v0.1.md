@@ -95,6 +95,18 @@ thresholds here remain STRICT PLACEHOLDERS (see section 8).
 > (ceremonies replay); Reset Stars preserves them. Equip Now uses the existing
 > WardrobeStore path (applies at next spawn). 131/131 tests; ceremony rendered
 > appearance remains DEFERRED / NOT VERIFIED.
+>
+> **P17 update (live re-sync + default restoration):** all runtime equips now go
+> through one `WardrobeEquipService` (Success/AlreadyEquipped/UnknownOutfit/
+> Locked) which raises a local change event on success; an active
+> `PlayerOutfitVisualController` re-syncs immediately and restores the default
+> `JebbyAnimator` when Classic (or any no-override outfit) is equipped - no more
+> stale override. The spawn path is retained; missing entries fall back to
+> default; a swap may restart the current animation (documented). Still
+> cosmetic-only; Stars/unlocks/acknowledgement unchanged. The wardrobe is
+> Main-Menu-only today so the live update is latent (no in-scene player) until an
+> in-game wardrobe exists. 144/144 tests; manual visual QA remains DEFERRED /
+> NOT VERIFIED.
 
 ---
 

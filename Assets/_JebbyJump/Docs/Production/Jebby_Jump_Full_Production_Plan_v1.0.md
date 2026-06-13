@@ -312,6 +312,7 @@ Launch target:
 | P14   | Wardrobe Visual Expansion Stabilization          | complete (5 asset-integrity tests pin the real library/AOCs/prefab wiring; panel verified already ScrollRect-based for 8+ rows, no UI change; 94/94 tests) |
 | P15   | Wardrobe UI Preview Cards + 8-Outfit Selection Polish | complete (UI-only WardrobePreviewLibrary + pure row-model builder; per-row dimmed thumbnails + selected preview; equip/select/locked behavior preserved; 107/107 tests; no art/semantic/gameplay/economy changes) |
 | P16   | Wardrobe Unlock Ceremony + New-Unlock State      | complete (local acknowledgement store + pure new-unlock service + ceremony presenter/overlay; "New" badge; Reset Wardrobe/Everything clear ack, Reset Stars preserves; analytics pinned; 131/131 tests; Stars not consumed, ownership derived; no art/gameplay/economy changes) |
+| P17   | Live Outfit Re-Sync + Default Visual Restoration | complete (WardrobeEquipService single equip path + WardrobeAppearanceEvents change event; applier restores captured default JebbyAnimator; PlayerOutfitVisualController live re-sync; missing entry -> default; 144/144 tests; Stars/unlock/ack unchanged; no art/gameplay/economy changes; live sync latent until same-scene wardrobe exists) |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -793,6 +794,62 @@ threshold, gameplay, or economy changes. Manual visual QA remains
 Checklist Execution or P15B Wardrobe UI Preview Thumbnail / Outfit Card
 Polish.
 
+## P17 - Live Outfit Re-Sync + Safe Default Visual Restoration
+
+Status: **complete**. Adds a same-scene live appearance re-sync after a
+successful equip + correct default-controller restoration. Runtime/tests/docs
+only - no scene/prefab/art changes.
+
+`WardrobeEquipService.TryEquip(id, totalStars)` (Runtime, pure, no analytics) is
+now the single validated equip path for both the normal Wardrobe Equip button
+and the P16 ceremony Equip Now: returns `Success` / `AlreadyEquipped` /
+`UnknownOutfit` / `Locked`; on Success writes through `WardrobeStore` and
+publishes `WardrobeAppearanceEvents.EquippedOutfitChanged` (stable ids; only on
+Success). `WardrobeStore` stays the persistence primitive (key/normalization/
+reset unchanged). Stars and acknowledgement state are never touched by the
+service.
+
+`OutfitVisualApplier` was refactored to
+`Apply(Animator, RuntimeAnimatorController defaultController, OutfitVisualDefinition)`
+returning `OutfitVisualApplyResult { AppliedOverride, RestoredDefault,
+NoAnimator, NoOp }`: a real override assigns it; otherwise it RESTORES the
+captured default controller (so a previous override never lingers); a null
+default on the restore path is a NoOp (never assigns null). It still only
+touches `Animator.runtimeAnimatorController` - never params/triggers/states,
+flipX, color, materials, or sorting; no Resources/paths.
+
+`PlayerOutfitVisualController` now captures the prefab's default `JebbyAnimator`
+in **Awake**, subscribes on **OnEnable** / unsubscribes on **OnDisable** +
+**OnDestroy** (no leak, no DontDestroyOnLoad), re-applies on the change event,
+and still applies the stored outfit in **Start** (spawn path retained). Missing
+library/entry falls back to default. A live controller swap may restart the
+current animation - **allowed and documented** (no state preservation; all
+outfit AOCs share the JebbyAnimator base if continuity is added later).
+
+UI: both equip sites route through the service; the panel emits exactly one
+canonical `cosmetic_equipped` per successful equip (`source=wardrobe` or
+`unlock_ceremony`) and the visual subscriber emits nothing. Ceremony Equip Now
+treats `AlreadyEquipped` as success-for-flow (still acknowledges + advances);
+`Locked`/`Unknown` do not acknowledge/advance. Reset unchanged (editor-only, no
+active player).
+
+Tests: equip service (Success/Locked/Unknown/AlreadyEquipped, publish-on-success-
+only, unsubscribe, no-Star-mutation), controller live re-sync (event updates,
+disable unsubscribes, re-enable resubscribes), applier (override/NoOp/NoAnimator),
+and `#if UNITY_EDITOR` integration against the real `OutfitVisualLibrary` +
+`JebbyAnimator` (Forest->Aqua applies Aqua; Aqua->default restores JebbyAnimator;
+all 7 overrides apply). **144/144 PlayMode tests pass**; outfit-sprite QA gate
+still 49/49.
+
+**Known limitation:** the wardrobe is Main-Menu-only and the player lives in
+Game.unity, so the live event currently has no in-scene subscriber - live sync
+is latent until an in-game wardrobe exists; the spawn path covers scene loads,
+and the visible P17 win is correct default restoration + a unified equip path.
+No `WardrobeStore`/`WardrobeUnlockService`/`WardrobeCatalog`/`StarReward*`/
+`OutfitVisualLibrary`/`PlayerAnimator`/`JebbyAnimator`/Jebby-prefab/Game.unity/art
+changes. Manual visual QA remains **DEFERRED / NOT VERIFIED**. Recommended next:
+P18A in-panel animated preview or P18F persistence/migration hardening.
+
 ## P16 - Wardrobe Unlock Ceremony + New-Unlock State Foundation
 
 Status: **complete**. Adds a local, deterministic outfit unlock ceremony +
@@ -813,7 +870,8 @@ UI: on Wardrobe open the queued outfits are presented one at a time in an
 `UnlockCeremonyOverlay` scaffolded into MainMenu.unity by an extended (idempotent)
 `BuildWardrobePanel` - dim backdrop blocks the rows beneath, Back is disabled until
 Continue/Equip. Equip Now uses the existing `WardrobeStore.SetEquippedOutfitId`
-(appearance applies at next spawn; no live re-sync). The P15 preview rows gained a
+(appearance applies at next spawn; P16 had no live re-sync - SUPERSEDED by P17
+same-scene live re-sync). The P15 preview rows gained a
 "New" badge (unlocked + non-default + unacknowledged) via an optional
 `isAcknowledged` predicate on `WardrobeRowModelBuilder` (+ `IsNew` on the row model).
 Existing players with Stars see each eligible ceremony once on first P16 open.

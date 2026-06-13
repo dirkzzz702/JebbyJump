@@ -2,52 +2,89 @@ using UnityEngine;
 
 namespace JebbyJump.Wardrobe.Visual
 {
-    // Reads the equipped outfit id and applies the matching visual
-    // definition to the player's Animator/SpriteRenderer layer.
+    // Applies the equipped outfit's visuals to the player's Animator and keeps
+    // them in sync live. Overrides come from the serialized OutfitVisualLibrary
+    // (per-outfit AnimatorOverrideControllers over the default JebbyAnimator).
     //
-    // Overrides come from the serialized OutfitVisualLibrary (per-outfit
-    // AnimatorOverrideControllers over the default JebbyAnimator). Outfits
-    // without a library entry are no-op: the Animator keeps its serialized
-    // default controller, so Jebby looks unchanged. Applied once in Start()
-    // (scene load resets the Animator, so equipping the default outfit needs
-    // no restore); there is intentionally no live mid-scene re-sync.
+    // Lifecycle:
+    //   Awake     - capture the prefab's default Animator controller (before
+    //               any override is applied) so the default can be restored.
+    //   OnEnable  - subscribe to WardrobeAppearanceEvents for live re-sync.
+    //   Start     - apply the currently stored equipped outfit (spawn path).
+    //   OnDisable - unsubscribe (no static subscriber leak).
+    //   OnDestroy - defensive unsubscribe.
     //
-    // Does NOT touch Animator parameters/state names or SpriteRenderer flipX
-    // - those stay owned by PlayerAnimator. Cosmetic only - no gameplay.
+    // P17: a successful equip (via WardrobeEquipService) raises the change
+    // event; active instances in the same loaded scene re-apply immediately.
+    // Switching to the default outfit (or any outfit with no override) restores
+    // the captured JebbyAnimator. A controller swap may restart the current
+    // animation (no state-preservation - documented limitation). Cosmetic only;
+    // never touches Animator parameters/triggers/states or SpriteRenderer flipX.
     [DisallowMultipleComponent]
     public sealed class PlayerOutfitVisualController : MonoBehaviour
     {
         [SerializeField] private Animator _animator;
         [SerializeField] private SpriteRenderer _spriteRenderer;
         // Serialized outfit-id -> override-controller mapping; null-safe
-        // (no library = every outfit stays no-op / default visuals).
+        // (no library = every outfit stays default visuals).
         [SerializeField] private OutfitVisualLibrary _library;
         [SerializeField] private bool _applyOnStart = true;
         [SerializeField] private string _lastAppliedOutfitId;
 
-        // The outfit id last resolved/applied.
-        public string CurrentOutfitId => _lastAppliedOutfitId;
+        // The prefab's default runtime controller (JebbyAnimator), captured at
+        // Awake before any override is applied. Used to restore default.
+        private RuntimeAnimatorController _defaultAnimatorController;
+        private bool _subscribed;
 
-        // Whether a SpriteRenderer is wired (reserved for future sprite-swap).
+        public string CurrentOutfitId => _lastAppliedOutfitId;
         public bool HasSpriteRenderer => _spriteRenderer != null;
+
+        private void Awake()
+        {
+            if (_animator != null)
+                _defaultAnimatorController = _animator.runtimeAnimatorController;
+        }
+
+        private void OnEnable()
+        {
+            if (_subscribed) return;
+            WardrobeAppearanceEvents.EquippedOutfitChanged += OnEquippedOutfitChanged;
+            _subscribed = true;
+        }
+
+        private void OnDisable() => Unsubscribe();
+        private void OnDestroy() => Unsubscribe();
+
+        private void Unsubscribe()
+        {
+            if (!_subscribed) return;
+            WardrobeAppearanceEvents.EquippedOutfitChanged -= OnEquippedOutfitChanged;
+            _subscribed = false;
+        }
 
         private void Start()
         {
             if (_applyOnStart) ApplyEquippedOutfit();
         }
 
+        private void OnEquippedOutfitChanged(WardrobeEquippedOutfitChanged change)
+        {
+            ApplyOutfit(change.CurrentOutfitId);
+        }
+
         // Applies whatever outfit is currently equipped in the store.
         public void ApplyEquippedOutfit()
             => ApplyOutfit(WardrobeStore.GetEquippedOutfitId());
 
-        // Applies the given outfit id. null/unknown fall back to the default
-        // via the resolver; the serialized library supplies the per-outfit
-        // override controller (outfits without an entry stay no-op = default
-        // visuals); the apply rule lives in OutfitVisualApplier.
+        // Applies the given outfit id: assigns its override if one exists,
+        // otherwise restores the captured default controller (so a previous
+        // override never lingers). null/unknown normalize to default via the
+        // resolver.
         public void ApplyOutfit(string outfitId)
         {
             var def = OutfitVisualCatalog.GetVisualForOutfit(outfitId, _library);
-            _lastAppliedOutfitId = OutfitVisualApplier.Apply(_animator, def);
+            OutfitVisualApplier.Apply(_animator, _defaultAnimatorController, def);
+            _lastAppliedOutfitId = def.OutfitId;
         }
     }
 }

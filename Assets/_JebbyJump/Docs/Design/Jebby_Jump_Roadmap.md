@@ -172,7 +172,32 @@ P13 Mode B — Outfit Art Import + Visual Wiring (7 sets) : complete (user-provi
 P14 — Wardrobe Visual Expansion Stabilization          : complete (asset-integrity guardrails added: 5 editor PlayMode tests validate the REAL OutfitVisualLibrary asset (7 non-default entries, default intentionally absent), every AnimatorOverrideController's base=JebbyAnimator + 7 expected clip overrides, Jebby.prefab wiring, and end-to-end equipped-override apply through the real library; Wardrobe panel verified ALREADY structurally 8+-safe (P9 ScrollRect/Viewport/Content, data-driven rows, no fixed positions) so no UI refactor; 94/94 tests; no code/prefab/scene/art/threshold changes; manual visual QA DEFERRED/NOT VERIFIED)
 P15 — Wardrobe UI Preview Cards + 8-Outfit Selection Polish : complete (UI-only outfit thumbnails: new WardrobePreviewLibrary SO (separate from OutfitVisualLibrary; idle sprite per outfit incl. default, 8 entries, 49/49 QA still PASS) + pure WardrobeRowModelBuilder/WardrobeOutfitRowModel; WardrobePanelController now renders per-row thumbnails (locked=dimmed, missing=hidden, preserveAspect, raycastTarget off) + a selected-outfit preview, driven by the builder; equip/select/locked/analytics/normalization behavior preserved; scaffolds idempotent (BuildWardrobePreviewLibrary + BuildWardrobePanel wires _previewLibrary + SelectedPreview into MainMenu.unity, no duplicate objects); 107/107 tests; no art/Animator/WardrobeStore/UnlockService/Stars/threshold/gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED)
 P16 — Wardrobe Unlock Ceremony + New-Unlock State        : complete (local acknowledgement: new WardrobeUnlockAcknowledgementStore (per-outfit PlayerPrefs key; NOT ownership) + pure WardrobeNewUnlockService (catalog-order, excludes default/locked/acknowledged) + pure WardrobeCeremonyPresenter (queue; acknowledge only on Continue/Equip Now; failed equip stays); on Wardrobe open, newly-unlocked unacknowledged outfits present one at a time in an UnlockCeremonyOverlay (Equip Now via existing WardrobeStore path + Continue; Back disabled during ceremony; rows blocked); P15 rows gain a "New" badge (unlocked+unacknowledged); Reset Wardrobe/Everything clear acknowledgements, Reset Stars preserves them; analytics cosmetic_unlock_presented/acknowledged + cosmetic_equipped(source=unlock_ceremony), pinned; 131/131 tests; Stars never consumed, ownership still derived; no art/threshold/gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED)
+P17 — Live Outfit Re-Sync + Default Visual Restoration   : complete (new WardrobeEquipService = single validated equip path (Success/AlreadyEquipped/UnknownOutfit/Locked) used by both the normal Equip button and the ceremony Equip Now; raises WardrobeAppearanceEvents.EquippedOutfitChanged on Success only; OutfitVisualApplier refactored to 3-arg + result enum that RESTORES the captured default JebbyAnimator when an outfit has no override (no stale overrides), NoOp on null default; PlayerOutfitVisualController captures the default in Awake, subscribes OnEnable/unsubscribes OnDisable, live re-syncs on the event, keeps the Start spawn path; missing entry/library falls back to default; animation may restart on swap (documented); 144/144 tests incl. real-library Forest->Aqua->default integration; Stars/unlocks/acknowledgements unchanged; no art/gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED. NOTE: wardrobe is Main-Menu-only today so live sync has no in-scene player yet - latent until an in-game wardrobe exists; the visible win is correct default restoration + a unified equip path)
 ```
+
+P17 added a same-scene live appearance re-sync + safe default restoration. A
+single `WardrobeEquipService.TryEquip(id, totalStars)` now backs both equip
+sites (normal Equip + ceremony Equip Now), returning Success / AlreadyEquipped
+/ UnknownOutfit / Locked; on Success it writes through `WardrobeStore` and
+raises `WardrobeAppearanceEvents.EquippedOutfitChanged` (stable ids; never on
+the other results, never merely on a PlayerPrefs read). `OutfitVisualApplier`
+became a 3-arg method returning a result enum that assigns an override when
+present and otherwise RESTORES a captured default controller (NoOp if no
+default captured - never assigns null), so switching to Classic (or any
+outfit with no override) no longer leaves a stale override.
+`PlayerOutfitVisualController` captures the prefab's default `JebbyAnimator` in
+Awake, subscribes on OnEnable / unsubscribes on OnDisable+OnDestroy, re-applies
+live on the event, and still applies the stored outfit in Start (spawn path).
+Missing library/entry falls back to default; a controller swap may restart the
+current animation (documented limitation; no state preservation). Reset and
+acknowledgement semantics are unchanged; analytics stays one canonical
+`cosmetic_equipped` per equip (`source=wardrobe` or `unlock_ceremony`) - the
+visual subscriber emits nothing. 144/144 PlayMode tests (incl. editor
+integration applying the real Forest->Aqua overrides and restoring JebbyAnimator
+on Classic). KNOWN LIMITATION: the wardrobe panel is Main-Menu-only and the
+player lives in Game.unity, so the live event has no in-scene subscriber today -
+it activates once a wardrobe is reachable in a scene containing a Jebby; the
+spawn path already covers scene loads.
 
 P16 added a local outfit unlock ceremony. New `WardrobeUnlockAcknowledgementStore`
 (per-outfit PlayerPrefs key `jebby.wardrobe.unlockAcknowledged.<id>`) records which
@@ -416,6 +441,12 @@ P16 — wardrobe unlock ceremony  [DEFERRED / NOT VERIFIED]
   - acknowledgement/queue/equip flow + analytics test-verified, but the
     RENDERED ceremony overlay (card layout, preview, queue interaction,
     New badge, Back-disabled behavior) was never checked on screen
+
+P17 — live outfit re-sync + default restoration  [DEFERRED / NOT VERIFIED]
+  - equip-service/event/applier/restore logic test-verified (incl. real-
+    library integration), but the on-screen live swap + JebbyAnimator
+    restoration + any animation restart were never observed (no in-scene
+    wardrobe+player today)
 
 P4B — Manual playtest + balance tuning  [DEFERRED — awaiting tester data]
   - per-level clear-time feel, fairness, S/A/B/C threshold tuning

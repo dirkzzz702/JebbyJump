@@ -46,6 +46,7 @@ namespace JebbyJump.UI
 
         private const float LockedPreviewAlpha = 0.4f;
         private const string CeremonySource = "unlock_ceremony";
+        private const string WardrobeSource = "wardrobe";
 
         private readonly List<RowEntry> _rows = new List<RowEntry>();
         private string _selectedId;
@@ -215,22 +216,31 @@ namespace JebbyJump.UI
             if (def == null) return;
             int totalStars = TotalStars;
 
-            if (!WardrobeUnlockService.IsUnlocked(def, totalStars))
+            // Single validated equip path; a successful equip publishes the
+            // change event (which live-updates any active player in this scene)
+            // and the panel emits the canonical cosmetic_equipped once.
+            var result = WardrobeEquipService.TryEquip(def.Id, totalStars);
+            switch (result)
             {
-                AnalyticsService.Track(AnalyticsEvents.CosmeticUnlockFailed,
-                    AnalyticsParam.Of(AnalyticsParams.CosmeticId, def.Id),
-                    AnalyticsParam.Of(AnalyticsParams.RequiredStars, def.RequiredStars),
-                    AnalyticsParam.Of(AnalyticsParams.CurrentStars, totalStars));
-                return;
+                case WardrobeEquipResult.Success:
+                    AnalyticsService.Track(AnalyticsEvents.CosmeticEquipped,
+                        AnalyticsParam.Of(AnalyticsParams.CosmeticId, def.Id),
+                        AnalyticsParam.Of(AnalyticsParams.CosmeticCategory,
+                            def.Category.ToString()),
+                        AnalyticsParam.Of(AnalyticsParams.IsOwned, true),
+                        AnalyticsParam.Of(AnalyticsParams.Source, WardrobeSource));
+                    Refresh();
+                    break;
+                case WardrobeEquipResult.Locked:
+                    // Defensive: the Equip button is disabled for locked
+                    // selections, so this normally cannot fire.
+                    AnalyticsService.Track(AnalyticsEvents.CosmeticUnlockFailed,
+                        AnalyticsParam.Of(AnalyticsParams.CosmeticId, def.Id),
+                        AnalyticsParam.Of(AnalyticsParams.RequiredStars, def.RequiredStars),
+                        AnalyticsParam.Of(AnalyticsParams.CurrentStars, totalStars));
+                    break;
+                // AlreadyEquipped / UnknownOutfit: no write, no event, no-op.
             }
-
-            string newId = WardrobeStore.SetEquippedOutfitId(def.Id);
-            AnalyticsService.Track(AnalyticsEvents.CosmeticEquipped,
-                AnalyticsParam.Of(AnalyticsParams.CosmeticId, newId),
-                AnalyticsParam.Of(AnalyticsParams.CosmeticCategory,
-                    def.Category.ToString()),
-                AnalyticsParam.Of(AnalyticsParams.IsOwned, true));
-            Refresh();
         }
 
         private void Refresh()
@@ -279,24 +289,29 @@ namespace JebbyJump.UI
             else HideCeremony();
         }
 
-        // Injected equip path. Re-checks unlock (defensive); only a successful
-        // store write returns true and emits cosmetic_equipped (source=
-        // unlock_ceremony). A failure returns false so the presenter does not
-        // acknowledge or advance.
+        // Injected equip path for the ceremony, routed through the shared
+        // WardrobeEquipService. Success emits cosmetic_equipped
+        // (source=unlock_ceremony) and publishes the change event. Returns true
+        // for Success OR AlreadyEquipped (both satisfy "Equip Now", so the
+        // presenter acknowledges + advances); Locked/Unknown return false so it
+        // does not acknowledge or advance.
         private bool TryEquipFromCeremony(string id)
         {
             var def = WardrobeCatalog.GetById(id);
-            if (def == null || !WardrobeUnlockService.IsUnlocked(def, TotalStars))
-                return false;
+            if (def == null) return false;
 
-            string newId = WardrobeStore.SetEquippedOutfitId(id);
-            AnalyticsService.Track(AnalyticsEvents.CosmeticEquipped,
-                AnalyticsParam.Of(AnalyticsParams.CosmeticId, newId),
-                AnalyticsParam.Of(AnalyticsParams.CosmeticCategory,
-                    def.Category.ToString()),
-                AnalyticsParam.Of(AnalyticsParams.IsOwned, true),
-                AnalyticsParam.Of(AnalyticsParams.Source, CeremonySource));
-            return true;
+            var result = WardrobeEquipService.TryEquip(id, TotalStars);
+            if (result == WardrobeEquipResult.Success)
+            {
+                AnalyticsService.Track(AnalyticsEvents.CosmeticEquipped,
+                    AnalyticsParam.Of(AnalyticsParams.CosmeticId, def.Id),
+                    AnalyticsParam.Of(AnalyticsParams.CosmeticCategory,
+                        def.Category.ToString()),
+                    AnalyticsParam.Of(AnalyticsParams.IsOwned, true),
+                    AnalyticsParam.Of(AnalyticsParams.Source, CeremonySource));
+            }
+            return result == WardrobeEquipResult.Success
+                || result == WardrobeEquipResult.AlreadyEquipped;
         }
 
         private void ShowCurrentCeremony()
