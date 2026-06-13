@@ -107,6 +107,19 @@ thresholds here remain STRICT PLACEHOLDERS (see section 8).
 > Main-Menu-only today so the live update is latent (no in-scene player) until an
 > in-game wardrobe exists. 144/144 tests; manual visual QA remains DEFERRED /
 > NOT VERIFIED.
+>
+> **P18 update (in-panel preview + persistence migration):** the selected
+> outfit now plays a UI-only pose carousel (idle->run->jump->fall->land->
+> victory; Hurt excluded; locked dimmed) from an extended `WardrobePreviewLibrary`
+> (now per-pose; `TryGetPreview` still returns Idle for rows/ceremony) - separate
+> from the gameplay Jebby. A new `WardrobePersistenceMigrator` (+ schema key
+> `jebby.wardrobe.schemaVersion`, current = 1) runs ongoing equipped-id
+> normalization (unknown/empty/locked -> default) on every call regardless of
+> schema version, plus a one-time schema stamp; it never grants/consumes Stars,
+> never marks acknowledgements, never changes thresholds, and raises no event/
+> analytics. Run at Main-Menu init + Wardrobe.Open. Acknowledgement remains
+> notification state, not ownership. 170/170 tests; manual visual QA remains
+> DEFERRED / NOT VERIFIED.
 
 ---
 

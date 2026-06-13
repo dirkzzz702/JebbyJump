@@ -59,9 +59,11 @@ public static class ResetProgressTool
     {
         WardrobeStore.Reset();
         WardrobeUnlockAcknowledgementStore.ResetAll();
+        // Clean reset = current schema, so no historical migration replays.
+        WardrobePersistenceMigrator.StampCurrentVersion();
         Debug.Log("[ResetProgress] Equipped outfit reset to default; "
             + "unlock acknowledgements cleared (ceremonies will replay for "
-            + "currently-eligible outfits).");
+            + "currently-eligible outfits); wardrobe schema stamped current.");
     }
 
     // Acknowledgements only - leaves equipped outfit and Stars untouched.

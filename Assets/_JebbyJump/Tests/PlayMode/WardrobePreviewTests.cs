@@ -210,8 +210,6 @@ namespace JebbyJump.Tests
     {
         private const string LibraryPath =
             "Assets/_JebbyJump/Art/Characters/Jebby/Outfits/WardrobePreviewLibrary.asset";
-        private const string DefaultIdlePath =
-            "Assets/_JebbyJump/Art/Sprites/Characters/Jebby/spr_jebby_idle_01.png";
         private const string OutfitsRoot =
             "Assets/_JebbyJump/Art/Characters/Jebby/Outfits/";
 
@@ -260,11 +258,39 @@ namespace JebbyJump.Tests
             }
         }
 
-        private static string IdlePath(string outfitId)
+        // P18: every outfit must have all 7 pose sprites, each matching the
+        // expected per-state asset path.
+        [Test]
+        public void PreviewLibrary_AllOutfitsHaveAllPoseSpritesMatchingPaths()
         {
-            if (outfitId == WardrobeCatalog.DefaultOutfitId) return DefaultIdlePath;
+            var lib = Load();
+            foreach (var o in WardrobeCatalog.Outfits)
+            {
+                foreach (WardrobePreviewPose pose in
+                    System.Enum.GetValues(typeof(WardrobePreviewPose)))
+                {
+                    Assert.IsTrue(lib.TryGetPose(o.Id, pose, out var sprite),
+                        o.Id + "/" + pose + " missing");
+                    string path = PosePath(o.Id, pose);
+                    var expected = UnityEditor.AssetDatabase
+                        .LoadAssetAtPath<Sprite>(path);
+                    Assert.IsNotNull(expected, "sprite missing: " + path);
+                    Assert.AreSame(expected, sprite, o.Id + "/" + pose);
+                }
+            }
+        }
+
+        private static string IdlePath(string outfitId)
+            => PosePath(outfitId, WardrobePreviewPose.Idle);
+
+        private static string PosePath(string outfitId, WardrobePreviewPose pose)
+        {
+            string state = pose.ToString().ToLowerInvariant();
+            if (outfitId == WardrobeCatalog.DefaultOutfitId)
+                return "Assets/_JebbyJump/Art/Sprites/Characters/Jebby/spr_jebby_"
+                    + state + "_01.png";
             return OutfitsRoot + ToPascal(outfitId) + "/Sprites/spr_jebby_"
-                + outfitId + "_idle_01.png";
+                + outfitId + "_" + state + "_01.png";
         }
 
         private static string ToPascal(string snake)

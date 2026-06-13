@@ -313,6 +313,7 @@ Launch target:
 | P15   | Wardrobe UI Preview Cards + 8-Outfit Selection Polish | complete (UI-only WardrobePreviewLibrary + pure row-model builder; per-row dimmed thumbnails + selected preview; equip/select/locked behavior preserved; 107/107 tests; no art/semantic/gameplay/economy changes) |
 | P16   | Wardrobe Unlock Ceremony + New-Unlock State      | complete (local acknowledgement store + pure new-unlock service + ceremony presenter/overlay; "New" badge; Reset Wardrobe/Everything clear ack, Reset Stars preserves; analytics pinned; 131/131 tests; Stars not consumed, ownership derived; no art/gameplay/economy changes) |
 | P17   | Live Outfit Re-Sync + Default Visual Restoration | complete (WardrobeEquipService single equip path + WardrobeAppearanceEvents change event; applier restores captured default JebbyAnimator; PlayerOutfitVisualController live re-sync; missing entry -> default; 144/144 tests; Stars/unlock/ack unchanged; no art/gameplay/economy changes; live sync latent until same-scene wardrobe exists) |
+| P18   | In-Panel Outfit Preview + Wardrobe Persistence Migration | complete (UI-only animated pose carousel from extended WardrobePreviewLibrary; WardrobePersistenceMigrator separates ongoing equipped normalization from one-time schema stamp (v1) - runs at MainMenu init + Wardrobe.Open; 170/170 tests; no event/analytics on migration; Stars/acks/thresholds untouched; no art/gameplay/economy changes) |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -793,6 +794,53 @@ threshold, gameplay, or economy changes. Manual visual QA remains
 **DEFERRED / NOT VERIFIED**. Recommended next: P15A Wardrobe Art Visual QA
 Checklist Execution or P15B Wardrobe UI Preview Thumbnail / Outfit Card
 Polish.
+
+## P18 - In-Panel Outfit Preview + Wardrobe Persistence Migration
+
+Status: **complete**. Two coordinated objectives; runtime/tests/docs + the
+preview-library asset only. No scene/prefab/art changes.
+
+(A) **In-panel preview** (Option A - UI Image pose carousel; chosen because the
+outfit clips are single-frame and per-state sprites already exist). The existing
+P15 `SelectedPreview` Image is now animated: on selection the panel builds a
+sequence via `WardrobePreviewSequenceBuilder` and advances it with a pure
+`WardrobePreviewPlayer` on `Time.unscaledDeltaTime`. Sequence =
+idle->run->jump->fall->land->victory (Hurt excluded from the child-facing loop);
+locked outfits are dimmed (alpha 0.4); missing poses are skipped; a missing
+sequence hides the image (no stale sprite). It is **UI-only and fully separate
+from the gameplay Jebby**. `WardrobePreviewLibrary` was extended from a single
+idle sprite to the full per-pose set; `TryGetPreview` still returns Idle so P15
+rows + the P16 ceremony are unchanged. No new scene objects (no MainMenu.unity
+change).
+
+(B) **Persistence migration.** `WardrobePersistenceKeys` centralizes the
+existing keys (now referenced by `WardrobeStore` + the acknowledgement store)
+and adds `jebby.wardrobe.schemaVersion`. `WardrobePersistenceMigrator` keeps two
+**independent** jobs: ongoing equipped-id normalization (unknown/empty/locked ->
+default) that runs on **every** call regardless of schema version, and a
+one-time schema stamp (`CurrentVersion = 1`; absent = legacy 0) applied only when
+behind; a future (greater) stored version is never downgraded. Corrections are
+written via `WardrobeStore.SetEquippedOutfitId` (the low-level primitive), so
+**no appearance event and no analytics fire**; Stars, acknowledgements, and
+thresholds are never touched. It is invoked at **Main-Menu init (before Continue
+or any gameplay scene load)** and defensively at the top of `Wardrobe.Open`
+(idempotent). Reset Wardrobe stamps the current schema version (a clean reset
+does not replay history); Reset Stars preserves schema + acknowledgements.
+
+Tests: sequence builder, preview player (empty/zero-negative/large-delta safe),
+migration (incl. the regression that a CURRENT schema still normalizes a
+now-locked equipped id after a Stars drop; future-version-not-downgraded;
+no-Star/ack change; idempotent), key-literal pins, and preview asset-integrity
+(all 8 outfits have all 7 pose sprites matching paths). **170/170 PlayMode tests
+pass**; outfit-sprite QA gate still 49/49; preview-library scaffold rerun is
+hash-stable.
+
+No changes to WardrobeCatalog/WardrobeUnlockService rules, acknowledgement
+semantics, P17 equip-event semantics, StarReward*, OutfitVisualLibrary,
+PlayerAnimator/PlayerMotor/JebbyAnimator, Jebby prefab, Game.unity, or art.
+Manual visual QA of the rendered preview + on-device migration remains
+**DEFERRED / NOT VERIFIED**. Recommended next: P19C save-migration test matrix /
+release hardening, or P19A outfit-swap transition polish.
 
 ## P17 - Live Outfit Re-Sync + Safe Default Visual Restoration
 

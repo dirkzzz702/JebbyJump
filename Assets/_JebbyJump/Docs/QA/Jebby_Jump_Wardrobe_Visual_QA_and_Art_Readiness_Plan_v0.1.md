@@ -421,6 +421,7 @@ P14 8-outfit wardrobe stabilization (rendered panel) . DEFERRED / NOT VERIFIED
 P15 wardrobe preview-card UI (rendered cards) ........ DEFERRED / NOT VERIFIED
 P16 wardrobe unlock ceremony (rendered overlay) ...... DEFERRED / NOT VERIFIED
 P17 live outfit re-sync + default restoration ........ DEFERRED / NOT VERIFIED
+P18 in-panel preview carousel + save migration ....... DEFERRED / NOT VERIFIED
 P4B manual playtest + balance tuning ................. DEFERRED
 ```
 

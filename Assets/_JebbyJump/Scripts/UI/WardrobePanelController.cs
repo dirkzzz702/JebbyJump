@@ -53,6 +53,12 @@ namespace JebbyJump.UI
         private bool _building;
         private WardrobeCeremonyPresenter _ceremony;
 
+        // P18 in-panel preview carousel (UI-only; drives _selectedPreviewImage).
+        private readonly WardrobePreviewPlayer _previewPlayer =
+            new WardrobePreviewPlayer();
+        private string _previewOutfitId;
+        private bool _previewLocked;
+
         private struct RowEntry
         {
             public string Id;
@@ -91,6 +97,11 @@ namespace JebbyJump.UI
 
         public void Open()
         {
+            // Defensive repeat of the Main-Menu-init migration; idempotent and
+            // raises no event/analytics. Ensures the equipped id is normalized
+            // (e.g. now-locked after a Stars change) before the panel builds.
+            WardrobePersistenceMigrator.MigrateIfNeeded(TotalStars);
+
             AnalyticsService.Track(AnalyticsEvents.WardrobeOpened);
             Rebuild();
             StartCeremonyQueue();
@@ -101,7 +112,17 @@ namespace JebbyJump.UI
         // outfits simply re-queue on the next Open().
         public void Close()
         {
+            ClearSelectedPreview();
             if (_panelRoot != null) _panelRoot.SetActive(false);
+        }
+
+        // Advances the selected-outfit preview carousel on UI (unscaled) time.
+        private void Update()
+        {
+            if (_panelRoot == null || !_panelRoot.activeSelf) return;
+            if (!_previewPlayer.HasFrames) return;
+            _previewPlayer.Tick(Time.unscaledDeltaTime);
+            ApplyCurrentPreviewFrame();
         }
 
         private int TotalStars =>
@@ -265,13 +286,49 @@ namespace JebbyJump.UI
                     : "Selected: --";
             if (_stateLabel != null)
                 _stateLabel.text = hasSelected ? selected.StateText : string.Empty;
-            if (_selectedPreviewImage != null)
-            {
-                if (hasSelected) ApplyPreview(_selectedPreviewImage, selected);
-                else HidePreview(_selectedPreviewImage);
-            }
+            RefreshSelectedPreview(hasSelected, selected);
             if (_equipButton != null)
                 _equipButton.interactable = hasSelected && selected.CanEquip;
+        }
+
+        // Rebuilds the preview carousel when the selected outfit changes (resets
+        // to the first pose); otherwise just refreshes the locked dim. The
+        // animated frame is driven by Update(); this shows the first frame
+        // immediately and hides the image when there is no preview sequence.
+        private void RefreshSelectedPreview(
+            bool hasSelected, WardrobeOutfitRowModel selected)
+        {
+            if (_selectedPreviewImage == null) return;
+            if (!hasSelected) { ClearSelectedPreview(); return; }
+
+            _previewLocked = !selected.IsUnlocked;
+            if (selected.OutfitId != _previewOutfitId)
+            {
+                _previewOutfitId = selected.OutfitId;
+                _previewPlayer.SetFrames(WardrobePreviewSequenceBuilder.Build(
+                    selected.OutfitId, _previewLibrary, includeHurt: false));
+            }
+            ApplyCurrentPreviewFrame();
+        }
+
+        private void ApplyCurrentPreviewFrame()
+        {
+            if (_selectedPreviewImage == null) return;
+            var sprite = _previewPlayer.HasFrames
+                ? _previewPlayer.Current.Sprite : null;
+            if (sprite == null) { HidePreview(_selectedPreviewImage); return; }
+            _selectedPreviewImage.sprite = sprite;
+            _selectedPreviewImage.enabled = true;
+            _selectedPreviewImage.color = new Color(
+                1f, 1f, 1f, _previewLocked ? LockedPreviewAlpha : 1f);
+        }
+
+        private void ClearSelectedPreview()
+        {
+            _previewOutfitId = null;
+            _previewLocked = false;
+            _previewPlayer.Clear();
+            HidePreview(_selectedPreviewImage);
         }
 
         // ---- P16 unlock ceremony ----

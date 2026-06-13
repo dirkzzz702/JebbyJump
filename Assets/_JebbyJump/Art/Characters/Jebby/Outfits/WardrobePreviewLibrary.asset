@@ -14,18 +14,66 @@ MonoBehaviour:
   m_EditorClassIdentifier: JebbyJump.Wardrobe.Visual::JebbyJump.Wardrobe.Visual.WardrobePreviewLibrary
   _entries:
   - OutfitId: classic_color_knight
-    PreviewSprite: {fileID: 21300000, guid: 590ce5d81259ad64192ac24c18bba3dc, type: 3}
+    Idle: {fileID: 21300000, guid: 590ce5d81259ad64192ac24c18bba3dc, type: 3}
+    Run: {fileID: 21300000, guid: 97b8783188b5f3846ae592f2c9bc3628, type: 3}
+    Jump: {fileID: 21300000, guid: 6343697099ed7cf42856ad8409db4be6, type: 3}
+    Fall: {fileID: 21300000, guid: 1782410e500b6c94faea8e9b695ab56a, type: 3}
+    Land: {fileID: 21300000, guid: 3a41cce222e047b4ab7debf311c17ec3, type: 3}
+    Hurt: {fileID: 21300000, guid: 570eb0139acb8b94088b7f014513d6a2, type: 3}
+    Victory: {fileID: 21300000, guid: 791f40912fe397d4eb4920d9ab7825ff, type: 3}
   - OutfitId: rookie_page
-    PreviewSprite: {fileID: 21300000, guid: 021b7c4c8d74aab4db579d6636d3088c, type: 3}
+    Idle: {fileID: 21300000, guid: 021b7c4c8d74aab4db579d6636d3088c, type: 3}
+    Run: {fileID: 21300000, guid: 07a68b3ede6b2cb46ae407bcdb238fda, type: 3}
+    Jump: {fileID: 21300000, guid: 4f324b55d19566d4ea6cdfa74ed38712, type: 3}
+    Fall: {fileID: 21300000, guid: 390472fac6a14e5429b202272e2d6990, type: 3}
+    Land: {fileID: 21300000, guid: bf1edf69fb4a6be438e7b71b2f7e3d2b, type: 3}
+    Hurt: {fileID: 21300000, guid: 21c24e3f522c60649b2660ce2e1cecb4, type: 3}
+    Victory: {fileID: 21300000, guid: cd9df0ba1b24b8442ba36bfa27e6feb2, type: 3}
   - OutfitId: forest_cavalier
-    PreviewSprite: {fileID: 21300000, guid: ab02459aaf55f5c43a290e4e11a05f70, type: 3}
+    Idle: {fileID: 21300000, guid: ab02459aaf55f5c43a290e4e11a05f70, type: 3}
+    Run: {fileID: 21300000, guid: 61dfba57197dfb642b2edbf0c1850a08, type: 3}
+    Jump: {fileID: 21300000, guid: 2891919b78770444abae07804f7ef889, type: 3}
+    Fall: {fileID: 21300000, guid: ce048b5e654f56c4dae34ce982d94c9e, type: 3}
+    Land: {fileID: 21300000, guid: 817b729adb80b4f47b52d40ca4a05b6c, type: 3}
+    Hurt: {fileID: 21300000, guid: b8a320755f511ca419b45387206b0c61, type: 3}
+    Victory: {fileID: 21300000, guid: 86ab09bd0b455224e8964fded7a96e2c, type: 3}
   - OutfitId: crimson_hero
-    PreviewSprite: {fileID: 21300000, guid: e122c578e2bf58145a2b5f86b7ee9321, type: 3}
+    Idle: {fileID: 21300000, guid: e122c578e2bf58145a2b5f86b7ee9321, type: 3}
+    Run: {fileID: 21300000, guid: 3c3d3d3264877ec479cd24aa5f892b36, type: 3}
+    Jump: {fileID: 21300000, guid: 096bc9f5ce9c1604ebaf6473d595c49f, type: 3}
+    Fall: {fileID: 21300000, guid: 607174a2a2324764bb7830dcd3856e4d, type: 3}
+    Land: {fileID: 21300000, guid: 18b760dfb4167f24d81b5be4411073e6, type: 3}
+    Hurt: {fileID: 21300000, guid: 31192310955e81b4c8fd0f1039cd7594, type: 3}
+    Victory: {fileID: 21300000, guid: 29d91bcacfd23cb41a1dce2f8bef8aed, type: 3}
   - OutfitId: sunshine_knight
-    PreviewSprite: {fileID: 21300000, guid: e5f20d06716e5d444a4dbbf62a4f6e7a, type: 3}
+    Idle: {fileID: 21300000, guid: e5f20d06716e5d444a4dbbf62a4f6e7a, type: 3}
+    Run: {fileID: 21300000, guid: ad4b621f2e4fc5449b1f18f3666a1531, type: 3}
+    Jump: {fileID: 21300000, guid: b766fc8db7ef8524db3a80d7a472c640, type: 3}
+    Fall: {fileID: 21300000, guid: 293882779e8b33b4aa9412f218533d20, type: 3}
+    Land: {fileID: 21300000, guid: 8d06fd76fb132d942b8ad13b2d7fe5a3, type: 3}
+    Hurt: {fileID: 21300000, guid: 0aa6a9ffe0f64cb45afe9673f4f1eb7d, type: 3}
+    Victory: {fileID: 21300000, guid: a6221d575d552284e9d3ab8cf1e20986, type: 3}
   - OutfitId: aqua_knight
-    PreviewSprite: {fileID: 21300000, guid: 5923c02e2aad76b478303f4e9eb274c3, type: 3}
+    Idle: {fileID: 21300000, guid: 5923c02e2aad76b478303f4e9eb274c3, type: 3}
+    Run: {fileID: 21300000, guid: 9d68e6df7fc74304880f64cede7b6599, type: 3}
+    Jump: {fileID: 21300000, guid: 7115ae80945d35247acdc157ac9e797c, type: 3}
+    Fall: {fileID: 21300000, guid: 7dc9532af9680df46a2c2612e583a1de, type: 3}
+    Land: {fileID: 21300000, guid: 9fddd94a908e5ca4e9dee9de5b3aac24, type: 3}
+    Hurt: {fileID: 21300000, guid: 318309ddf91e57a48aeb140ee969cebc, type: 3}
+    Victory: {fileID: 21300000, guid: 33d7bf140bc30ce4585f252c6325d682, type: 3}
   - OutfitId: pastel_prince
-    PreviewSprite: {fileID: 21300000, guid: 660b0d0824989c049be3fe3106c0df28, type: 3}
+    Idle: {fileID: 21300000, guid: 660b0d0824989c049be3fe3106c0df28, type: 3}
+    Run: {fileID: 21300000, guid: 687072d482ad87648acc6a4a9f46ab9f, type: 3}
+    Jump: {fileID: 21300000, guid: 3740b3e5e99051a41b1195aed3bec258, type: 3}
+    Fall: {fileID: 21300000, guid: 8162203564c3b9f4987db69a9acd2a67, type: 3}
+    Land: {fileID: 21300000, guid: 70a1b8366263dbd4caa91e77387fad14, type: 3}
+    Hurt: {fileID: 21300000, guid: 901c95dd7aee9d34fbcffc6015a7b00c, type: 3}
+    Victory: {fileID: 21300000, guid: 2d6a9c4166cc77d408084ecf8a4ff95d, type: 3}
   - OutfitId: silver_dreamer
-    PreviewSprite: {fileID: 21300000, guid: 975f56312f7cd5d4db02c8ffbe0e4d45, type: 3}
+    Idle: {fileID: 21300000, guid: 975f56312f7cd5d4db02c8ffbe0e4d45, type: 3}
+    Run: {fileID: 21300000, guid: 1c34f3a7614dc7343b862e4a209a671e, type: 3}
+    Jump: {fileID: 21300000, guid: f6afe44c479f8364997fcfae2254a1a0, type: 3}
+    Fall: {fileID: 21300000, guid: fbbbad544631a2c4f9bc86d91f9afac9, type: 3}
+    Land: {fileID: 21300000, guid: b28f88fbe767a724a9350823cadca292, type: 3}
+    Hurt: {fileID: 21300000, guid: 06e7fbcf40ae38c4a82989cf5246debd, type: 3}
+    Victory: {fileID: 21300000, guid: 3ddfc6d1b9fd54f45b8028b83f58d48e, type: 3}

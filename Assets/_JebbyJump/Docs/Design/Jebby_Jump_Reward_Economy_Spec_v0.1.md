@@ -55,6 +55,13 @@ playtest + analytics data.
 > and never consumes/modifies Stars. Stars remain mastery-only (earned,
 > best-only, never spent). Spark Coins / Rainbow Gems currency / shop / ads /
 > backend remain deferred and unimplemented.
+>
+> **P18 update (persistence migration; not economy):** wardrobe save hardening
+> added a schema version + a migrator that normalizes an unknown/empty/locked
+> equipped id back to the default. This is purely local save hygiene - it never
+> grants, consumes, or modifies Stars, never marks unlock acknowledgements, and
+> never changes catalog thresholds. Ownership stays derived from Stars; Stars
+> stay mastery-only.
 
 ---
 

@@ -1,6 +1,8 @@
 using JebbyJump.Analytics;
 using JebbyJump.Flow;
 using JebbyJump.Progression;
+using JebbyJump.Rewards;
+using JebbyJump.Wardrobe;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -24,6 +26,13 @@ namespace JebbyJump.UI
 
         private void Awake()
         {
+            // Harden wardrobe save state once at menu entry - BEFORE Continue
+            // or any gameplay scene load can apply the equipped outfit. This
+            // also normalizes a now-locked/invalid equipped id to default
+            // (ongoing normalization, independent of schema version).
+            WardrobePersistenceMigrator.MigrateIfNeeded(
+                _catalog != null ? StarRewardStore.GetTotalStars(_catalog.Count) : 0);
+
             if (_continueButton != null)
                 _continueButton.onClick.AddListener(OnContinueClicked);
             if (_startButton != null)

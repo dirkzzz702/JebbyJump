@@ -13,7 +13,9 @@ namespace JebbyJump.Wardrobe
     // never gets a key. null / empty / unknown ids are ignored on read+write.
     public static class WardrobeUnlockAcknowledgementStore
     {
-        private const string KeyPrefix = "jebby.wardrobe.unlockAcknowledged.";
+        // Same literal as before; centralized in WardrobePersistenceKeys.
+        private const string KeyPrefix =
+            WardrobePersistenceKeys.UnlockAcknowledgementPrefix;
 
         public static bool IsAcknowledged(string outfitId)
         {

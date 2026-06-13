@@ -10,7 +10,8 @@ namespace JebbyJump.Wardrobe
     //   jebby.wardrobe.equippedOutfit  (string outfit id)
     public static class WardrobeStore
     {
-        private const string EquippedKey = "jebby.wardrobe.equippedOutfit";
+        // Same literal as before; centralized in WardrobePersistenceKeys.
+        private const string EquippedKey = WardrobePersistenceKeys.EquippedOutfit;
 
         // Returns the stored equipped id, or the default if missing/unknown.
         // Does NOT validate unlock state (that is the service layer's job
