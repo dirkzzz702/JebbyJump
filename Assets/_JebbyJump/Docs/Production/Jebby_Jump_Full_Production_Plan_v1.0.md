@@ -310,6 +310,7 @@ Launch target:
 | P13   | Forest Cavalier Art Intake Prep (Mode A)         | superseded by Mode B below (was: blocked on art; QA gate added) |
 | P13B  | Outfit Art Import + Visual Wiring (7 sets)       | complete (prototype art imported, 49/49 QA PASS; OutfitVisualLibrary wired into prefab; catalog 5->8 approved; outfits visibly swap; 89/89 tests) |
 | P14   | Wardrobe Visual Expansion Stabilization          | complete (5 asset-integrity tests pin the real library/AOCs/prefab wiring; panel verified already ScrollRect-based for 8+ rows, no UI change; 94/94 tests) |
+| P15   | Wardrobe UI Preview Cards + 8-Outfit Selection Polish | complete (UI-only WardrobePreviewLibrary + pure row-model builder; per-row dimmed thumbnails + selected preview; equip/select/locked behavior preserved; 107/107 tests; no art/semantic/gameplay/economy changes) |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -790,6 +791,39 @@ threshold, gameplay, or economy changes. Manual visual QA remains
 **DEFERRED / NOT VERIFIED**. Recommended next: P15A Wardrobe Art Visual QA
 Checklist Execution or P15B Wardrobe UI Preview Thumbnail / Outfit Card
 Polish.
+
+## P15 - Wardrobe UI Preview Cards + 8-Outfit Selection Polish
+
+Status: **complete**. The text-only wardrobe list became a data-driven
+preview-card list with **UI-only** outfit thumbnails.
+
+Data model: a NEW `WardrobePreviewLibrary` ScriptableObject (id -> Sprite),
+deliberately **separate** from `OutfitVisualLibrary` so P14's gameplay-override
+invariants stay untouched. It maps all 8 outfits (incl. the default) to their
+existing idle sprites; null-safe (missing entry/sprite -> no thumbnail). A pure
+`WardrobeRowModelBuilder` produces `WardrobeOutfitRowModel`s (OutfitId,
+DisplayName, RequiredStars, IsUnlocked, IsEquipped, PreviewSprite, StateText,
+CanEquip), iterating `WardrobeCatalog.Outfits` and normalizing the equipped id
+internally - so the panel MonoBehaviour (Assembly-CSharp, not test-reachable)
+only renders, and the logic stays unit-tested.
+
+UI: `WardrobePanelController` renders per-row thumbnails (locked = dimmed via UI
+Image alpha 0.4 - NOT art tint; missing = hidden; `preserveAspect`,
+`raycastTarget` off so the row button keeps clicks) + a larger selected-outfit
+preview; equip/select/locked/equipped behavior, copy, analytics, and equipped-id
+normalization are unchanged. Rows remain runtime-built and data-driven (no
+hardcoded count). Idempotent scaffolds: `BuildWardrobePreviewLibrary` (populates
+the asset from existing idle sprites) and an extended `BuildWardrobePanel` (wires
+`_previewLibrary` + a `SelectedPreview` image into MainMenu.unity); re-run adds no
+duplicate objects.
+
+**107/107 PlayMode tests** (94 + 13: preview library, builder, and preview-asset
+integrity). Outfit-sprite QA gate still 49/49 (import settings untouched). No new
+art; no `OutfitVisualLibrary`/Animator/`WardrobeStore`/`WardrobeUnlockService`/
+StarReward/threshold/gameplay/economy changes. Outfits still apply at next spawn
+(no live mid-scene re-sync). Manual visual QA of the rendered cards remains
+**DEFERRED / NOT VERIFIED**. Recommended next: P16A unlock ceremony or P16B
+in-panel live character preview; P16E manual visual QA when a tester is available.
 
 ## Open Decisions Before Implementation
 

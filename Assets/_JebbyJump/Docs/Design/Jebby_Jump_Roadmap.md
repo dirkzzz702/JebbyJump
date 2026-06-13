@@ -170,7 +170,26 @@ P12 — First Outfit Art Asset Request Pack / Visual Pipeline Readiness : comple
 P13 — Forest Cavalier Art Intake Prep (Mode A)        : complete-but-BLOCKED ON ART (no Forest Cavalier art exists in repo or working folders; nothing imported; no override wired; OutfitVisualCatalog stays no-op for every outfit; read-only editor QA gate added: Jebby Jump/QA/Check Outfit Sprite Alpha; next step: provide/generate the 7 state sprites per the P12 pack, then run import phase; no gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED)
 P13 Mode B — Outfit Art Import + Visual Wiring (7 sets) : complete (user-provided palette-transfer PROTOTYPE art, 7 outfits x 7 states, 49/49 QA-gate PASS; sprites+clips+AnimatorOverrideControllers under Art/Characters/Jebby/Outfits/; new OutfitVisualLibrary SO wired into Jebby.prefab PlayerOutfitVisualController; WardrobeCatalog expanded 5->8 with approved rookie_page(4)/crimson_hero(12)/pastel_prince(26) PLACEHOLDER thresholds, original five untouched; equipping a non-default outfit now visibly swaps Jebby's sprites on spawn; cosmetic-only, no gameplay/economy changes; 89/89 tests; manual visual QA DEFERRED/NOT VERIFIED)
 P14 — Wardrobe Visual Expansion Stabilization          : complete (asset-integrity guardrails added: 5 editor PlayMode tests validate the REAL OutfitVisualLibrary asset (7 non-default entries, default intentionally absent), every AnimatorOverrideController's base=JebbyAnimator + 7 expected clip overrides, Jebby.prefab wiring, and end-to-end equipped-override apply through the real library; Wardrobe panel verified ALREADY structurally 8+-safe (P9 ScrollRect/Viewport/Content, data-driven rows, no fixed positions) so no UI refactor; 94/94 tests; no code/prefab/scene/art/threshold changes; manual visual QA DEFERRED/NOT VERIFIED)
+P15 — Wardrobe UI Preview Cards + 8-Outfit Selection Polish : complete (UI-only outfit thumbnails: new WardrobePreviewLibrary SO (separate from OutfitVisualLibrary; idle sprite per outfit incl. default, 8 entries, 49/49 QA still PASS) + pure WardrobeRowModelBuilder/WardrobeOutfitRowModel; WardrobePanelController now renders per-row thumbnails (locked=dimmed, missing=hidden, preserveAspect, raycastTarget off) + a selected-outfit preview, driven by the builder; equip/select/locked/analytics/normalization behavior preserved; scaffolds idempotent (BuildWardrobePreviewLibrary + BuildWardrobePanel wires _previewLibrary + SelectedPreview into MainMenu.unity, no duplicate objects); 107/107 tests; no art/Animator/WardrobeStore/UnlockService/Stars/threshold/gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED)
 ```
+
+P15 turned the text-only wardrobe into a data-driven preview-card list. A NEW
+`WardrobePreviewLibrary` ScriptableObject (kept SEPARATE from
+`OutfitVisualLibrary` so P14 invariants stay intact) maps each of the 8
+outfits (incl. default) to its existing idle sprite - UI-only, never touching
+the player Animator. A pure `WardrobeRowModelBuilder` (+ `WardrobeOutfitRowModel`)
+produces per-row view data (state/copy/preview, normalizing the equipped id
+internally), so `WardrobePanelController` only renders: each row shows a
+thumbnail (locked = dimmed via UI alpha, missing = hidden, `preserveAspect`,
+`raycastTarget` off) + name + state, plus a larger selected-outfit preview.
+Equip/select/locked/analytics behavior and copy are unchanged. Idempotent
+scaffolds (`BuildWardrobePreviewLibrary` + an extended `BuildWardrobePanel`
+that wires `_previewLibrary` and a `SelectedPreview` image into MainMenu.unity)
+re-run with no duplicate objects. 107/107 PlayMode tests. No art/Animator/
+WardrobeStore/UnlockService/Stars/threshold/gameplay/economy changes; outfits
+still apply at next spawn (no live re-sync). RENDERED preview-card appearance
+(thumbnail readability, dimming, scrolling, selected-preview placement) is
+DEFERRED / NOT VERIFIED.
 
 P14 stabilized the 8-outfit wardrobe after P13B. Inspection confirmed the
 wardrobe panel was ALREADY structurally ready for 8+ rows (the P9 scaffold
@@ -366,6 +385,11 @@ P13 — Outfit visual prototypes (7 sets)  [DEFERRED / NOT VERIFIED]
 P14 — 8-outfit wardrobe stabilization  [DEFERRED / NOT VERIFIED]
   - asset wiring is test-verified, but the RENDERED 8-row scrolling panel
     (row readability, scroll behavior, no overlap) was never checked
+
+P15 — wardrobe preview-card UI  [DEFERRED / NOT VERIFIED]
+  - thumbnails/dimming/selected-preview wired + builder test-verified, but
+    the RENDERED cards (thumbnail framing, locked dim, SelectedPreview
+    placement, mobile readability) were never checked on screen
 
 P4B — Manual playtest + balance tuning  [DEFERRED — awaiting tester data]
   - per-level clear-time feel, fairness, S/A/B/C threshold tuning

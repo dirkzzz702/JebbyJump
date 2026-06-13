@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fcde9e5dfbff174288bf465393e6c3c, type: 3}
+  m_Name: WardrobePreviewLibrary
+  m_EditorClassIdentifier: JebbyJump.Wardrobe.Visual::JebbyJump.Wardrobe.Visual.WardrobePreviewLibrary
+  _entries:
+  - OutfitId: classic_color_knight
+    PreviewSprite: {fileID: 21300000, guid: 590ce5d81259ad64192ac24c18bba3dc, type: 3}
+  - OutfitId: rookie_page
+    PreviewSprite: {fileID: 21300000, guid: 021b7c4c8d74aab4db579d6636d3088c, type: 3}
+  - OutfitId: forest_cavalier
+    PreviewSprite: {fileID: 21300000, guid: ab02459aaf55f5c43a290e4e11a05f70, type: 3}
+  - OutfitId: crimson_hero
+    PreviewSprite: {fileID: 21300000, guid: e122c578e2bf58145a2b5f86b7ee9321, type: 3}
+  - OutfitId: sunshine_knight
+    PreviewSprite: {fileID: 21300000, guid: e5f20d06716e5d444a4dbbf62a4f6e7a, type: 3}
+  - OutfitId: aqua_knight
+    PreviewSprite: {fileID: 21300000, guid: 5923c02e2aad76b478303f4e9eb274c3, type: 3}
+  - OutfitId: pastel_prince
+    PreviewSprite: {fileID: 21300000, guid: 660b0d0824989c049be3fe3106c0df28, type: 3}
+  - OutfitId: silver_dreamer
+    PreviewSprite: {fileID: 21300000, guid: 975f56312f7cd5d4db02c8ffbe0e4d45, type: 3}

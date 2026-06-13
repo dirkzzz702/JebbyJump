@@ -3,28 +3,40 @@ using JebbyJump.Analytics;
 using JebbyJump.Progression;
 using JebbyJump.Rewards;
 using JebbyJump.Wardrobe;
+using JebbyJump.Wardrobe.Visual;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace JebbyJump.UI
 {
-    // Text-only wardrobe panel. Lists the fixed outfit catalog with
-    // locked / unlocked / equipped state derived from total Stars (Stars
-    // are read-only here and never consumed). Equipping persists only the
-    // equipped outfit id (WardrobeStore). No art/sprite/animation; no
-    // gameplay effect. Rows are built programmatically (no prefab).
+    // Wardrobe panel: a scrollable, data-driven list of the fixed outfit
+    // catalog with locked / unlocked / equipped state derived from total
+    // Stars (read-only; never consumed). Each row shows a UI-only idle
+    // thumbnail (from WardrobePreviewLibrary; locked rows dimmed, missing
+    // previews hidden) plus name + state; a larger preview shows the selected
+    // outfit. Per-row view data comes from the pure WardrobeRowModelBuilder.
+    // Equipping persists only the equipped outfit id (WardrobeStore); the
+    // gameplay appearance applies at the next player spawn / scene load (no
+    // live mid-scene re-sync). No gameplay effect. Rows are built
+    // programmatically (no row prefab).
     public class WardrobePanelController : MonoBehaviour
     {
         [SerializeField] private GameObject _panelRoot;
         [SerializeField] private RectTransform _rowContainer;
         [SerializeField] private TextMeshProUGUI _previewLabel;
         [SerializeField] private TextMeshProUGUI _stateLabel;
+        // Optional larger preview of the currently-selected outfit.
+        [SerializeField] private Image _selectedPreviewImage;
         [SerializeField] private Button _equipButton;
         [SerializeField] private Button _backButton;
         // Provides the level count for StarRewardStore.GetTotalStars on the
         // Main Menu (where there is no LevelSessionController).
         [SerializeField] private LevelCatalog _catalog;
+        // UI-only outfit thumbnails; optional/null-safe (missing -> no image).
+        [SerializeField] private WardrobePreviewLibrary _previewLibrary;
+
+        private const float LockedPreviewAlpha = 0.4f;
 
         private readonly List<RowEntry> _rows = new List<RowEntry>();
         private string _selectedId;
@@ -35,6 +47,7 @@ namespace JebbyJump.UI
             public string Id;
             public Button Button;
             public TextMeshProUGUI Label;
+            public Image Preview;
         }
 
         private void Awake()
@@ -75,20 +88,16 @@ namespace JebbyJump.UI
             ClearRows();
             if (_rowContainer == null) return;
 
-            int totalStars = TotalStars;
             string equippedId = WardrobeUnlockService.NormalizeEquippedId(
-                WardrobeStore.GetEquippedOutfitId(), totalStars);
+                WardrobeStore.GetEquippedOutfitId(), TotalStars);
 
             _building = true;
             foreach (var def in WardrobeCatalog.Outfits)
-            {
-                var row = CreateRow(def);
-                _rows.Add(row);
-            }
+                _rows.Add(CreateRow(def));
             _selectedId = equippedId;
             _building = false;
 
-            RefreshLabels(totalStars, equippedId);
+            Refresh();
         }
 
         private RowEntry CreateRow(CosmeticItemDefinition def)
@@ -101,23 +110,42 @@ namespace JebbyJump.UI
             go.GetComponent<Image>().color = new Color(0.2f, 0.2f, 0.25f, 0.9f);
             go.GetComponent<LayoutElement>().minHeight = 64f;
 
+            // UI-only thumbnail slot on the left (clicks pass through to the
+            // row button). Hidden until a sprite is assigned in Refresh.
+            var previewGo = new GameObject(
+                "Preview",
+                typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            previewGo.transform.SetParent(go.transform, false);
+            var previewImg = previewGo.GetComponent<Image>();
+            previewImg.preserveAspect = true;
+            previewImg.raycastTarget = false;
+            previewImg.enabled = false;
+            var prt = previewGo.GetComponent<RectTransform>();
+            prt.anchorMin = new Vector2(0f, 0.5f);
+            prt.anchorMax = new Vector2(0f, 0.5f);
+            prt.pivot = new Vector2(0f, 0.5f);
+            prt.anchoredPosition = new Vector2(8f, 0f);
+            prt.sizeDelta = new Vector2(52f, 56f);
+
             var labelGo = new GameObject("Label", typeof(RectTransform));
             labelGo.transform.SetParent(go.transform, false);
             var label = labelGo.AddComponent<TextMeshProUGUI>();
             label.fontSize = 26;
             label.alignment = TextAlignmentOptions.Left;
             label.color = Color.white;
+            label.raycastTarget = false; // row button owns the clicks
             var lrt = labelGo.GetComponent<RectTransform>();
             lrt.anchorMin = Vector2.zero;
             lrt.anchorMax = Vector2.one;
-            lrt.offsetMin = new Vector2(16f, 0f);
+            lrt.offsetMin = new Vector2(72f, 0f); // clear the thumbnail
             lrt.offsetMax = new Vector2(-16f, 0f);
 
             string id = def.Id;
             var btn = go.GetComponent<Button>();
             btn.onClick.AddListener(() => OnRowClicked(id));
 
-            return new RowEntry { Id = id, Button = btn, Label = label };
+            return new RowEntry
+            { Id = id, Button = btn, Label = label, Preview = previewImg };
         }
 
         private void OnRowClicked(string id)
@@ -126,7 +154,6 @@ namespace JebbyJump.UI
             _selectedId = id;
 
             var def = WardrobeCatalog.GetById(id);
-            int totalStars = TotalStars;
             if (def != null)
             {
                 AnalyticsService.Track(AnalyticsEvents.CosmeticPreviewed,
@@ -134,14 +161,10 @@ namespace JebbyJump.UI
                     AnalyticsParam.Of(AnalyticsParams.CosmeticCategory,
                         def.Category.ToString()),
                     AnalyticsParam.Of(AnalyticsParams.RequiredStars, def.RequiredStars),
-                    AnalyticsParam.Of(AnalyticsParams.CurrentStars, totalStars));
+                    AnalyticsParam.Of(AnalyticsParams.CurrentStars, TotalStars));
             }
 
-            // Normalize like Rebuild does, so a known-but-locked stored id
-            // (e.g. after a dev Stars reset) still displays as default.
-            string equippedId = WardrobeUnlockService.NormalizeEquippedId(
-                WardrobeStore.GetEquippedOutfitId(), totalStars);
-            RefreshLabels(totalStars, equippedId);
+            Refresh();
         }
 
         private void OnEquipClicked()
@@ -167,53 +190,75 @@ namespace JebbyJump.UI
                 AnalyticsParam.Of(AnalyticsParams.CosmeticCategory,
                     def.Category.ToString()),
                 AnalyticsParam.Of(AnalyticsParams.IsOwned, true));
-            RefreshLabels(totalStars, newId);
+            Refresh();
         }
 
-        private void RefreshLabels(int totalStars, string equippedId)
+        // Renders every row + the selected-outfit details from the pure
+        // builder (single source of truth). Never emits analytics.
+        private void Refresh()
         {
+            var models = WardrobeRowModelBuilder.Build(
+                WardrobeStore.GetEquippedOutfitId(), TotalStars, _previewLibrary);
+
             for (int i = 0; i < _rows.Count; i++)
             {
-                var def = WardrobeCatalog.GetById(_rows[i].Id);
-                if (def == null || _rows[i].Label == null) continue;
-                var state = WardrobeUnlockService.GetState(
-                    def, equippedId, totalStars);
-                _rows[i].Label.text =
-                    def.DisplayName + "  -  " + StateText(def, state);
+                if (!TryGetModel(models, _rows[i].Id, out var m)) continue;
+                if (_rows[i].Label != null)
+                    _rows[i].Label.text = m.DisplayName + "  -  " + m.StateText;
+                ApplyPreview(_rows[i].Preview, m);
             }
 
-            var selected = WardrobeCatalog.GetById(_selectedId);
+            bool hasSelected = TryGetModel(models, _selectedId, out var selected);
             if (_previewLabel != null)
-            {
-                _previewLabel.text = selected != null
+                _previewLabel.text = hasSelected
                     ? "Selected: " + selected.DisplayName
                     : "Selected: --";
-            }
-            if (_stateLabel != null && selected != null)
+            if (_stateLabel != null)
+                _stateLabel.text = hasSelected ? selected.StateText : string.Empty;
+            if (_selectedPreviewImage != null)
             {
-                var sel = WardrobeUnlockService.GetState(
-                    selected, equippedId, totalStars);
-                _stateLabel.text = StateText(selected, sel);
+                if (hasSelected) ApplyPreview(_selectedPreviewImage, selected);
+                else HidePreview(_selectedPreviewImage);
             }
-
             if (_equipButton != null)
-            {
-                bool unlocked = selected != null
-                    && WardrobeUnlockService.IsUnlocked(selected, totalStars);
-                bool already = selected != null && selected.Id == equippedId;
-                _equipButton.interactable = unlocked && !already;
-            }
+                _equipButton.interactable = hasSelected && selected.CanEquip;
         }
 
-        private static string StateText(
-            CosmeticItemDefinition def, WardrobeItemState state)
+        private static bool TryGetModel(
+            IReadOnlyList<WardrobeOutfitRowModel> models, string id,
+            out WardrobeOutfitRowModel model)
         {
-            switch (state)
+            if (!string.IsNullOrEmpty(id))
             {
-                case WardrobeItemState.Equipped: return "Equipped";
-                case WardrobeItemState.Unlocked: return "Unlocked";
-                default: return "Locked (" + def.RequiredStars + " Stars)";
+                for (int i = 0; i < models.Count; i++)
+                {
+                    if (models[i].OutfitId == id)
+                    {
+                        model = models[i];
+                        return true;
+                    }
+                }
             }
+            model = default;
+            return false;
+        }
+
+        // Shows the thumbnail (dimmed when locked) or hides it when missing.
+        private static void ApplyPreview(Image img, WardrobeOutfitRowModel model)
+        {
+            if (img == null) return;
+            if (model.PreviewSprite == null) { HidePreview(img); return; }
+            img.sprite = model.PreviewSprite;
+            img.enabled = true;
+            float a = model.IsUnlocked ? 1f : LockedPreviewAlpha;
+            img.color = new Color(1f, 1f, 1f, a);
+        }
+
+        private static void HidePreview(Image img)
+        {
+            if (img == null) return;
+            img.sprite = null;
+            img.enabled = false;
         }
 
         private void ClearRows()

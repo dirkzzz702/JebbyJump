@@ -75,6 +75,16 @@ thresholds here remain STRICT PLACEHOLDERS (see section 8).
 > panel was verified already ScrollRect-based and data-driven, so 8+ rows
 > scroll without UI changes. Spawn-only apply semantics documented (no live
 > mid-scene re-sync). Manual visual QA remains DEFERRED / NOT VERIFIED.
+>
+> **P15 update (preview-card UI):** the wardrobe list now shows UI-only outfit
+> thumbnails via a NEW `WardrobePreviewLibrary` SO (separate from
+> `OutfitVisualLibrary`; each outfit's idle sprite, incl. default). A pure
+> `WardrobeRowModelBuilder` feeds per-row name/state/preview to the panel
+> (locked rows dimmed, missing previews hidden) plus a selected-outfit preview;
+> equip/select/locked behavior and copy unchanged. Previews are UI-only and
+> never affect runtime application (still at next spawn). 107/107 tests.
+> Cosmetic-only; manual visual QA of the rendered cards remains DEFERRED / NOT
+> VERIFIED.
 
 ---
 

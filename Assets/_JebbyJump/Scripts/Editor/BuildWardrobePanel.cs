@@ -1,5 +1,6 @@
 using JebbyJump.Progression;
 using JebbyJump.UI;
+using JebbyJump.Wardrobe.Visual;
 using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -235,6 +236,8 @@ public static class BuildWardrobePanel
             panel.transform.Find("EquipButton")?.GetComponent<Button>());
         Set(so, "_backButton",
             panel.transform.Find("BackButton")?.GetComponent<Button>());
+        Set(so, "_selectedPreviewImage", EnsureSelectedPreview(panel));
+        Set(so, "_previewLibrary", LoadPreviewLibrary());
         var catalogProp = so.FindProperty("_catalog");
         if (catalogProp.objectReferenceValue == null)
         {
@@ -249,6 +252,42 @@ public static class BuildWardrobePanel
     }
 
     // ---- helpers ------------------------------------------------------
+
+    // Optional larger thumbnail of the selected outfit. Created once at a
+    // conservative left-of-preview-label spot; null-safe in the controller.
+    // Exact placement/readability is part of the deferred wardrobe visual QA.
+    private static Image EnsureSelectedPreview(GameObject panel)
+    {
+        var existing = panel.transform.Find("SelectedPreview");
+        if (existing != null) return existing.GetComponent<Image>();
+
+        var go = new GameObject(
+            "SelectedPreview",
+            typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        go.transform.SetParent(panel.transform, false);
+        var img = go.GetComponent<Image>();
+        img.preserveAspect = true;
+        img.raycastTarget = false;
+        img.enabled = false; // shown only when a sprite is assigned
+        SetRect(go, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+            new Vector2(0.5f, 0.5f), new Vector2(-300f, -300f),
+            new Vector2(56f, 64f));
+        Debug.Log("[Wardrobe] Created SelectedPreview image.");
+        return img;
+    }
+
+    private static WardrobePreviewLibrary LoadPreviewLibrary()
+    {
+        const string path =
+            "Assets/_JebbyJump/Art/Characters/Jebby/Outfits/WardrobePreviewLibrary.asset";
+        var lib = AssetDatabase.LoadAssetAtPath<WardrobePreviewLibrary>(path);
+        if (lib == null)
+            Debug.LogWarning(
+                "[Wardrobe] WardrobePreviewLibrary not found; run "
+                + "'Build Wardrobe Preview Library' first. _previewLibrary "
+                + "left unwired (panel falls back to text-only rows).");
+        return lib;
+    }
 
     private static LevelCatalog FindSingleCatalog()
     {
