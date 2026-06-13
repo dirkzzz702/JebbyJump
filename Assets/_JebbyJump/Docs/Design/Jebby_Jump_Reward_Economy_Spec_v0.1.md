@@ -45,6 +45,16 @@ playtest + analytics data.
 > P8. (The rainbow-gem visual motif stays as identity art; the Rainbow Gems
 > currency stays deferred.) No reward-store/calculator/analytics/economy
 > code change.
+>
+> **P9-P16 update (wardrobe, implemented; cosmetic-only, Stars NOT consumed):**
+> the wardrobe shipped as Stars-GATED (not Stars-spent) local outfits - 8
+> outfits, ownership derived from total Stars, only the equipped id persisted.
+> P16 added a local unlock ceremony + `WardrobeUnlockAcknowledgementStore`:
+> acknowledgement records which unlock presentations were seen and is
+> explicitly **NOT ownership and NOT a currency** - it never unlocks an outfit
+> and never consumes/modifies Stars. Stars remain mastery-only (earned,
+> best-only, never spent). Spark Coins / Rainbow Gems currency / shop / ads /
+> backend remain deferred and unimplemented.
 
 ---
 

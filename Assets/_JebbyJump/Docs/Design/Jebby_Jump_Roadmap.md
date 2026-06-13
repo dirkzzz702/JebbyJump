@@ -171,7 +171,28 @@ P13 — Forest Cavalier Art Intake Prep (Mode A)        : complete-but-BLOCKED O
 P13 Mode B — Outfit Art Import + Visual Wiring (7 sets) : complete (user-provided palette-transfer PROTOTYPE art, 7 outfits x 7 states, 49/49 QA-gate PASS; sprites+clips+AnimatorOverrideControllers under Art/Characters/Jebby/Outfits/; new OutfitVisualLibrary SO wired into Jebby.prefab PlayerOutfitVisualController; WardrobeCatalog expanded 5->8 with approved rookie_page(4)/crimson_hero(12)/pastel_prince(26) PLACEHOLDER thresholds, original five untouched; equipping a non-default outfit now visibly swaps Jebby's sprites on spawn; cosmetic-only, no gameplay/economy changes; 89/89 tests; manual visual QA DEFERRED/NOT VERIFIED)
 P14 — Wardrobe Visual Expansion Stabilization          : complete (asset-integrity guardrails added: 5 editor PlayMode tests validate the REAL OutfitVisualLibrary asset (7 non-default entries, default intentionally absent), every AnimatorOverrideController's base=JebbyAnimator + 7 expected clip overrides, Jebby.prefab wiring, and end-to-end equipped-override apply through the real library; Wardrobe panel verified ALREADY structurally 8+-safe (P9 ScrollRect/Viewport/Content, data-driven rows, no fixed positions) so no UI refactor; 94/94 tests; no code/prefab/scene/art/threshold changes; manual visual QA DEFERRED/NOT VERIFIED)
 P15 — Wardrobe UI Preview Cards + 8-Outfit Selection Polish : complete (UI-only outfit thumbnails: new WardrobePreviewLibrary SO (separate from OutfitVisualLibrary; idle sprite per outfit incl. default, 8 entries, 49/49 QA still PASS) + pure WardrobeRowModelBuilder/WardrobeOutfitRowModel; WardrobePanelController now renders per-row thumbnails (locked=dimmed, missing=hidden, preserveAspect, raycastTarget off) + a selected-outfit preview, driven by the builder; equip/select/locked/analytics/normalization behavior preserved; scaffolds idempotent (BuildWardrobePreviewLibrary + BuildWardrobePanel wires _previewLibrary + SelectedPreview into MainMenu.unity, no duplicate objects); 107/107 tests; no art/Animator/WardrobeStore/UnlockService/Stars/threshold/gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED)
+P16 — Wardrobe Unlock Ceremony + New-Unlock State        : complete (local acknowledgement: new WardrobeUnlockAcknowledgementStore (per-outfit PlayerPrefs key; NOT ownership) + pure WardrobeNewUnlockService (catalog-order, excludes default/locked/acknowledged) + pure WardrobeCeremonyPresenter (queue; acknowledge only on Continue/Equip Now; failed equip stays); on Wardrobe open, newly-unlocked unacknowledged outfits present one at a time in an UnlockCeremonyOverlay (Equip Now via existing WardrobeStore path + Continue; Back disabled during ceremony; rows blocked); P15 rows gain a "New" badge (unlocked+unacknowledged); Reset Wardrobe/Everything clear acknowledgements, Reset Stars preserves them; analytics cosmetic_unlock_presented/acknowledged + cosmetic_equipped(source=unlock_ceremony), pinned; 131/131 tests; Stars never consumed, ownership still derived; no art/threshold/gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED)
 ```
+
+P16 added a local outfit unlock ceremony. New `WardrobeUnlockAcknowledgementStore`
+(per-outfit PlayerPrefs key `jebby.wardrobe.unlockAcknowledged.<id>`) records which
+unlock presentations the player has seen - this is acknowledgement, NOT ownership
+(ownership stays derived from Stars; Stars never consumed). Pure
+`WardrobeNewUnlockService` returns currently-unlocked-but-unacknowledged outfits in
+catalog order (default + locked + acknowledged excluded); pure
+`WardrobeCeremonyPresenter` queues them and acknowledges only on Continue / Equip Now
+(a failed equip leaves the queue untouched). On Wardrobe open the queued outfits are
+shown one at a time in an `UnlockCeremonyOverlay` (dim backdrop blocks the rows, Back
+disabled until Continue/Equip); Equip Now uses the existing `WardrobeStore` path
+(appearance applies at next spawn). The P15 rows gained a "New" badge for
+unlocked-unacknowledged outfits. Reset Wardrobe + Reset Everything clear
+acknowledgements (ceremonies replay for currently-eligible outfits); Reset Stars
+preserves them. Analytics: `cosmetic_unlock_presented` (on show),
+`cosmetic_unlock_acknowledged` (Continue/Equip, with `acknowledgement_action`), and
+the existing `cosmetic_equipped` with `source=unlock_ceremony`; never emitted during
+queue build / row refresh; wire names pinned. Existing players with Stars see each
+eligible ceremony once on first P16 open. 131/131 tests. No new art, no threshold/
+gameplay/economy changes. Ceremony rendered appearance is DEFERRED / NOT VERIFIED.
 
 P15 turned the text-only wardrobe into a data-driven preview-card list. A NEW
 `WardrobePreviewLibrary` ScriptableObject (kept SEPARATE from
@@ -390,6 +411,11 @@ P15 — wardrobe preview-card UI  [DEFERRED / NOT VERIFIED]
   - thumbnails/dimming/selected-preview wired + builder test-verified, but
     the RENDERED cards (thumbnail framing, locked dim, SelectedPreview
     placement, mobile readability) were never checked on screen
+
+P16 — wardrobe unlock ceremony  [DEFERRED / NOT VERIFIED]
+  - acknowledgement/queue/equip flow + analytics test-verified, but the
+    RENDERED ceremony overlay (card layout, preview, queue interaction,
+    New badge, Back-disabled behavior) was never checked on screen
 
 P4B — Manual playtest + balance tuning  [DEFERRED — awaiting tester data]
   - per-level clear-time feel, fairness, S/A/B/C threshold tuning

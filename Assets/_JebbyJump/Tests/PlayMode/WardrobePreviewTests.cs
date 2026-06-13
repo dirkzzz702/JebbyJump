@@ -161,6 +161,45 @@ namespace JebbyJump.Tests
             Assert.AreSame(s, Row(rows, "forest_cavalier").PreviewSprite);
             Assert.IsNull(Row(rows, "aqua_knight").PreviewSprite);
         }
+
+        // ---- P16 "New" badge (IsNew) ----
+
+        [Test]
+        public void Builder_IsNew_TrueForUnlockedUnacknowledgedNonDefault()
+        {
+            var rows = WardrobeRowModelBuilder.Build(
+                WardrobeCatalog.DefaultOutfitId, 8, null, _ => false);
+            Assert.IsTrue(Row(rows, "forest_cavalier").IsNew);
+        }
+
+        [Test]
+        public void Builder_IsNew_FalseForLocked()
+        {
+            var rows = WardrobeRowModelBuilder.Build(
+                WardrobeCatalog.DefaultOutfitId, 8, null, _ => false);
+            Assert.IsFalse(Row(rows, "silver_dreamer").IsNew);
+        }
+
+        [Test]
+        public void Builder_IsNew_FalseForAcknowledged()
+        {
+            var rows = WardrobeRowModelBuilder.Build(
+                WardrobeCatalog.DefaultOutfitId, 8, null,
+                id => id == "forest_cavalier");
+            Assert.IsFalse(Row(rows, "forest_cavalier").IsNew);
+        }
+
+        [Test]
+        public void Builder_IsNew_FalseForDefaultAndNullPredicate()
+        {
+            var rowsNull = WardrobeRowModelBuilder.Build(
+                WardrobeCatalog.DefaultOutfitId, 100, null);
+            foreach (var r in rowsNull) Assert.IsFalse(r.IsNew, r.OutfitId);
+
+            var rows = WardrobeRowModelBuilder.Build(
+                WardrobeCatalog.DefaultOutfitId, 100, null, _ => false);
+            Assert.IsFalse(Row(rows, WardrobeCatalog.DefaultOutfitId).IsNew);
+        }
     }
 
 #if UNITY_EDITOR

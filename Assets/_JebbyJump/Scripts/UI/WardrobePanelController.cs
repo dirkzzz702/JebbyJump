@@ -13,34 +13,44 @@ namespace JebbyJump.UI
     // Wardrobe panel: a scrollable, data-driven list of the fixed outfit
     // catalog with locked / unlocked / equipped state derived from total
     // Stars (read-only; never consumed). Each row shows a UI-only idle
-    // thumbnail (from WardrobePreviewLibrary; locked rows dimmed, missing
-    // previews hidden) plus name + state; a larger preview shows the selected
-    // outfit. Per-row view data comes from the pure WardrobeRowModelBuilder.
-    // Equipping persists only the equipped outfit id (WardrobeStore); the
-    // gameplay appearance applies at the next player spawn / scene load (no
-    // live mid-scene re-sync). No gameplay effect. Rows are built
-    // programmatically (no row prefab).
+    // thumbnail (P15) + name + state, and a "New" badge (P16) for unlocked
+    // outfits whose unlock ceremony has not been acknowledged.
+    //
+    // P16 unlock ceremony: when the panel opens, outfits newly unlocked by
+    // Stars but not yet acknowledged are presented one at a time (catalog
+    // order) in an overlay with Equip Now / Continue. Acknowledgement is
+    // persisted locally (WardrobeUnlockAcknowledgementStore) and is NOT
+    // ownership - ownership stays derived from Stars. Closing the panel
+    // mid-ceremony does NOT acknowledge. Equipping uses the existing
+    // WardrobeStore path; appearance still applies at the next player spawn.
     public class WardrobePanelController : MonoBehaviour
     {
         [SerializeField] private GameObject _panelRoot;
         [SerializeField] private RectTransform _rowContainer;
         [SerializeField] private TextMeshProUGUI _previewLabel;
         [SerializeField] private TextMeshProUGUI _stateLabel;
-        // Optional larger preview of the currently-selected outfit.
         [SerializeField] private Image _selectedPreviewImage;
         [SerializeField] private Button _equipButton;
         [SerializeField] private Button _backButton;
-        // Provides the level count for StarRewardStore.GetTotalStars on the
-        // Main Menu (where there is no LevelSessionController).
         [SerializeField] private LevelCatalog _catalog;
-        // UI-only outfit thumbnails; optional/null-safe (missing -> no image).
         [SerializeField] private WardrobePreviewLibrary _previewLibrary;
 
+        // P16 unlock-ceremony overlay (optional/null-safe).
+        [SerializeField] private GameObject _ceremonyOverlay;
+        [SerializeField] private TextMeshProUGUI _ceremonyTitle;
+        [SerializeField] private TextMeshProUGUI _ceremonyOutfitName;
+        [SerializeField] private TextMeshProUGUI _ceremonyMessage;
+        [SerializeField] private Image _ceremonyPreviewImage;
+        [SerializeField] private Button _ceremonyEquipButton;
+        [SerializeField] private Button _ceremonyContinueButton;
+
         private const float LockedPreviewAlpha = 0.4f;
+        private const string CeremonySource = "unlock_ceremony";
 
         private readonly List<RowEntry> _rows = new List<RowEntry>();
         private string _selectedId;
         private bool _building;
+        private WardrobeCeremonyPresenter _ceremony;
 
         private struct RowEntry
         {
@@ -48,15 +58,21 @@ namespace JebbyJump.UI
             public Button Button;
             public TextMeshProUGUI Label;
             public Image Preview;
+            public TextMeshProUGUI NewBadge;
         }
 
         private void Awake()
         {
             if (_panelRoot != null) _panelRoot.SetActive(false);
+            if (_ceremonyOverlay != null) _ceremonyOverlay.SetActive(false);
             if (_equipButton != null)
                 _equipButton.onClick.AddListener(OnEquipClicked);
             if (_backButton != null)
                 _backButton.onClick.AddListener(Close);
+            if (_ceremonyContinueButton != null)
+                _ceremonyContinueButton.onClick.AddListener(OnCeremonyContinue);
+            if (_ceremonyEquipButton != null)
+                _ceremonyEquipButton.onClick.AddListener(OnCeremonyEquipNow);
         }
 
         private void OnDestroy()
@@ -65,6 +81,10 @@ namespace JebbyJump.UI
                 _equipButton.onClick.RemoveListener(OnEquipClicked);
             if (_backButton != null)
                 _backButton.onClick.RemoveListener(Close);
+            if (_ceremonyContinueButton != null)
+                _ceremonyContinueButton.onClick.RemoveListener(OnCeremonyContinue);
+            if (_ceremonyEquipButton != null)
+                _ceremonyEquipButton.onClick.RemoveListener(OnCeremonyEquipNow);
             ClearRows();
         }
 
@@ -72,9 +92,12 @@ namespace JebbyJump.UI
         {
             AnalyticsService.Track(AnalyticsEvents.WardrobeOpened);
             Rebuild();
+            StartCeremonyQueue();
             if (_panelRoot != null) _panelRoot.SetActive(true);
         }
 
+        // Closing never acknowledges an in-progress ceremony; unacknowledged
+        // outfits simply re-queue on the next Open().
         public void Close()
         {
             if (_panelRoot != null) _panelRoot.SetActive(false);
@@ -110,8 +133,6 @@ namespace JebbyJump.UI
             go.GetComponent<Image>().color = new Color(0.2f, 0.2f, 0.25f, 0.9f);
             go.GetComponent<LayoutElement>().minHeight = 64f;
 
-            // UI-only thumbnail slot on the left (clicks pass through to the
-            // row button). Hidden until a sprite is assigned in Refresh.
             var previewGo = new GameObject(
                 "Preview",
                 typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
@@ -133,19 +154,40 @@ namespace JebbyJump.UI
             label.fontSize = 26;
             label.alignment = TextAlignmentOptions.Left;
             label.color = Color.white;
-            label.raycastTarget = false; // row button owns the clicks
+            label.raycastTarget = false;
             var lrt = labelGo.GetComponent<RectTransform>();
             lrt.anchorMin = Vector2.zero;
             lrt.anchorMax = Vector2.one;
-            lrt.offsetMin = new Vector2(72f, 0f); // clear the thumbnail
-            lrt.offsetMax = new Vector2(-16f, 0f);
+            lrt.offsetMin = new Vector2(72f, 0f);  // clear the thumbnail
+            lrt.offsetMax = new Vector2(-92f, 0f);  // leave room for the New badge
+
+            // "New" badge (P16), hidden unless the row model says IsNew.
+            var badgeGo = new GameObject("NewBadge", typeof(RectTransform));
+            badgeGo.transform.SetParent(go.transform, false);
+            var badge = badgeGo.AddComponent<TextMeshProUGUI>();
+            badge.text = "New";
+            badge.fontSize = 20;
+            badge.fontStyle = FontStyles.Bold;
+            badge.alignment = TextAlignmentOptions.MidlineRight;
+            badge.color = new Color(1f, 0.9f, 0.3f, 1f);
+            badge.raycastTarget = false;
+            badge.enabled = false;
+            var nrt = badgeGo.GetComponent<RectTransform>();
+            nrt.anchorMin = new Vector2(1f, 0.5f);
+            nrt.anchorMax = new Vector2(1f, 0.5f);
+            nrt.pivot = new Vector2(1f, 0.5f);
+            nrt.anchoredPosition = new Vector2(-12f, 0f);
+            nrt.sizeDelta = new Vector2(72f, 36f);
 
             string id = def.Id;
             var btn = go.GetComponent<Button>();
             btn.onClick.AddListener(() => OnRowClicked(id));
 
             return new RowEntry
-            { Id = id, Button = btn, Label = label, Preview = previewImg };
+            {
+                Id = id, Button = btn, Label = label,
+                Preview = previewImg, NewBadge = badge,
+            };
         }
 
         private void OnRowClicked(string id)
@@ -175,8 +217,6 @@ namespace JebbyJump.UI
 
             if (!WardrobeUnlockService.IsUnlocked(def, totalStars))
             {
-                // Defensive: the Equip button is disabled for locked
-                // selections, so this normally cannot fire.
                 AnalyticsService.Track(AnalyticsEvents.CosmeticUnlockFailed,
                     AnalyticsParam.Of(AnalyticsParams.CosmeticId, def.Id),
                     AnalyticsParam.Of(AnalyticsParams.RequiredStars, def.RequiredStars),
@@ -193,12 +233,11 @@ namespace JebbyJump.UI
             Refresh();
         }
 
-        // Renders every row + the selected-outfit details from the pure
-        // builder (single source of truth). Never emits analytics.
         private void Refresh()
         {
             var models = WardrobeRowModelBuilder.Build(
-                WardrobeStore.GetEquippedOutfitId(), TotalStars, _previewLibrary);
+                WardrobeStore.GetEquippedOutfitId(), TotalStars, _previewLibrary,
+                WardrobeUnlockAcknowledgementStore.IsAcknowledged);
 
             for (int i = 0; i < _rows.Count; i++)
             {
@@ -206,6 +245,7 @@ namespace JebbyJump.UI
                 if (_rows[i].Label != null)
                     _rows[i].Label.text = m.DisplayName + "  -  " + m.StateText;
                 ApplyPreview(_rows[i].Preview, m);
+                if (_rows[i].NewBadge != null) _rows[i].NewBadge.enabled = m.IsNew;
             }
 
             bool hasSelected = TryGetModel(models, _selectedId, out var selected);
@@ -223,6 +263,138 @@ namespace JebbyJump.UI
             if (_equipButton != null)
                 _equipButton.interactable = hasSelected && selected.CanEquip;
         }
+
+        // ---- P16 unlock ceremony ----
+
+        private void StartCeremonyQueue()
+        {
+            var items = WardrobeNewUnlockService.GetNewlyUnlocked(
+                TotalStars, WardrobeUnlockAcknowledgementStore.IsAcknowledged);
+            _ceremony = new WardrobeCeremonyPresenter(
+                items,
+                WardrobeUnlockAcknowledgementStore.MarkAcknowledged,
+                TryEquipFromCeremony);
+
+            if (_ceremony.IsActive) ShowCurrentCeremony();
+            else HideCeremony();
+        }
+
+        // Injected equip path. Re-checks unlock (defensive); only a successful
+        // store write returns true and emits cosmetic_equipped (source=
+        // unlock_ceremony). A failure returns false so the presenter does not
+        // acknowledge or advance.
+        private bool TryEquipFromCeremony(string id)
+        {
+            var def = WardrobeCatalog.GetById(id);
+            if (def == null || !WardrobeUnlockService.IsUnlocked(def, TotalStars))
+                return false;
+
+            string newId = WardrobeStore.SetEquippedOutfitId(id);
+            AnalyticsService.Track(AnalyticsEvents.CosmeticEquipped,
+                AnalyticsParam.Of(AnalyticsParams.CosmeticId, newId),
+                AnalyticsParam.Of(AnalyticsParams.CosmeticCategory,
+                    def.Category.ToString()),
+                AnalyticsParam.Of(AnalyticsParams.IsOwned, true),
+                AnalyticsParam.Of(AnalyticsParams.Source, CeremonySource));
+            return true;
+        }
+
+        private void ShowCurrentCeremony()
+        {
+            var def = _ceremony.Current;
+            if (def == null) { HideCeremony(); return; }
+
+            if (_ceremonyOverlay != null) _ceremonyOverlay.SetActive(true);
+            // Block exit while a ceremony is pending (acknowledge via the
+            // ceremony buttons only).
+            if (_backButton != null) _backButton.interactable = false;
+
+            if (_ceremonyTitle != null)
+                _ceremonyTitle.text = "New Outfit Unlocked!";
+            if (_ceremonyOutfitName != null)
+                _ceremonyOutfitName.text = def.DisplayName;
+            if (_ceremonyMessage != null)
+                _ceremonyMessage.text = "You reached " + def.RequiredStars + " Stars!";
+
+            Sprite preview = null;
+            if (_previewLibrary != null)
+                _previewLibrary.TryGetPreview(def.Id, out preview);
+            if (_ceremonyPreviewImage != null)
+            {
+                if (preview != null)
+                {
+                    _ceremonyPreviewImage.sprite = preview;
+                    _ceremonyPreviewImage.enabled = true;
+                    _ceremonyPreviewImage.color = Color.white;
+                }
+                else { HidePreview(_ceremonyPreviewImage); }
+            }
+            if (_ceremonyEquipButton != null)
+                _ceremonyEquipButton.interactable =
+                    WardrobeUnlockService.IsUnlocked(def, TotalStars);
+
+            AnalyticsService.Track(AnalyticsEvents.CosmeticUnlockPresented,
+                AnalyticsParam.Of(AnalyticsParams.CosmeticId, def.Id),
+                AnalyticsParam.Of(AnalyticsParams.CosmeticCategory,
+                    def.Category.ToString()),
+                AnalyticsParam.Of(AnalyticsParams.RequiredStars, def.RequiredStars),
+                AnalyticsParam.Of(AnalyticsParams.CurrentStars, TotalStars),
+                AnalyticsParam.Of(AnalyticsParams.Source, CeremonySource),
+                AnalyticsParam.Of(AnalyticsParams.QueuePosition, _ceremony.Position),
+                AnalyticsParam.Of(AnalyticsParams.QueueCount, _ceremony.Count));
+        }
+
+        private void HideCeremony()
+        {
+            if (_ceremonyOverlay != null) _ceremonyOverlay.SetActive(false);
+            if (_backButton != null) _backButton.interactable = true;
+        }
+
+        private void OnCeremonyContinue()
+        {
+            if (_ceremony == null || !_ceremony.IsActive) return;
+            var def = _ceremony.Current;
+            int pos = _ceremony.Position, count = _ceremony.Count;
+
+            _ceremony.Continue(); // acknowledges
+            EmitAcknowledged(def, pos, count, "continue");
+            AfterCeremonyAdvance();
+        }
+
+        private void OnCeremonyEquipNow()
+        {
+            if (_ceremony == null || !_ceremony.IsActive) return;
+            var def = _ceremony.Current;
+            int pos = _ceremony.Position, count = _ceremony.Count;
+
+            // EquipNow emits cosmetic_equipped (source=unlock_ceremony) via
+            // TryEquipFromCeremony on success, then acknowledges + advances.
+            if (!_ceremony.EquipNow()) return; // failed equip: no ack/advance
+            EmitAcknowledged(def, pos, count, "equip");
+            Refresh(); // reflect the new equipped state in the rows beneath
+            AfterCeremonyAdvance();
+        }
+
+        private static void EmitAcknowledged(
+            CosmeticItemDefinition def, int pos, int count, string action)
+        {
+            AnalyticsService.Track(AnalyticsEvents.CosmeticUnlockAcknowledged,
+                AnalyticsParam.Of(AnalyticsParams.CosmeticId, def.Id),
+                AnalyticsParam.Of(AnalyticsParams.CosmeticCategory,
+                    def.Category.ToString()),
+                AnalyticsParam.Of(AnalyticsParams.RequiredStars, def.RequiredStars),
+                AnalyticsParam.Of(AnalyticsParams.AcknowledgementAction, action),
+                AnalyticsParam.Of(AnalyticsParams.QueuePosition, pos),
+                AnalyticsParam.Of(AnalyticsParams.QueueCount, count));
+        }
+
+        private void AfterCeremonyAdvance()
+        {
+            if (_ceremony.IsActive) ShowCurrentCeremony();
+            else { HideCeremony(); Rebuild(); } // refresh New badges + equipped
+        }
+
+        // ---- helpers ----
 
         private static bool TryGetModel(
             IReadOnlyList<WardrobeOutfitRowModel> models, string id,
@@ -243,7 +415,6 @@ namespace JebbyJump.UI
             return false;
         }
 
-        // Shows the thumbnail (dimmed when locked) or hides it when missing.
         private static void ApplyPreview(Image img, WardrobeOutfitRowModel model)
         {
             if (img == null) return;

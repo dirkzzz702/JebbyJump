@@ -311,6 +311,7 @@ Launch target:
 | P13B  | Outfit Art Import + Visual Wiring (7 sets)       | complete (prototype art imported, 49/49 QA PASS; OutfitVisualLibrary wired into prefab; catalog 5->8 approved; outfits visibly swap; 89/89 tests) |
 | P14   | Wardrobe Visual Expansion Stabilization          | complete (5 asset-integrity tests pin the real library/AOCs/prefab wiring; panel verified already ScrollRect-based for 8+ rows, no UI change; 94/94 tests) |
 | P15   | Wardrobe UI Preview Cards + 8-Outfit Selection Polish | complete (UI-only WardrobePreviewLibrary + pure row-model builder; per-row dimmed thumbnails + selected preview; equip/select/locked behavior preserved; 107/107 tests; no art/semantic/gameplay/economy changes) |
+| P16   | Wardrobe Unlock Ceremony + New-Unlock State      | complete (local acknowledgement store + pure new-unlock service + ceremony presenter/overlay; "New" badge; Reset Wardrobe/Everything clear ack, Reset Stars preserves; analytics pinned; 131/131 tests; Stars not consumed, ownership derived; no art/gameplay/economy changes) |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -791,6 +792,51 @@ threshold, gameplay, or economy changes. Manual visual QA remains
 **DEFERRED / NOT VERIFIED**. Recommended next: P15A Wardrobe Art Visual QA
 Checklist Execution or P15B Wardrobe UI Preview Thumbnail / Outfit Card
 Polish.
+
+## P16 - Wardrobe Unlock Ceremony + New-Unlock State Foundation
+
+Status: **complete**. Adds a local, deterministic outfit unlock ceremony +
+acknowledgement state. Functionality only - no shop/currency/ads/backend/art.
+
+Data: new `WardrobeUnlockAcknowledgementStore` (Runtime, per-outfit PlayerPrefs
+key `jebby.wardrobe.unlockAcknowledged.<id>`) records which unlock presentations
+the player has seen. **Acknowledgement is NOT ownership** - ownership stays derived
+from total Stars via `WardrobeUnlockService`; Stars are never consumed. null/empty/
+unknown ids are ignored on read+write; the AlwaysUnlocked default is treated as
+acknowledged and never gets a key. Pure `WardrobeNewUnlockService` returns
+currently-unlocked-but-unacknowledged outfits in catalog order (default + locked +
+acknowledged excluded). Pure `WardrobeCeremonyPresenter` (Visual) queues them; it
+acknowledges (injected store) and equips (injected `WardrobeStore` path) **only** on
+Continue / Equip Now, and a failed equip leaves the queue untouched.
+
+UI: on Wardrobe open the queued outfits are presented one at a time in an
+`UnlockCeremonyOverlay` scaffolded into MainMenu.unity by an extended (idempotent)
+`BuildWardrobePanel` - dim backdrop blocks the rows beneath, Back is disabled until
+Continue/Equip. Equip Now uses the existing `WardrobeStore.SetEquippedOutfitId`
+(appearance applies at next spawn; no live re-sync). The P15 preview rows gained a
+"New" badge (unlocked + non-default + unacknowledged) via an optional
+`isAcknowledged` predicate on `WardrobeRowModelBuilder` (+ `IsNew` on the row model).
+Existing players with Stars see each eligible ceremony once on first P16 open.
+
+Reset (`ResetProgressTool`): Reset Wardrobe -> `WardrobeStore.Reset()` +
+`WardrobeUnlockAcknowledgementStore.ResetAll()` (ceremonies replay for currently-
+eligible outfits); Reset Everything includes it; Reset Stars preserves
+acknowledgements; new menu **Reset Wardrobe Unlock Acknowledgements**.
+
+Analytics (local, pinned): `cosmetic_unlock_presented` (once when an item is shown),
+`cosmetic_unlock_acknowledged` (Continue/Equip, distinguished by
+`acknowledgement_action`), and the existing `cosmetic_equipped` reused with
+`source=unlock_ceremony` (no separate equip event). Params add `queue_position`/
+`queue_count`. Never emitted during queue build / row refresh / scaffold.
+
+Tests: acknowledgement store, new-unlock service, ceremony presenter, IsNew badge,
+analytics wire-name pins, and a YAML scene-integrity test (one overlay + ceremony
+refs wired - read from MainMenu.unity text, no asmdef restructure). **131/131
+PlayMode tests pass**; outfit-sprite QA gate still 49/49. No changes to
+`WardrobeStore`/`WardrobeUnlockService`/`WardrobeCatalog`/`StarReward*`/
+`OutfitVisualLibrary`/`PlayerAnimator`/Jebby prefab/art/thresholds. Ceremony rendered
+appearance remains **DEFERRED / NOT VERIFIED**. Recommended next: P17B live
+mid-scene re-sync or P17A in-panel animated preview; P17E manual visual QA.
 
 ## P15 - Wardrobe UI Preview Cards + 8-Outfit Selection Polish
 

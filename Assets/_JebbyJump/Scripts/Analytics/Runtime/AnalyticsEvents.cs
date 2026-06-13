@@ -39,6 +39,10 @@ namespace JebbyJump.Analytics
         public const string CosmeticPreviewed           = "cosmetic_previewed";
         public const string CosmeticEquipped            = "cosmetic_equipped";
         public const string CosmeticUnlockFailed        = "cosmetic_unlock_failed";
+        // P16 unlock ceremony (equip from a ceremony reuses CosmeticEquipped
+        // with source=unlock_ceremony, not a separate event).
+        public const string CosmeticUnlockPresented     = "cosmetic_unlock_presented";
+        public const string CosmeticUnlockAcknowledged  = "cosmetic_unlock_acknowledged";
     }
 
     // Central catalog of analytics parameter keys. Same stability contract
@@ -77,5 +81,9 @@ namespace JebbyJump.Analytics
         public const string RequiredStars      = "required_stars";
         public const string CurrentStars       = "current_stars";
         public const string IsOwned            = "is_owned";
+        // P16 unlock ceremony.
+        public const string QueuePosition      = "queue_position";
+        public const string QueueCount         = "queue_count";
+        public const string AcknowledgementAction = "acknowledgement_action";
     }
 }

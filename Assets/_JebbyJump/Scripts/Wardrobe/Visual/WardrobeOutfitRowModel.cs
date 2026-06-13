@@ -14,11 +14,13 @@ namespace JebbyJump.Wardrobe.Visual
         public readonly bool IsEquipped;
         public readonly Sprite PreviewSprite;
         public readonly string StateText; // Equipped / Unlocked / Locked (N Stars)
+        // Unlocked, non-default, and not yet acknowledged (P16 "New" badge).
+        public readonly bool IsNew;
 
         public WardrobeOutfitRowModel(
             string outfitId, string displayName, int requiredStars,
             bool isUnlocked, bool isEquipped, Sprite previewSprite,
-            string stateText)
+            string stateText, bool isNew)
         {
             OutfitId = outfitId;
             DisplayName = displayName;
@@ -27,6 +29,7 @@ namespace JebbyJump.Wardrobe.Visual
             IsEquipped = isEquipped;
             PreviewSprite = previewSprite;
             StateText = stateText;
+            IsNew = isNew;
         }
 
         // Equip is allowed only for an unlocked outfit that is not already

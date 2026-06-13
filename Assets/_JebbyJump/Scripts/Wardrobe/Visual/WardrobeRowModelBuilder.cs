@@ -13,8 +13,10 @@ namespace JebbyJump.Wardrobe.Visual
         // equippedId is normalized here (an unknown/now-locked stored id maps
         // to the default), so callers may pass the raw stored id safely.
         // previews may be null (every row then has a null PreviewSprite).
+        // isAcknowledged (optional) drives the "New" badge: null -> never New.
         public static IReadOnlyList<WardrobeOutfitRowModel> Build(
-            string equippedId, int totalStars, WardrobePreviewLibrary previews)
+            string equippedId, int totalStars, WardrobePreviewLibrary previews,
+            System.Func<string, bool> isAcknowledged = null)
         {
             string normalizedEquipped =
                 WardrobeUnlockService.NormalizeEquippedId(equippedId, totalStars);
@@ -32,9 +34,13 @@ namespace JebbyJump.Wardrobe.Visual
                 if (previews != null)
                     previews.TryGetPreview(def.Id, out preview);
 
+                // "New" = unlocked, non-default, not yet acknowledged.
+                bool isNew = unlocked && !def.AlwaysUnlocked
+                    && isAcknowledged != null && !isAcknowledged(def.Id);
+
                 rows.Add(new WardrobeOutfitRowModel(
                     def.Id, def.DisplayName, def.RequiredStars,
-                    unlocked, equipped, preview, StateText(def, state)));
+                    unlocked, equipped, preview, StateText(def, state), isNew));
             }
             return rows;
         }

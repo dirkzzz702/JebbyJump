@@ -85,6 +85,16 @@ thresholds here remain STRICT PLACEHOLDERS (see section 8).
 > never affect runtime application (still at next spawn). 107/107 tests.
 > Cosmetic-only; manual visual QA of the rendered cards remains DEFERRED / NOT
 > VERIFIED.
+>
+> **P16 update (unlock ceremony):** on Wardrobe open, outfits newly unlocked by
+> Stars but not yet acknowledged are presented one at a time (catalog order) in
+> an overlay with Equip Now / Continue. A new `WardrobeUnlockAcknowledgementStore`
+> persists per-outfit acknowledgement locally - this is NOT ownership (ownership
+> stays derived from Stars; Stars never consumed; default excluded). The preview
+> rows gained a "New" badge. Reset Wardrobe/Everything clear acknowledgements
+> (ceremonies replay); Reset Stars preserves them. Equip Now uses the existing
+> WardrobeStore path (applies at next spawn). 131/131 tests; ceremony rendered
+> appearance remains DEFERRED / NOT VERIFIED.
 
 ---
 

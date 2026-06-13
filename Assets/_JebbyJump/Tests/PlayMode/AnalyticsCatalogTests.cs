@@ -56,6 +56,12 @@ namespace JebbyJump.Tests
             Assert.AreEqual("required_stars", AnalyticsParams.RequiredStars);
             Assert.AreEqual("current_stars", AnalyticsParams.CurrentStars);
             Assert.AreEqual("is_owned", AnalyticsParams.IsOwned);
+            // P16 unlock ceremony.
+            Assert.AreEqual("cosmetic_unlock_presented", AnalyticsEvents.CosmeticUnlockPresented);
+            Assert.AreEqual("cosmetic_unlock_acknowledged", AnalyticsEvents.CosmeticUnlockAcknowledged);
+            Assert.AreEqual("queue_position", AnalyticsParams.QueuePosition);
+            Assert.AreEqual("queue_count", AnalyticsParams.QueueCount);
+            Assert.AreEqual("acknowledgement_action", AnalyticsParams.AcknowledgementAction);
         }
 
         private static void AssertAllConstStringsSnakeCase(System.Type type)

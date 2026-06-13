@@ -238,6 +238,22 @@ public static class BuildWardrobePanel
             panel.transform.Find("BackButton")?.GetComponent<Button>());
         Set(so, "_selectedPreviewImage", EnsureSelectedPreview(panel));
         Set(so, "_previewLibrary", LoadPreviewLibrary());
+
+        // P16 unlock-ceremony overlay (kept on top so its dim backdrop blocks
+        // the rows beneath while a ceremony is showing).
+        var overlay = EnsureCeremonyOverlay(panel);
+        overlay.transform.SetAsLastSibling();
+        Set(so, "_ceremonyOverlay", overlay);
+        Set(so, "_ceremonyTitle", FindText(overlay, "CeremonyCard/Title"));
+        Set(so, "_ceremonyOutfitName", FindText(overlay, "CeremonyCard/OutfitName"));
+        Set(so, "_ceremonyMessage", FindText(overlay, "CeremonyCard/Message"));
+        Set(so, "_ceremonyPreviewImage",
+            overlay.transform.Find("CeremonyCard/PreviewImage")?.GetComponent<Image>());
+        Set(so, "_ceremonyEquipButton",
+            overlay.transform.Find("CeremonyCard/EquipNowButton")?.GetComponent<Button>());
+        Set(so, "_ceremonyContinueButton",
+            overlay.transform.Find("CeremonyCard/ContinueButton")?.GetComponent<Button>());
+
         var catalogProp = so.FindProperty("_catalog");
         if (catalogProp.objectReferenceValue == null)
         {
@@ -274,6 +290,70 @@ public static class BuildWardrobePanel
             new Vector2(56f, 64f));
         Debug.Log("[Wardrobe] Created SelectedPreview image.");
         return img;
+    }
+
+    private static TextMeshProUGUI FindText(GameObject root, string path)
+    {
+        var t = root.transform.Find(path);
+        return t != null ? t.GetComponent<TextMeshProUGUI>() : null;
+    }
+
+    // Idempotent P16 unlock-ceremony overlay: a full-screen dim backdrop
+    // (raycast-blocking) + a centered card with title / preview / name /
+    // message / Equip Now + Continue. Created inactive; reused on re-run.
+    private static GameObject EnsureCeremonyOverlay(GameObject panel)
+    {
+        var existing = panel.transform.Find("UnlockCeremonyOverlay");
+        if (existing != null) return existing.gameObject;
+
+        var c = new Vector2(0.5f, 0.5f);
+
+        var overlay = new GameObject(
+            "UnlockCeremonyOverlay",
+            typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        overlay.transform.SetParent(panel.transform, false);
+        StretchToParent(overlay.GetComponent<RectTransform>());
+        // Dim backdrop; raycastTarget defaults true -> blocks rows beneath.
+        overlay.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.85f);
+
+        var card = new GameObject(
+            "CeremonyCard",
+            typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        card.transform.SetParent(overlay.transform, false);
+        card.GetComponent<Image>().color = new Color(0.15f, 0.15f, 0.2f, 0.98f);
+        SetRect(card, c, c, c, new Vector2(0f, 0f), new Vector2(640f, 560f));
+
+        var title = CreateText(card.transform, "Title",
+            "New Outfit Unlocked!", 48, FontStyles.Bold);
+        SetRect(title, c, c, c, new Vector2(0f, 210f), new Vector2(600f, 80f));
+
+        var previewGo = new GameObject(
+            "PreviewImage",
+            typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        previewGo.transform.SetParent(card.transform, false);
+        var previewImg = previewGo.GetComponent<Image>();
+        previewImg.preserveAspect = true;
+        previewImg.raycastTarget = false;
+        previewImg.enabled = false;
+        SetRect(previewGo, c, c, c, new Vector2(0f, 40f), new Vector2(220f, 240f));
+
+        var name = CreateText(card.transform, "OutfitName", "", 36,
+            FontStyles.Bold);
+        SetRect(name, c, c, c, new Vector2(0f, -120f), new Vector2(600f, 60f));
+
+        var msg = CreateText(card.transform, "Message", "", 28,
+            FontStyles.Normal);
+        SetRect(msg, c, c, c, new Vector2(0f, -172f), new Vector2(600f, 48f));
+
+        var equip = CreateButton(card.transform, "EquipNowButton", "Equip Now");
+        SetRect(equip, c, c, c, new Vector2(-150f, -240f), new Vector2(240f, 72f));
+
+        var cont = CreateButton(card.transform, "ContinueButton", "Continue");
+        SetRect(cont, c, c, c, new Vector2(150f, -240f), new Vector2(240f, 72f));
+
+        overlay.SetActive(false);
+        Debug.Log("[Wardrobe] Created UnlockCeremonyOverlay.");
+        return overlay;
     }
 
     private static WardrobePreviewLibrary LoadPreviewLibrary()

@@ -58,7 +58,18 @@ public static class ResetProgressTool
     public static void ResetWardrobe()
     {
         WardrobeStore.Reset();
-        Debug.Log("[ResetProgress] Equipped outfit reset to default.");
+        WardrobeUnlockAcknowledgementStore.ResetAll();
+        Debug.Log("[ResetProgress] Equipped outfit reset to default; "
+            + "unlock acknowledgements cleared (ceremonies will replay for "
+            + "currently-eligible outfits).");
+    }
+
+    // Acknowledgements only - leaves equipped outfit and Stars untouched.
+    [MenuItem("Jebby Jump/Reset/Reset Wardrobe Unlock Acknowledgements")]
+    public static void ResetWardrobeUnlockAcknowledgements()
+    {
+        WardrobeUnlockAcknowledgementStore.ResetAll();
+        Debug.Log("[ResetProgress] Unlock acknowledgements cleared.");
     }
 
     [MenuItem("Jebby Jump/Reset/Reset Everything")]
