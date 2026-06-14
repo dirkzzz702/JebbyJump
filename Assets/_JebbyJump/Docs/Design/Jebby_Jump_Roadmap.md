@@ -174,6 +174,7 @@ P15 — Wardrobe UI Preview Cards + 8-Outfit Selection Polish : complete (UI-onl
 P16 — Wardrobe Unlock Ceremony + New-Unlock State        : complete (local acknowledgement: new WardrobeUnlockAcknowledgementStore (per-outfit PlayerPrefs key; NOT ownership) + pure WardrobeNewUnlockService (catalog-order, excludes default/locked/acknowledged) + pure WardrobeCeremonyPresenter (queue; acknowledge only on Continue/Equip Now; failed equip stays); on Wardrobe open, newly-unlocked unacknowledged outfits present one at a time in an UnlockCeremonyOverlay (Equip Now via existing WardrobeStore path + Continue; Back disabled during ceremony; rows blocked); P15 rows gain a "New" badge (unlocked+unacknowledged); Reset Wardrobe/Everything clear acknowledgements, Reset Stars preserves them; analytics cosmetic_unlock_presented/acknowledged + cosmetic_equipped(source=unlock_ceremony), pinned; 131/131 tests; Stars never consumed, ownership still derived; no art/threshold/gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED)
 P17 — Live Outfit Re-Sync + Default Visual Restoration   : complete (new WardrobeEquipService = single validated equip path (Success/AlreadyEquipped/UnknownOutfit/Locked) used by both the normal Equip button and the ceremony Equip Now; raises WardrobeAppearanceEvents.EquippedOutfitChanged on Success only; OutfitVisualApplier refactored to 3-arg + result enum that RESTORES the captured default JebbyAnimator when an outfit has no override (no stale overrides), NoOp on null default; PlayerOutfitVisualController captures the default in Awake, subscribes OnEnable/unsubscribes OnDisable, live re-syncs on the event, keeps the Start spawn path; missing entry/library falls back to default; animation may restart on swap (documented); 144/144 tests incl. real-library Forest->Aqua->default integration; Stars/unlocks/acknowledgements unchanged; no art/gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED. NOTE: wardrobe is Main-Menu-only today so live sync has no in-scene player yet - latent until an in-game wardrobe exists; the visible win is correct default restoration + a unified equip path)
 P18 — In-Panel Outfit Preview + Wardrobe Persistence Migration : complete (A) preview: animated UI-only pose carousel (idle->run->jump->fall->land->victory, Hurt excluded; locked dimmed) driving the existing SelectedPreview Image on unscaled time - WardrobePreviewLibrary extended to per-pose sprites (TryGetPreview still returns Idle so P15 rows/ceremony unchanged) + pure WardrobePreviewSequenceBuilder + pure WardrobePreviewPlayer (large-delta/empty/zero-dt safe); separate from the gameplay Jebby. (B) persistence: new WardrobePersistenceKeys (centralizes the existing keys + a new jebby.wardrobe.schemaVersion) + WardrobePersistenceMigrator - ONGOING equipped normalization (unknown/empty/locked->default) runs every call regardless of schema version, ONE-TIME schema stamp (current=1; absent=legacy) only when behind, future version never downgraded; corrections write via WardrobeStore so NO event/analytics fire; never touches Stars/acks/thresholds. Invoked at MainMenu init (before Continue) + defensively in Wardrobe.Open. Reset Wardrobe stamps current schema. 170/170 tests; no art/gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED)
+P19 — Wardrobe Release Hardening + Save Migration Matrix : complete (release-hardening only, no new feature, NO schema bump; future schema (>current) now READ-ONLY - MigrateIfNeeded makes no normalization/schema/Stars/ack writes, no event/analytics, returns FutureVersionUnsupported, and the game shows in-memory Classic via new read-only GetEffectiveOutfitId([stars]) used by PlayerOutfitVisualController spawn + panel display; WardrobeMigrationResult gained Status+DidWrite, schema stamped LAST for interrupt-safe recovery; new read-only WardrobeStateAuditor + WardrobeStateSnapshot read RAW PlayerPrefs/key-presence, distinguishing a missing equipped key (clean implicit Classic) from a present-empty value (repairable), future schema flagged non-repairing; editor Jebby Jump/QA/Audit Wardrobe State read-only command (null-safe); parameterized save-compatibility matrix + reset boundary + no-event/status/effective/schema-last tests + duplicate-visual-id guard; Stars/unlocks/acks unchanged; no art/gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED)
 ```
 
 P18 added (A) an in-panel outfit preview and (B) wardrobe save migration. The
@@ -196,6 +197,25 @@ at Main-Menu init (before Continue/any gameplay load) and defensively in
 Wardrobe.Open. Reset Wardrobe stamps the current schema. 170/170 tests. No new
 art, gameplay, economy, or threshold changes. Rendered preview + on-device
 migration remain DEFERRED / NOT VERIFIED.
+
+P19 hardened the wardrobe save subsystem for release (no new feature, no schema
+bump). A **future** schema (`> current`) is now **read-only**: migration makes
+no normalization/schema/Stars/acknowledgement writes, raises no event/analytics,
+and returns `FutureVersionUnsupported`; the game falls back to an **in-memory
+Classic** via the new read-only `WardrobePersistenceMigrator.GetEffectiveOutfitId`
+(Stars-free for the gameplay player at spawn; Stars-aware for the panel display),
+so the future save on disk is never rewritten. `WardrobeMigrationResult` gained
+`Status` + `DidWrite`, and the schema is stamped **last** (equipped first) for
+interrupt-safe recovery. A new read-only `WardrobeStateAuditor` +
+`WardrobeStateSnapshot` read **raw PlayerPrefs + key presence**, distinguishing a
+**missing** equipped key (clean implicit Classic) from a **present-empty** value
+(repairable under a supported schema), and mark a future schema clearly
+non-repairing; an editor-only `Jebby Jump/QA/Audit Wardrobe State` command logs
+this (read-only, null-safe). A parameterized save-compatibility matrix + reset
+boundary tests were added. Stars/unlocks/acknowledgements unchanged; ownership
+stays Stars-derived. Automated release-hardening complete; on-device migration +
+rendered QA remain DEFERRED / NOT VERIFIED. See the Wardrobe Save Compatibility
+Matrix doc.
 
 P17 added a same-scene live appearance re-sync + safe default restoration. A
 single `WardrobeEquipService.TryEquip(id, totalStars)` now backs both equip
@@ -468,6 +488,11 @@ P18 — in-panel outfit preview + persistence migration  [DEFERRED / NOT VERIFIE
   - carousel/sequence/player + migration logic test-verified, but the
     RENDERED animated preview (framing, pose timing, locked dim) and
     on-device save migration were never observed
+
+P19 — wardrobe save/release hardening  [DEFERRED / NOT VERIFIED]
+  - audit/matrix/future-read-only/reset logic test-verified, but on-device
+    upgrade/downgrade migration was never observed on a real device; the
+    editor audit command output was not manually reviewed on-device
 
 P17 — live outfit re-sync + default restoration  [DEFERRED / NOT VERIFIED]
   - equip-service/event/applier/restore logic test-verified (incl. real-

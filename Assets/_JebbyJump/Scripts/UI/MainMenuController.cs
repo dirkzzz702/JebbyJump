@@ -29,9 +29,20 @@ namespace JebbyJump.UI
             // Harden wardrobe save state once at menu entry - BEFORE Continue
             // or any gameplay scene load can apply the equipped outfit. This
             // also normalizes a now-locked/invalid equipped id to default
-            // (ongoing normalization, independent of schema version).
-            WardrobePersistenceMigrator.MigrateIfNeeded(
+            // (ongoing normalization, independent of schema version). An
+            // unsupported FUTURE save is left untouched (read-only); the game
+            // falls back to a safe in-memory Classic via
+            // WardrobePersistenceMigrator.GetEffectiveOutfitId.
+            var wardrobeMigration = WardrobePersistenceMigrator.MigrateIfNeeded(
                 _catalog != null ? StarRewardStore.GetTotalStars(_catalog.Count) : 0);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (wardrobeMigration.IsFutureVersionUnsupported)
+                Debug.LogWarning(
+                    "[MainMenu] Wardrobe save schema "
+                    + wardrobeMigration.PreviousVersion + " is newer than this "
+                    + "build (supported " + WardrobePersistenceMigrator.CurrentVersion
+                    + "). Leaving the save untouched; showing Classic in memory.");
+#endif
 
             if (_continueButton != null)
                 _continueButton.onClick.AddListener(OnContinueClicked);

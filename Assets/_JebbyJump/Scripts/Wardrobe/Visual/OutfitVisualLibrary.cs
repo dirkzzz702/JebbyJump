@@ -58,5 +58,15 @@ namespace JebbyJump.Wardrobe.Visual
             controller = null;
             return false;
         }
+
+        // Read-only view of the raw entry ids (for validation / duplicate
+        // detection in the QA audit + integrity tests). Mirrors
+        // WardrobePreviewLibrary.EntryIds.
+        public IReadOnlyList<string> EntryIds()
+        {
+            var ids = new List<string>(_entries.Count);
+            for (int i = 0; i < _entries.Count; i++) ids.Add(_entries[i].OutfitId);
+            return ids;
+        }
     }
 }

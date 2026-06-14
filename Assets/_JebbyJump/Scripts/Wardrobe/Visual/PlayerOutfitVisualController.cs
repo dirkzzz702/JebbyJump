@@ -72,9 +72,13 @@ namespace JebbyJump.Wardrobe.Visual
             ApplyOutfit(change.CurrentOutfitId);
         }
 
-        // Applies whatever outfit is currently equipped in the store.
+        // Applies whatever outfit is currently equipped. Uses the migrator's
+        // read-only "effective" id so an unsupported FUTURE save falls back to
+        // Classic in memory without rewriting the save. Stars-free (no Stars
+        // dependency here); a supported save was already lock-normalized at menu
+        // init, so the stored id is trustworthy.
         public void ApplyEquippedOutfit()
-            => ApplyOutfit(WardrobeStore.GetEquippedOutfitId());
+            => ApplyOutfit(WardrobePersistenceMigrator.GetEffectiveOutfitId());
 
         // Applies the given outfit id: assigns its override if one exists,
         // otherwise restores the captured default controller (so a previous

@@ -120,6 +120,20 @@ thresholds here remain STRICT PLACEHOLDERS (see section 8).
 > analytics. Run at Main-Menu init + Wardrobe.Open. Acknowledgement remains
 > notification state, not ownership. 170/170 tests; manual visual QA remains
 > DEFERRED / NOT VERIFIED.
+>
+> **P19 update (release hardening; no new feature, no schema bump):** the
+> migrator now treats a FUTURE schema (`> current`) as READ-ONLY - no
+> normalization, no schema write, no downgrade, no Stars/acknowledgement change,
+> no event/analytics; the game shows a safe in-memory Classic via the new
+> read-only `WardrobePersistenceMigrator.GetEffectiveOutfitId` (used by the
+> gameplay player + panel display). A new read-only `WardrobeStateAuditor` +
+> `WardrobeStateSnapshot` (raw PlayerPrefs + key presence; distinguishes a
+> missing equipped key = clean implicit Classic from a present-empty value =
+> repairable) back an editor-only `Jebby Jump/QA/Audit Wardrobe State` command
+> (logs only; never writes). A parameterized save-compatibility matrix + reset
+> boundary tests were added. Schema stays v1; ownership stays Stars-derived;
+> acknowledgement stays notification-only. See the Wardrobe Save Compatibility
+> Matrix doc. Manual visual QA remains DEFERRED / NOT VERIFIED.
 
 ---
 

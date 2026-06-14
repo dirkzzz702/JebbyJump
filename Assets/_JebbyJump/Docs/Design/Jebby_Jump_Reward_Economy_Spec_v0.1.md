@@ -62,6 +62,13 @@ playtest + analytics data.
 > grants, consumes, or modifies Stars, never marks unlock acknowledgements, and
 > never changes catalog thresholds. Ownership stays derived from Stars; Stars
 > stay mastery-only.
+>
+> **P19 update (release hardening; not economy):** added a read-only save
+> auditor, a future-version read-only policy (unsupported saves are left
+> untouched; Classic shown in memory), and a save-compatibility test matrix. No
+> economy surface: Stars are never granted/consumed/modified, thresholds are
+> unchanged, acknowledgements stay notification-only, and no schema bump. Spark
+> Coins / Rainbow Gems / shop / ads / backend remain deferred and unimplemented.
 
 ---
 

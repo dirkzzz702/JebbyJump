@@ -133,8 +133,11 @@ namespace JebbyJump.UI
             ClearRows();
             if (_rowContainer == null) return;
 
-            string equippedId = WardrobeUnlockService.NormalizeEquippedId(
-                WardrobeStore.GetEquippedOutfitId(), TotalStars);
+            // Read-only effective id: an unsupported FUTURE save shows Classic in
+            // memory without rewriting the save (Open's MigrateIfNeeded is a
+            // no-op under a future schema); a supported save is lock-normalized.
+            string equippedId =
+                WardrobePersistenceMigrator.GetEffectiveOutfitId(TotalStars);
 
             _building = true;
             foreach (var def in WardrobeCatalog.Outfits)
@@ -267,7 +270,8 @@ namespace JebbyJump.UI
         private void Refresh()
         {
             var models = WardrobeRowModelBuilder.Build(
-                WardrobeStore.GetEquippedOutfitId(), TotalStars, _previewLibrary,
+                WardrobePersistenceMigrator.GetEffectiveOutfitId(TotalStars),
+                TotalStars, _previewLibrary,
                 WardrobeUnlockAcknowledgementStore.IsAcknowledged);
 
             for (int i = 0; i < _rows.Count; i++)

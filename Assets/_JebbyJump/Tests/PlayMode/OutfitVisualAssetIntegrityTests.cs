@@ -86,6 +86,16 @@ namespace JebbyJump.Tests
                 "default outfit must stay no-op (base JebbyAnimator)");
         }
 
+        // P19: no duplicate ids in the visual library (DuplicateVisualId guard).
+        [Test]
+        public void LibraryAsset_HasNoDuplicateIds()
+        {
+            var lib = LoadLibrary();
+            var seen = new HashSet<string>();
+            foreach (var id in lib.EntryIds())
+                Assert.IsTrue(seen.Add(id), "duplicate visual library id: " + id);
+        }
+
         [Test]
         public void LibraryAsset_ControllersAreOverridesOfJebbyAnimator()
         {

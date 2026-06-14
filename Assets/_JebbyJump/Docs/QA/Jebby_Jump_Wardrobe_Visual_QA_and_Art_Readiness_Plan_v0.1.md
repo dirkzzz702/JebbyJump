@@ -422,8 +422,17 @@ P15 wardrobe preview-card UI (rendered cards) ........ DEFERRED / NOT VERIFIED
 P16 wardrobe unlock ceremony (rendered overlay) ...... DEFERRED / NOT VERIFIED
 P17 live outfit re-sync + default restoration ........ DEFERRED / NOT VERIFIED
 P18 in-panel preview carousel + save migration ....... DEFERRED / NOT VERIFIED
+P19 wardrobe save/release hardening (on-device migration) DEFERRED / NOT VERIFIED
 P4B manual playtest + balance tuning ................. DEFERRED
 ```
+
+> **P19 (automated release hardening):** the wardrobe save/migration subsystem
+> has an automated compatibility matrix, a read-only audit model + editor
+> `Jebby Jump/QA/Audit Wardrobe State` command, future-version read-only
+> handling, and reset boundary tests. This certifies the AUTOMATED layer only.
+> On-device upgrade/downgrade migration and all rendered UI/art QA remain
+> DEFERRED / NOT VERIFIED. Schema is not bumped; prototype art is not
+> final-certified.
 
 ## 22. Open questions
 
