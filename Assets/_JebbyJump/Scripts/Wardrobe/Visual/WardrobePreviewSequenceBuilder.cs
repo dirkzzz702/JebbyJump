@@ -22,6 +22,28 @@ namespace JebbyJump.Wardrobe.Visual
             (WardrobePreviewPose.Victory, 1.0f),
         };
 
+        // Reduce-motion aware: when reduceMotion is true, returns a single
+        // static Idle frame (no pose cycling, no decorative motion) so the
+        // accessibility setting freezes the carousel. Otherwise behaves exactly
+        // like the 3-arg Build.
+        public static IReadOnlyList<WardrobePreviewFrame> Build(
+            string outfitId, WardrobePreviewLibrary library, bool includeHurt,
+            bool reduceMotion)
+        {
+            if (!reduceMotion) return Build(outfitId, library, includeHurt);
+
+            var idle = new List<WardrobePreviewFrame>(1);
+            if (library != null
+                && library.TryGetPose(
+                    outfitId, WardrobePreviewPose.Idle, out Sprite sprite)
+                && sprite != null)
+            {
+                idle.Add(new WardrobePreviewFrame(
+                    WardrobePreviewPose.Idle, sprite, 1f));
+            }
+            return idle;
+        }
+
         public static IReadOnlyList<WardrobePreviewFrame> Build(
             string outfitId, WardrobePreviewLibrary library, bool includeHurt)
         {

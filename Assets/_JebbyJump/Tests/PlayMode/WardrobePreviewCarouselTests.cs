@@ -114,6 +114,40 @@ namespace JebbyJump.Tests
                 "forest_cavalier", FullLib("forest_cavalier"), includeHurt: true);
             foreach (var f in seq) Assert.Greater(f.DurationSeconds, 0f);
         }
+
+        // P20 reduce motion: a single static Idle frame, no cycling.
+        [Test]
+        public void ReduceMotion_UsesIdleOnly()
+        {
+            var seq = WardrobePreviewSequenceBuilder.Build(
+                "forest_cavalier", FullLib("forest_cavalier"),
+                includeHurt: false, reduceMotion: true);
+            Assert.AreEqual(1, seq.Count);
+            Assert.AreEqual(WardrobePreviewPose.Idle, seq[0].Pose);
+        }
+
+        [Test]
+        public void ReduceMotion_Off_MatchesFullSequence()
+        {
+            var lib = FullLib("forest_cavalier");
+            var off = WardrobePreviewSequenceBuilder.Build(
+                "forest_cavalier", lib, includeHurt: false, reduceMotion: false);
+            var plain = WardrobePreviewSequenceBuilder.Build(
+                "forest_cavalier", lib, includeHurt: false);
+            Assert.AreEqual(plain.Count, off.Count);
+            Assert.Greater(off.Count, 1);
+        }
+
+        [Test]
+        public void ReduceMotion_NoIdleSprite_IsEmpty()
+        {
+            var l = ScriptableObject.CreateInstance<WardrobePreviewLibrary>();
+            _temp.Add(l);
+            l.AddEntry("forest_cavalier", null, S(), S(), S(), S(), S(), S());
+            var seq = WardrobePreviewSequenceBuilder.Build(
+                "forest_cavalier", l, includeHurt: false, reduceMotion: true);
+            Assert.AreEqual(0, seq.Count);
+        }
     }
 
     public class WardrobePreviewPlayerTests

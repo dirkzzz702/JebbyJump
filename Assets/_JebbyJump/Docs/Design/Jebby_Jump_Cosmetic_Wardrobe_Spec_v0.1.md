@@ -134,6 +134,19 @@ thresholds here remain STRICT PLACEHOLDERS (see section 8).
 > boundary tests were added. Schema stays v1; ownership stays Stars-derived;
 > acknowledgement stays notification-only. See the Wardrobe Save Compatibility
 > Matrix doc. Manual visual QA remains DEFERRED / NOT VERIFIED.
+>
+> **P20 update (accessibility + mobile/landscape hardening; no new feature):**
+> the game is **landscape-only** (confirmed; ProjectSettings locked, earlier
+> "portrait" notes below are superseded). Added a safe-area-fitted content root +
+> a pure responsive region layout (with a compact variant for short landscape
+> screens, validated across 16:9/18:9/19.5:9/20:9/4:3 × notch shapes), 90-unit
+> touch targets, deterministic keyboard/gamepad navigation + a real ceremony
+> focus trap + scroll-focused-row-into-view, a structural Selected marker
+> (non-color-only), and a Reduce Motion setting (`jebby.settings.reduceMotion`,
+> default off; toggle in Main Menu + Pause) that freezes the preview to Idle.
+> No outfit/reward/migration/gameplay/economy/art semantic changes; reuses
+> `settings_changed`. See the Wardrobe Accessibility & Mobile UI Checklist.
+> Rendered/on-device QA remains DEFERRED / NOT VERIFIED.
 
 ---
 
@@ -319,7 +332,7 @@ ad-gated pressure.
 
 ```text
 entry point: a Wardrobe button on Main Menu (future)
-layout: preview pane + scrollable outfit list, mobile portrait first
+layout: preview pane + scrollable outfit list, mobile LANDSCAPE (confirmed P20)
 honest lock/requirement display; obvious equipped indicator
 Back returns to Main Menu; Equip applies an owned outfit
 no shop framing, no currency balance header (none exists)

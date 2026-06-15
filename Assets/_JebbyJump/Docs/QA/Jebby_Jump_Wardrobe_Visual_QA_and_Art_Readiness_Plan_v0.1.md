@@ -423,6 +423,7 @@ P16 wardrobe unlock ceremony (rendered overlay) ...... DEFERRED / NOT VERIFIED
 P17 live outfit re-sync + default restoration ........ DEFERRED / NOT VERIFIED
 P18 in-panel preview carousel + save migration ....... DEFERRED / NOT VERIFIED
 P19 wardrobe save/release hardening (on-device migration) DEFERRED / NOT VERIFIED
+P20 wardrobe accessibility/mobile-device verification  DEFERRED / NOT VERIFIED
 P4B manual playtest + balance tuning ................. DEFERRED
 ```
 
@@ -433,6 +434,17 @@ P4B manual playtest + balance tuning ................. DEFERRED
 > On-device upgrade/downgrade migration and all rendered UI/art QA remain
 > DEFERRED / NOT VERIFIED. Schema is not bumped; prototype art is not
 > final-certified.
+>
+> **P20 (automated accessibility/mobile hardening):** the game is **landscape-
+> only** (confirmed; the "portrait" references above are superseded). Added
+> safe-area fitting, a pure responsive region layout + compact variant validated
+> across all approved landscape aspect ratios + notch shapes, 90-unit touch
+> targets, deterministic keyboard/gamepad navigation + ceremony focus trap +
+> scroll-into-view, non-color-only state markers, and a Reduce Motion setting.
+> Certifies the AUTOMATED structural layer only. Rendered layout on real devices,
+> notch handling, touch comfort, contrast, gamepad/screen-reader UX remain
+> DEFERRED / NOT VERIFIED. No gameplay/economy changes; prototype art not
+> final-certified. See the Wardrobe Accessibility & Mobile UI Checklist.
 
 ## 22. Open questions
 

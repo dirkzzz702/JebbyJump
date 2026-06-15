@@ -21,6 +21,7 @@ namespace JebbyJump.UI
         [SerializeField] private Slider _musicSlider;
         [SerializeField] private Slider _sfxSlider;
         [SerializeField] private Toggle _muteToggle;
+        [SerializeField] private Toggle _reduceMotionToggle;
         [SerializeField] private Button _backButton;
         [SerializeField] private Button _resetButton;
         [SerializeField] private AudioSettingsApplier _applier;
@@ -38,6 +39,8 @@ namespace JebbyJump.UI
                 _sfxSlider.onValueChanged.AddListener(OnSfxChanged);
             if (_muteToggle != null)
                 _muteToggle.onValueChanged.AddListener(OnMuteChanged);
+            if (_reduceMotionToggle != null)
+                _reduceMotionToggle.onValueChanged.AddListener(OnReduceMotionChanged);
             if (_backButton != null)
                 _backButton.onClick.AddListener(Close);
             if (_resetButton != null)
@@ -52,6 +55,8 @@ namespace JebbyJump.UI
                 _sfxSlider.onValueChanged.RemoveListener(OnSfxChanged);
             if (_muteToggle != null)
                 _muteToggle.onValueChanged.RemoveListener(OnMuteChanged);
+            if (_reduceMotionToggle != null)
+                _reduceMotionToggle.onValueChanged.RemoveListener(OnReduceMotionChanged);
             if (_backButton != null)
                 _backButton.onClick.RemoveListener(Close);
             if (_resetButton != null)
@@ -93,6 +98,8 @@ namespace JebbyJump.UI
                 _sfxSlider.value = AudioSettingsStore.SfxVolume;
             if (_muteToggle != null)
                 _muteToggle.isOn = AudioSettingsStore.Muted;
+            if (_reduceMotionToggle != null)
+                _reduceMotionToggle.isOn = AccessibilitySettingsStore.ReduceMotion;
             _initializing = false;
         }
 
@@ -126,9 +133,22 @@ namespace JebbyJump.UI
                 AnalyticsParam.Of(AnalyticsParams.Value, value));
         }
 
+        // Reduce Motion (P20 accessibility): cosmetic UI motion only - it never
+        // touches gameplay movement/timers/physics. Reuses the generic
+        // settings_changed analytic (no new event).
+        private void OnReduceMotionChanged(bool value)
+        {
+            if (_initializing) return;
+            AccessibilitySettingsStore.ReduceMotion = value;
+            AnalyticsService.Track(AnalyticsEvents.SettingsChanged,
+                AnalyticsParam.Of(AnalyticsParams.SettingName, "reduce_motion"),
+                AnalyticsParam.Of(AnalyticsParams.Value, value));
+        }
+
         private void OnResetClicked()
         {
             AudioSettingsStore.ResetToDefaults();
+            AccessibilitySettingsStore.ResetToDefaults();
             PopulateFromStore();
             _applier?.ApplyAll();
             AnalyticsService.Track(AnalyticsEvents.SettingsChanged,

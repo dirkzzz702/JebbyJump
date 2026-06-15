@@ -69,6 +69,11 @@ playtest + analytics data.
 > economy surface: Stars are never granted/consumed/modified, thresholds are
 > unchanged, acknowledgements stay notification-only, and no schema bump. Spark
 > Coins / Rainbow Gems / shop / ads / backend remain deferred and unimplemented.
+>
+> **P20 update (accessibility/mobile; not economy):** wardrobe landscape/mobile
+> hardening + a Reduce Motion accessibility setting. No economy surface: Stars
+> never granted/consumed/modified, thresholds unchanged, no currency/shop/ads/
+> backend. Reduce Motion reuses the existing `settings_changed` analytic.
 
 ---
 

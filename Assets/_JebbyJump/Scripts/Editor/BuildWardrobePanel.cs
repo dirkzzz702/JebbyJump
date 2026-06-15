@@ -8,12 +8,12 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-// Idempotent scaffold: adds a Wardrobe button + text-only WardrobePanel to
-// MainMenu.unity and wires MainMenuController + WardrobePanelController.
-// Clones the Start button for the new menu button and restacks the five
-// menu buttons (Continue / Level Select / Settings / Wardrobe / Quit).
-// Re-runs reuse existing objects; nothing is duplicated. Run this AFTER
-// "Build Settings Panel" - it owns the final 5-button stack layout.
+// Idempotent scaffold: adds a Wardrobe button + WardrobePanel to MainMenu.unity
+// and wires MainMenuController + WardrobePanelController. P20 adds a
+// safe-area-fitted content root + responsive region containers
+// (Header/List/Preview/Action) the controller positions at runtime, and a
+// safe-area-fitted ceremony card. Re-runs reuse + migrate existing objects;
+// nothing is duplicated. Run AFTER "Build Settings Panel".
 public static class BuildWardrobePanel
 {
     private const string MainMenuScenePath =
@@ -72,7 +72,6 @@ public static class BuildWardrobePanel
         SetY(settingsButton, x, SettingsY);
         SetY(wardrobeButton, x, WardrobeY);
         SetY(quitButton, x, QuitY);
-        // Order Wardrobe between Settings and Quit in sibling order.
         if (quitButton != null)
             wardrobeButton.transform.SetSiblingIndex(
                 quitButton.transform.GetSiblingIndex());
@@ -100,8 +99,7 @@ public static class BuildWardrobePanel
                 .objectReferenceValue != null;
         Debug.Log(
             "[Wardrobe] Scaffolded WardrobeButton + WardrobePanel "
-            + "(5-button stack Continue/Level Select/Settings/Wardrobe/Quit). "
-            + "_catalog wired: " + catalogWired);
+            + "(safe-area + responsive regions). _catalog wired: " + catalogWired);
     }
 
     private static Button EnsureWardrobeButton(
@@ -125,100 +123,167 @@ public static class BuildWardrobePanel
         var existingCtrl =
             Object.FindFirstObjectByType<WardrobePanelController>(
                 FindObjectsInactive.Include);
+        GameObject panelGO;
         if (existingCtrl != null)
         {
-            WirePanel(existingCtrl);
-            existingCtrl.gameObject.SetActive(false);
-            return existingCtrl;
+            panelGO = existingCtrl.gameObject;
+        }
+        else
+        {
+            panelGO = new GameObject(
+                "WardrobePanel",
+                typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            panelGO.transform.SetParent(canvas.transform, false);
+            StretchToParent(panelGO.GetComponent<RectTransform>());
+            panelGO.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.85f);
+            Debug.Log("[Wardrobe] Created WardrobePanel.");
         }
 
-        var panelGO = new GameObject(
-            "WardrobePanel",
-            typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-        panelGO.transform.SetParent(canvas.transform, false);
-        StretchToParent(panelGO.GetComponent<RectTransform>());
-        panelGO.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.85f);
+        BuildStructure(panelGO);
 
-        var title = CreateText(panelGO.transform, "Title", "Wardrobe", 60,
-            FontStyles.Bold);
-        SetRect(title, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-            new Vector2(0.5f, 1f), new Vector2(0f, -40f),
-            new Vector2(600f, 80f));
-
-        // Scrollable outfit-row container.
-        var scrollGO = new GameObject(
-            "ScrollView", typeof(RectTransform), typeof(CanvasRenderer),
-            typeof(Image), typeof(ScrollRect));
-        scrollGO.transform.SetParent(panelGO.transform, false);
-        var scrollRT = scrollGO.GetComponent<RectTransform>();
-        scrollRT.anchorMin = new Vector2(0.5f, 0.5f);
-        scrollRT.anchorMax = new Vector2(0.5f, 0.5f);
-        scrollRT.pivot = new Vector2(0.5f, 0.5f);
-        scrollRT.anchoredPosition = new Vector2(0f, 20f);
-        scrollRT.sizeDelta = new Vector2(720f, 520f);
-        scrollGO.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.04f);
-
-        var viewportGO = new GameObject(
-            "Viewport", typeof(RectTransform), typeof(CanvasRenderer),
-            typeof(Image), typeof(Mask));
-        viewportGO.transform.SetParent(scrollGO.transform, false);
-        StretchToParent(viewportGO.GetComponent<RectTransform>());
-        viewportGO.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.02f);
-        viewportGO.GetComponent<Mask>().showMaskGraphic = false;
-
-        var content = new GameObject(
-            "Content", typeof(RectTransform), typeof(VerticalLayoutGroup),
-            typeof(ContentSizeFitter));
-        content.transform.SetParent(viewportGO.transform, false);
-        var contentRT = content.GetComponent<RectTransform>();
-        contentRT.anchorMin = new Vector2(0f, 1f);
-        contentRT.anchorMax = new Vector2(1f, 1f);
-        contentRT.pivot = new Vector2(0.5f, 1f);
-        contentRT.anchoredPosition = Vector2.zero;
-        contentRT.sizeDelta = Vector2.zero;
-        var vlg = content.GetComponent<VerticalLayoutGroup>();
-        vlg.spacing = 12f;
-        vlg.padding = new RectOffset(12, 12, 12, 12);
-        vlg.childControlWidth = true;
-        vlg.childControlHeight = true;
-        vlg.childForceExpandWidth = true;
-        vlg.childForceExpandHeight = false;
-        var fitter = content.GetComponent<ContentSizeFitter>();
-        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-
-        var scroll = scrollGO.GetComponent<ScrollRect>();
-        scroll.content = contentRT;
-        scroll.viewport = viewportGO.GetComponent<RectTransform>();
-        scroll.horizontal = false;
-        scroll.vertical = true;
-
-        var preview = CreateText(panelGO.transform, "PreviewLabel",
-            "Selected: --", 30, FontStyles.Bold);
-        SetRect(preview, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-            new Vector2(0.5f, 0.5f), new Vector2(0f, -300f),
-            new Vector2(700f, 40f));
-
-        var stateLbl = CreateText(panelGO.transform, "StateLabel", "", 24,
-            FontStyles.Normal);
-        SetRect(stateLbl, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-            new Vector2(0.5f, 0.5f), new Vector2(0f, -336f),
-            new Vector2(700f, 32f));
-
-        var equip = CreateButton(panelGO.transform, "EquipButton", "Equip");
-        SetRect(equip, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
-            new Vector2(0.5f, 0f), new Vector2(-110f, 60f),
-            new Vector2(180f, 72f));
-
-        var back = CreateButton(panelGO.transform, "BackButton", "Back");
-        SetRect(back, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
-            new Vector2(0.5f, 0f), new Vector2(110f, 60f),
-            new Vector2(180f, 72f));
-
-        var controller = panelGO.AddComponent<WardrobePanelController>();
+        var controller = panelGO.GetComponent<WardrobePanelController>()
+            ?? panelGO.AddComponent<WardrobePanelController>();
         WirePanel(controller);
         panelGO.SetActive(false);
-        Debug.Log("[Wardrobe] Created WardrobePanel.");
         return controller;
+    }
+
+    // Idempotently ensures the safe-area root + 4 responsive region containers,
+    // migrating any pre-P20 children into the right region. Region rects are
+    // seeded for 1920x1080 (the controller re-applies per device at runtime).
+    private static void BuildStructure(GameObject panelGO)
+    {
+        Transform safeArea = EnsureSafeArea(panelGO).transform;
+
+        var header = EnsureRegion(safeArea, "HeaderRegion");
+        var list = EnsureRegion(safeArea, "ListRegion");
+        var preview = EnsureRegion(safeArea, "PreviewRegion");
+        var action = EnsureRegion(safeArea, "ActionRegion");
+
+        var layout = WardrobeResponsiveLayout.Compute(new Vector2(1920f, 1080f));
+        SetRegionRect(header, layout.Header);
+        SetRegionRect(list, layout.List);
+        SetRegionRect(preview, layout.Preview);
+        SetRegionRect(action, layout.Actions);
+
+        Transform panel = panelGO.transform;
+
+        // Header: Title fills the region.
+        var title = EnsureText(panel, header, "Title", "Wardrobe", 60, FontStyles.Bold);
+        Fill(title.GetComponent<RectTransform>());
+
+        // List: ScrollView (+ Viewport + Content) fills the region.
+        EnsureScrollView(panel, list);
+
+        // Preview: large preview image (top) + selected/state labels (below).
+        var selPreview = EnsureSelectedPreview(panel, preview);
+        SetAnchored(selPreview.GetComponent<RectTransform>(),
+            new Vector2(0.05f, 0.4f), new Vector2(0.95f, 1f));
+        var prevLabel = EnsureText(
+            panel, preview, "PreviewLabel", "Selected: --", 30, FontStyles.Bold);
+        SetAnchored(prevLabel.GetComponent<RectTransform>(),
+            new Vector2(0.02f, 0.2f), new Vector2(0.98f, 0.38f));
+        var stateLbl = EnsureText(
+            panel, preview, "StateLabel", "", 24, FontStyles.Normal);
+        SetAnchored(stateLbl.GetComponent<RectTransform>(),
+            new Vector2(0.02f, 0.02f), new Vector2(0.98f, 0.18f));
+
+        // Action: Equip + Back side by side, centered, metrics-sized.
+        var equip = EnsureButton(panel, action, "EquipButton", "Equip");
+        SetButton(equip.GetComponent<RectTransform>(), new Vector2(1f, 0.5f),
+            new Vector2(-12f, 0f));
+        var back = EnsureButton(panel, action, "BackButton", "Back");
+        SetButton(back.GetComponent<RectTransform>(), new Vector2(0f, 0.5f),
+            new Vector2(12f, 0f));
+
+        EnsureCeremonyOverlay(panelGO);
+    }
+
+    private static SafeAreaFitter EnsureSafeArea(GameObject panelGO)
+    {
+        var existing = panelGO.transform.Find("SafeArea");
+        GameObject safeGO;
+        if (existing != null) safeGO = existing.gameObject;
+        else
+        {
+            safeGO = new GameObject("SafeArea", typeof(RectTransform));
+            safeGO.transform.SetParent(panelGO.transform, false);
+            StretchToParent(safeGO.GetComponent<RectTransform>());
+            // Keep the safe-area root above the dim backdrop, below the overlay.
+            safeGO.transform.SetSiblingIndex(0);
+            Debug.Log("[Wardrobe] Created SafeArea content root.");
+        }
+        var fitter = safeGO.GetComponent<SafeAreaFitter>()
+            ?? safeGO.AddComponent<SafeAreaFitter>();
+        var so = new SerializedObject(fitter);
+        so.FindProperty("_target").objectReferenceValue =
+            safeGO.GetComponent<RectTransform>();
+        so.ApplyModifiedPropertiesWithoutUndo();
+        return fitter;
+    }
+
+    private static RectTransform EnsureRegion(Transform parent, string name)
+    {
+        var existing = parent.Find(name);
+        if (existing != null) return existing as RectTransform;
+        var go = new GameObject(name, typeof(RectTransform));
+        go.transform.SetParent(parent, false);
+        return go.GetComponent<RectTransform>();
+    }
+
+    private static void EnsureScrollView(Transform panel, Transform listRegion)
+    {
+        var existing = FindDeep(panel, "ScrollView");
+        GameObject scrollGO;
+        if (existing != null)
+        {
+            scrollGO = existing.gameObject;
+            scrollGO.transform.SetParent(listRegion, false);
+        }
+        else
+        {
+            scrollGO = new GameObject(
+                "ScrollView", typeof(RectTransform), typeof(CanvasRenderer),
+                typeof(Image), typeof(ScrollRect));
+            scrollGO.transform.SetParent(listRegion, false);
+            scrollGO.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.04f);
+
+            var viewportGO = new GameObject(
+                "Viewport", typeof(RectTransform), typeof(CanvasRenderer),
+                typeof(Image), typeof(Mask));
+            viewportGO.transform.SetParent(scrollGO.transform, false);
+            StretchToParent(viewportGO.GetComponent<RectTransform>());
+            viewportGO.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.02f);
+            viewportGO.GetComponent<Mask>().showMaskGraphic = false;
+
+            var content = new GameObject(
+                "Content", typeof(RectTransform), typeof(VerticalLayoutGroup),
+                typeof(ContentSizeFitter));
+            content.transform.SetParent(viewportGO.transform, false);
+            var contentRT = content.GetComponent<RectTransform>();
+            contentRT.anchorMin = new Vector2(0f, 1f);
+            contentRT.anchorMax = new Vector2(1f, 1f);
+            contentRT.pivot = new Vector2(0.5f, 1f);
+            contentRT.anchoredPosition = Vector2.zero;
+            contentRT.sizeDelta = Vector2.zero;
+            var vlg = content.GetComponent<VerticalLayoutGroup>();
+            vlg.spacing = WardrobeLayoutMetrics.RowSpacing;
+            int p = (int)WardrobeLayoutMetrics.ListPadding;
+            vlg.padding = new RectOffset(p, p, p, p);
+            vlg.childControlWidth = true;
+            vlg.childControlHeight = true;
+            vlg.childForceExpandWidth = true;
+            vlg.childForceExpandHeight = false;
+            var fitter = content.GetComponent<ContentSizeFitter>();
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            var scroll = scrollGO.GetComponent<ScrollRect>();
+            scroll.content = contentRT;
+            scroll.viewport = viewportGO.GetComponent<RectTransform>();
+            scroll.horizontal = false;
+            scroll.vertical = true;
+        }
+        Fill(scrollGO.GetComponent<RectTransform>());
     }
 
     private static void WirePanel(WardrobePanelController ctrl)
@@ -226,33 +291,39 @@ public static class BuildWardrobePanel
         var panel = ctrl.gameObject;
         var so = new SerializedObject(ctrl);
         Set(so, "_panelRoot", panel);
-        Set(so, "_rowContainer",
-            panel.transform.Find("ScrollView/Viewport/Content") as RectTransform);
-        Set(so, "_previewLabel",
-            panel.transform.Find("PreviewLabel")?.GetComponent<TextMeshProUGUI>());
-        Set(so, "_stateLabel",
-            panel.transform.Find("StateLabel")?.GetComponent<TextMeshProUGUI>());
-        Set(so, "_equipButton",
-            panel.transform.Find("EquipButton")?.GetComponent<Button>());
-        Set(so, "_backButton",
-            panel.transform.Find("BackButton")?.GetComponent<Button>());
-        Set(so, "_selectedPreviewImage", EnsureSelectedPreview(panel));
+
+        var safeArea = panel.transform.Find("SafeArea");
+        Set(so, "_safeAreaRoot", safeArea as RectTransform);
+        Set(so, "_headerRegion", safeArea?.Find("HeaderRegion") as RectTransform);
+        Set(so, "_listRegion", safeArea?.Find("ListRegion") as RectTransform);
+        Set(so, "_previewRegion", safeArea?.Find("PreviewRegion") as RectTransform);
+        Set(so, "_actionRegion", safeArea?.Find("ActionRegion") as RectTransform);
+
+        var scroll = FindDeep(panel.transform, "ScrollView");
+        Set(so, "_scrollRect", scroll?.GetComponent<ScrollRect>());
+        Set(so, "_rowContainer", FindDeep(panel.transform, "Content") as RectTransform);
+        Set(so, "_previewLabel", FindText(panel, "PreviewLabel"));
+        Set(so, "_stateLabel", FindText(panel, "StateLabel"));
+        Set(so, "_equipButton", FindDeep(panel.transform, "EquipButton")?.GetComponent<Button>());
+        Set(so, "_backButton", FindDeep(panel.transform, "BackButton")?.GetComponent<Button>());
+        Set(so, "_selectedPreviewImage",
+            FindDeep(panel.transform, "SelectedPreview")?.GetComponent<Image>());
         Set(so, "_previewLibrary", LoadPreviewLibrary());
 
-        // P16 unlock-ceremony overlay (kept on top so its dim backdrop blocks
-        // the rows beneath while a ceremony is showing).
-        var overlay = EnsureCeremonyOverlay(panel);
-        overlay.transform.SetAsLastSibling();
+        var overlay = panel.transform.Find("UnlockCeremonyOverlay")?.gameObject;
         Set(so, "_ceremonyOverlay", overlay);
-        Set(so, "_ceremonyTitle", FindText(overlay, "CeremonyCard/Title"));
-        Set(so, "_ceremonyOutfitName", FindText(overlay, "CeremonyCard/OutfitName"));
-        Set(so, "_ceremonyMessage", FindText(overlay, "CeremonyCard/Message"));
-        Set(so, "_ceremonyPreviewImage",
-            overlay.transform.Find("CeremonyCard/PreviewImage")?.GetComponent<Image>());
-        Set(so, "_ceremonyEquipButton",
-            overlay.transform.Find("CeremonyCard/EquipNowButton")?.GetComponent<Button>());
-        Set(so, "_ceremonyContinueButton",
-            overlay.transform.Find("CeremonyCard/ContinueButton")?.GetComponent<Button>());
+        if (overlay != null)
+        {
+            Set(so, "_ceremonyTitle", FindText(overlay, "CeremonySafeArea/CeremonyCard/Title"));
+            Set(so, "_ceremonyOutfitName", FindText(overlay, "CeremonySafeArea/CeremonyCard/OutfitName"));
+            Set(so, "_ceremonyMessage", FindText(overlay, "CeremonySafeArea/CeremonyCard/Message"));
+            Set(so, "_ceremonyPreviewImage",
+                FindDeep(overlay.transform, "PreviewImage")?.GetComponent<Image>());
+            Set(so, "_ceremonyEquipButton",
+                FindDeep(overlay.transform, "EquipNowButton")?.GetComponent<Button>());
+            Set(so, "_ceremonyContinueButton",
+                FindDeep(overlay.transform, "ContinueButton")?.GetComponent<Button>());
+        }
 
         var catalogProp = so.FindProperty("_catalog");
         if (catalogProp.objectReferenceValue == null)
@@ -269,91 +340,123 @@ public static class BuildWardrobePanel
 
     // ---- helpers ------------------------------------------------------
 
-    // Optional larger thumbnail of the selected outfit. Created once at a
-    // conservative left-of-preview-label spot; null-safe in the controller.
-    // Exact placement/readability is part of the deferred wardrobe visual QA.
-    private static Image EnsureSelectedPreview(GameObject panel)
+    private static GameObject EnsureSelectedPreview(Transform panel, Transform parent)
     {
-        var existing = panel.transform.Find("SelectedPreview");
-        if (existing != null) return existing.GetComponent<Image>();
-
+        var existing = FindDeep(panel, "SelectedPreview");
+        if (existing != null)
+        {
+            existing.SetParent(parent, false);
+            return existing.gameObject;
+        }
         var go = new GameObject(
             "SelectedPreview",
             typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-        go.transform.SetParent(panel.transform, false);
+        go.transform.SetParent(parent, false);
         var img = go.GetComponent<Image>();
         img.preserveAspect = true;
         img.raycastTarget = false;
-        img.enabled = false; // shown only when a sprite is assigned
-        SetRect(go, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-            new Vector2(0.5f, 0.5f), new Vector2(-300f, -300f),
-            new Vector2(56f, 64f));
+        img.enabled = false;
         Debug.Log("[Wardrobe] Created SelectedPreview image.");
-        return img;
+        return go;
     }
 
     private static TextMeshProUGUI FindText(GameObject root, string path)
     {
         var t = root.transform.Find(path);
-        return t != null ? t.GetComponent<TextMeshProUGUI>() : null;
+        if (t != null) return t.GetComponent<TextMeshProUGUI>();
+        // fallback: search by leaf name
+        string leaf = path.Contains("/") ? path.Substring(path.LastIndexOf('/') + 1) : path;
+        var deep = FindDeep(root.transform, leaf);
+        return deep != null ? deep.GetComponent<TextMeshProUGUI>() : null;
     }
 
-    // Idempotent P16 unlock-ceremony overlay: a full-screen dim backdrop
-    // (raycast-blocking) + a centered card with title / preview / name /
-    // message / Equip Now + Continue. Created inactive; reused on re-run.
-    private static GameObject EnsureCeremonyOverlay(GameObject panel)
+    // Full-screen dim ceremony backdrop (raycast block) + a safe-area-fitted
+    // root holding the centered card with title / preview / name / message /
+    // Equip Now + Continue. Idempotent: reuses + migrates the existing card.
+    private static void EnsureCeremonyOverlay(GameObject panel)
     {
         var existing = panel.transform.Find("UnlockCeremonyOverlay");
-        if (existing != null) return existing.gameObject;
+        GameObject overlay;
+        if (existing != null) overlay = existing.gameObject;
+        else
+        {
+            overlay = new GameObject(
+                "UnlockCeremonyOverlay",
+                typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            overlay.transform.SetParent(panel.transform, false);
+            StretchToParent(overlay.GetComponent<RectTransform>());
+            overlay.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.85f);
+            Debug.Log("[Wardrobe] Created UnlockCeremonyOverlay.");
+        }
+        overlay.transform.SetAsLastSibling(); // above the SafeArea content
+
+        // Safe-area-fitted root for the card (backdrop stays full-screen).
+        var safeExisting = overlay.transform.Find("CeremonySafeArea");
+        GameObject safeGO;
+        if (safeExisting != null) safeGO = safeExisting.gameObject;
+        else
+        {
+            safeGO = new GameObject("CeremonySafeArea", typeof(RectTransform));
+            safeGO.transform.SetParent(overlay.transform, false);
+            StretchToParent(safeGO.GetComponent<RectTransform>());
+            Debug.Log("[Wardrobe] Created CeremonySafeArea.");
+        }
+        var fitter = safeGO.GetComponent<SafeAreaFitter>()
+            ?? safeGO.AddComponent<SafeAreaFitter>();
+        var fso = new SerializedObject(fitter);
+        fso.FindProperty("_target").objectReferenceValue =
+            safeGO.GetComponent<RectTransform>();
+        fso.ApplyModifiedPropertiesWithoutUndo();
 
         var c = new Vector2(0.5f, 0.5f);
+        var cardExisting = FindDeep(overlay.transform, "CeremonyCard");
+        GameObject card;
+        if (cardExisting != null)
+        {
+            card = cardExisting.gameObject;
+            card.transform.SetParent(safeGO.transform, false);
+        }
+        else
+        {
+            card = new GameObject(
+                "CeremonyCard",
+                typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            card.transform.SetParent(safeGO.transform, false);
+            card.GetComponent<Image>().color = new Color(0.15f, 0.15f, 0.2f, 0.98f);
+            SetRect(card, c, c, c, new Vector2(0f, 0f), new Vector2(640f, 560f));
 
-        var overlay = new GameObject(
-            "UnlockCeremonyOverlay",
-            typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-        overlay.transform.SetParent(panel.transform, false);
-        StretchToParent(overlay.GetComponent<RectTransform>());
-        // Dim backdrop; raycastTarget defaults true -> blocks rows beneath.
-        overlay.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.85f);
+            var title = CreateText(card.transform, "Title",
+                "New Outfit Unlocked!", 48, FontStyles.Bold);
+            SetRect(title, c, c, c, new Vector2(0f, 210f), new Vector2(600f, 80f));
 
-        var card = new GameObject(
-            "CeremonyCard",
-            typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-        card.transform.SetParent(overlay.transform, false);
-        card.GetComponent<Image>().color = new Color(0.15f, 0.15f, 0.2f, 0.98f);
-        SetRect(card, c, c, c, new Vector2(0f, 0f), new Vector2(640f, 560f));
+            var previewGo = new GameObject(
+                "PreviewImage",
+                typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            previewGo.transform.SetParent(card.transform, false);
+            var previewImg = previewGo.GetComponent<Image>();
+            previewImg.preserveAspect = true;
+            previewImg.raycastTarget = false;
+            previewImg.enabled = false;
+            SetRect(previewGo, c, c, c, new Vector2(0f, 40f), new Vector2(220f, 240f));
 
-        var title = CreateText(card.transform, "Title",
-            "New Outfit Unlocked!", 48, FontStyles.Bold);
-        SetRect(title, c, c, c, new Vector2(0f, 210f), new Vector2(600f, 80f));
+            var name = CreateText(card.transform, "OutfitName", "", 36, FontStyles.Bold);
+            SetRect(name, c, c, c, new Vector2(0f, -120f), new Vector2(600f, 60f));
 
-        var previewGo = new GameObject(
-            "PreviewImage",
-            typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-        previewGo.transform.SetParent(card.transform, false);
-        var previewImg = previewGo.GetComponent<Image>();
-        previewImg.preserveAspect = true;
-        previewImg.raycastTarget = false;
-        previewImg.enabled = false;
-        SetRect(previewGo, c, c, c, new Vector2(0f, 40f), new Vector2(220f, 240f));
+            var msg = CreateText(card.transform, "Message", "", 28, FontStyles.Normal);
+            SetRect(msg, c, c, c, new Vector2(0f, -172f), new Vector2(600f, 48f));
 
-        var name = CreateText(card.transform, "OutfitName", "", 36,
-            FontStyles.Bold);
-        SetRect(name, c, c, c, new Vector2(0f, -120f), new Vector2(600f, 60f));
+            var equip = CreateButton(card.transform, "EquipNowButton", "Equip Now");
+            SetRect(equip, c, c, c, new Vector2(-150f, -240f),
+                new Vector2(WardrobeLayoutMetrics.CeremonyButtonWidth,
+                    WardrobeLayoutMetrics.CeremonyButtonHeight));
 
-        var msg = CreateText(card.transform, "Message", "", 28,
-            FontStyles.Normal);
-        SetRect(msg, c, c, c, new Vector2(0f, -172f), new Vector2(600f, 48f));
-
-        var equip = CreateButton(card.transform, "EquipNowButton", "Equip Now");
-        SetRect(equip, c, c, c, new Vector2(-150f, -240f), new Vector2(240f, 72f));
-
-        var cont = CreateButton(card.transform, "ContinueButton", "Continue");
-        SetRect(cont, c, c, c, new Vector2(150f, -240f), new Vector2(240f, 72f));
+            var cont = CreateButton(card.transform, "ContinueButton", "Continue");
+            SetRect(cont, c, c, c, new Vector2(150f, -240f),
+                new Vector2(WardrobeLayoutMetrics.CeremonyButtonWidth,
+                    WardrobeLayoutMetrics.CeremonyButtonHeight));
+        }
 
         overlay.SetActive(false);
-        Debug.Log("[Wardrobe] Created UnlockCeremonyOverlay.");
-        return overlay;
     }
 
     private static WardrobePreviewLibrary LoadPreviewLibrary()
@@ -364,8 +467,7 @@ public static class BuildWardrobePanel
         if (lib == null)
             Debug.LogWarning(
                 "[Wardrobe] WardrobePreviewLibrary not found; run "
-                + "'Build Wardrobe Preview Library' first. _previewLibrary "
-                + "left unwired (panel falls back to text-only rows).");
+                + "'Build Wardrobe Preview Library' first.");
         return lib;
     }
 
@@ -394,6 +496,19 @@ public static class BuildWardrobePanel
         for (int i = 0; i < canvases.Length; i++)
             if (canvases[i].isRootCanvas) return canvases[i];
         return canvases.Length > 0 ? canvases[0] : null;
+    }
+
+    // Depth-first search by name among descendants (not the root itself).
+    private static Transform FindDeep(Transform root, string name)
+    {
+        for (int i = 0; i < root.childCount; i++)
+        {
+            var c = root.GetChild(i);
+            if (c.name == name) return c;
+            var r = FindDeep(c, name);
+            if (r != null) return r;
+        }
+        return null;
     }
 
     private static void Set(SerializedObject so, string field, Object value)
@@ -426,11 +541,65 @@ public static class BuildWardrobePanel
         rt.anchoredPosition = pos; rt.sizeDelta = size;
     }
 
-    private static void StretchToParent(RectTransform rt)
+    // Region: anchored bottom-left of the SafeArea root; positioned by rect.
+    private static void SetRegionRect(RectTransform rt, Rect r)
+    {
+        rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.zero;
+        rt.pivot = Vector2.zero;
+        rt.anchoredPosition = new Vector2(r.x, r.y);
+        rt.sizeDelta = new Vector2(r.width, r.height);
+    }
+
+    private static void Fill(RectTransform rt)
     {
         rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
         rt.pivot = new Vector2(0.5f, 0.5f);
-        rt.anchoredPosition = Vector2.zero; rt.sizeDelta = Vector2.zero;
+        rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
+    }
+
+    private static void SetAnchored(RectTransform rt, Vector2 min, Vector2 max)
+    {
+        rt.anchorMin = min; rt.anchorMax = max;
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
+    }
+
+    // Action button: anchored to the region center, metrics-sized.
+    private static void SetButton(RectTransform rt, Vector2 pivot, Vector2 pos)
+    {
+        rt.anchorMin = new Vector2(0.5f, 0.5f);
+        rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = pivot;
+        rt.anchoredPosition = pos;
+        rt.sizeDelta = new Vector2(
+            WardrobeLayoutMetrics.ActionButtonWidth,
+            WardrobeLayoutMetrics.ActionButtonHeight);
+    }
+
+    private static GameObject EnsureText(
+        Transform panel, Transform parent, string name, string text,
+        int fontSize, FontStyles style)
+    {
+        var existing = FindDeep(panel, name);
+        if (existing != null && existing.GetComponent<TextMeshProUGUI>() != null)
+        {
+            existing.SetParent(parent, false);
+            return existing.gameObject;
+        }
+        return CreateText(parent, name, text, fontSize, style);
+    }
+
+    private static GameObject EnsureButton(
+        Transform panel, Transform parent, string name, string label)
+    {
+        var existing = FindDeep(panel, name);
+        if (existing != null && existing.GetComponent<Button>() != null)
+        {
+            existing.SetParent(parent, false);
+            SetLabel(existing.GetComponent<Button>(), label);
+            return existing.gameObject;
+        }
+        return CreateButton(parent, name, label);
     }
 
     private static GameObject CreateText(
@@ -455,7 +624,14 @@ public static class BuildWardrobePanel
         go.GetComponent<Image>().color = new Color(0.2f, 0.2f, 0.25f, 0.95f);
         var labelGO = CreateText(go.transform, "Label", label, 28,
             FontStyles.Normal);
-        StretchToParent(labelGO.GetComponent<RectTransform>());
+        Fill(labelGO.GetComponent<RectTransform>());
         return go;
+    }
+
+    private static void StretchToParent(RectTransform rt)
+    {
+        rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = Vector2.zero; rt.sizeDelta = Vector2.zero;
     }
 }

@@ -151,6 +151,9 @@ public static class BuildSettingsPanel
                 FindObjectsInactive.Include);
         if (existingCtrl != null)
         {
+            // P20: ensure the Reduce Motion toggle exists on already-scaffolded
+            // panels (both MainMenu and the Game/pause panel) on re-run.
+            EnsureReduceMotionToggle(existingCtrl.gameObject);
             // Rewire children into the controller in case they were
             // recreated by hand.
             WirePanelChildren(existingCtrl);
@@ -174,15 +177,16 @@ public static class BuildSettingsPanel
         CreateLabeledSlider(panelGO.transform, "MusicSlider", "Music", 120f);
         CreateLabeledSlider(panelGO.transform, "SfxSlider", "SFX", 30f);
         CreateLabeledToggle(panelGO.transform, "MuteToggle", "Mute", -60f);
+        EnsureReduceMotionToggle(panelGO); // P20 accessibility (at -120)
 
         var back = CreateButton(panelGO.transform, "BackButton", "Back");
         SetRect(back, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-            new Vector2(0.5f, 0.5f), new Vector2(-110f, -180f),
+            new Vector2(0.5f, 0.5f), new Vector2(-110f, -210f),
             new Vector2(180f, 72f));
 
         var reset = CreateButton(panelGO.transform, "ResetButton", "Reset");
         SetRect(reset, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-            new Vector2(0.5f, 0.5f), new Vector2(110f, -180f),
+            new Vector2(0.5f, 0.5f), new Vector2(110f, -210f),
             new Vector2(180f, 72f));
 
         var controller =
@@ -205,6 +209,8 @@ public static class BuildSettingsPanel
             panel.transform.Find("SfxSlider/Slider")?.GetComponent<Slider>());
         Set(so, "_muteToggle",
             panel.transform.Find("MuteToggle/Toggle")?.GetComponent<Toggle>());
+        Set(so, "_reduceMotionToggle",
+            panel.transform.Find("ReduceMotionToggle/Toggle")?.GetComponent<Toggle>());
         Set(so, "_backButton",
             panel.transform.Find("BackButton")?.GetComponent<Button>());
         Set(so, "_resetButton",
@@ -556,5 +562,27 @@ public static class BuildSettingsPanel
         SetRect(toggleGO, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
             new Vector2(0f, 0.5f), new Vector2(240f, 0f),
             new Vector2(60f, 60f));
+    }
+
+    // P20: idempotently add a "Reduce Motion" toggle and nudge Back/Reset down
+    // so they do not overlap it. Safe on fresh AND already-scaffolded panels
+    // (both MainMenu and the Game/pause SettingsPanel reuse this builder).
+    private static void EnsureReduceMotionToggle(GameObject panel)
+    {
+        if (panel.transform.Find("ReduceMotionToggle") == null)
+            CreateLabeledToggle(
+                panel.transform, "ReduceMotionToggle", "Reduce Motion", -120f);
+
+        MoveTo(panel, "BackButton", new Vector2(-110f, -210f));
+        MoveTo(panel, "ResetButton", new Vector2(110f, -210f));
+    }
+
+    private static void MoveTo(GameObject panel, string name, Vector2 pos)
+    {
+        var t = panel.transform.Find(name);
+        if (t == null) return;
+        var rt = t.GetComponent<RectTransform>();
+        rt.anchoredPosition = pos;
+        EditorUtility.SetDirty(rt);
     }
 }

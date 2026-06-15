@@ -2,10 +2,12 @@ using System.Collections.Generic;
 using JebbyJump.Analytics;
 using JebbyJump.Progression;
 using JebbyJump.Rewards;
+using JebbyJump.Settings;
 using JebbyJump.Wardrobe;
 using JebbyJump.Wardrobe.Visual;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace JebbyJump.UI
@@ -13,20 +15,24 @@ namespace JebbyJump.UI
     // Wardrobe panel: a scrollable, data-driven list of the fixed outfit
     // catalog with locked / unlocked / equipped state derived from total
     // Stars (read-only; never consumed). Each row shows a UI-only idle
-    // thumbnail (P15) + name + state, and a "New" badge (P16) for unlocked
-    // outfits whose unlock ceremony has not been acknowledged.
+    // thumbnail (P15) + name + state, a "New" badge (P16), and a structural
+    // selection marker (P20).
     //
-    // P16 unlock ceremony: when the panel opens, outfits newly unlocked by
-    // Stars but not yet acknowledged are presented one at a time (catalog
-    // order) in an overlay with Equip Now / Continue. Acknowledgement is
-    // persisted locally (WardrobeUnlockAcknowledgementStore) and is NOT
-    // ownership - ownership stays derived from Stars. Closing the panel
-    // mid-ceremony does NOT acknowledge. Equipping uses the existing
-    // WardrobeStore path; appearance still applies at the next player spawn.
+    // P16 unlock ceremony: newly unlocked, unacknowledged outfits present one
+    // at a time in a focus-trapping overlay. Acknowledgement is local and is
+    // NOT ownership. Closing mid-ceremony does not acknowledge.
+    //
+    // P20 accessibility/mobile (landscape): a safe-area-fitted content root +
+    // responsive region layout (with a compact variant for short screens),
+    // deterministic keyboard/gamepad navigation + focus management (incl. a
+    // real ceremony focus trap and scroll-the-focused-row-into-view), and a
+    // Reduce Motion setting that freezes the preview to Idle. All new wiring is
+    // null-safe; gameplay/reward/migration/analytics semantics are unchanged.
     public class WardrobePanelController : MonoBehaviour
     {
         [SerializeField] private GameObject _panelRoot;
         [SerializeField] private RectTransform _rowContainer;
+        [SerializeField] private ScrollRect _scrollRect;
         [SerializeField] private TextMeshProUGUI _previewLabel;
         [SerializeField] private TextMeshProUGUI _stateLabel;
         [SerializeField] private Image _selectedPreviewImage;
@@ -34,6 +40,14 @@ namespace JebbyJump.UI
         [SerializeField] private Button _backButton;
         [SerializeField] private LevelCatalog _catalog;
         [SerializeField] private WardrobePreviewLibrary _previewLibrary;
+
+        // P20 responsive layout regions (optional/null-safe). Positioned by the
+        // responsive layout calculator inside the safe-area-fitted root.
+        [SerializeField] private RectTransform _safeAreaRoot;
+        [SerializeField] private RectTransform _headerRegion;
+        [SerializeField] private RectTransform _listRegion;
+        [SerializeField] private RectTransform _previewRegion;
+        [SerializeField] private RectTransform _actionRegion;
 
         // P16 unlock-ceremony overlay (optional/null-safe).
         [SerializeField] private GameObject _ceremonyOverlay;
@@ -59,6 +73,13 @@ namespace JebbyJump.UI
         private string _previewOutfitId;
         private bool _previewLocked;
 
+        // P20 state.
+        private bool _reduceMotion;
+        private bool _motionSubscribed;
+        private Vector2 _lastContentSize = new Vector2(-1f, -1f);
+        private GameObject _opener;
+        private int _lastFocusedRowIndex = -1;
+
         private struct RowEntry
         {
             public string Id;
@@ -66,6 +87,7 @@ namespace JebbyJump.UI
             public TextMeshProUGUI Label;
             public Image Preview;
             public TextMeshProUGUI NewBadge;
+            public Image SelectionMark;
         }
 
         private void Awake()
@@ -80,6 +102,7 @@ namespace JebbyJump.UI
                 _ceremonyContinueButton.onClick.AddListener(OnCeremonyContinue);
             if (_ceremonyEquipButton != null)
                 _ceremonyEquipButton.onClick.AddListener(OnCeremonyEquipNow);
+            ConfigureCeremonyNavigation();
         }
 
         private void OnDestroy()
@@ -95,6 +118,14 @@ namespace JebbyJump.UI
             ClearRows();
         }
 
+        // Preview state + the Reduce Motion subscription are cleared whenever the
+        // panel is disabled (covers Close and any external deactivation).
+        private void OnDisable()
+        {
+            ClearSelectedPreview();
+            UnsubscribeMotion();
+        }
+
         public void Open()
         {
             // Defensive repeat of the Main-Menu-init migration; idempotent and
@@ -102,10 +133,17 @@ namespace JebbyJump.UI
             // (e.g. now-locked after a Stars change) before the panel builds.
             WardrobePersistenceMigrator.MigrateIfNeeded(TotalStars);
 
+            _opener = EventSystem.current != null
+                ? EventSystem.current.currentSelectedGameObject : null;
+            _reduceMotion = AccessibilitySettingsStore.ReduceMotion;
+            SubscribeMotion();
+
             AnalyticsService.Track(AnalyticsEvents.WardrobeOpened);
             Rebuild();
             StartCeremonyQueue();
             if (_panelRoot != null) _panelRoot.SetActive(true);
+            _lastContentSize = new Vector2(-1f, -1f); // re-apply layout next frame
+            SetInitialFocus();
         }
 
         // Closing never acknowledges an in-progress ceremony; unacknowledged
@@ -114,12 +152,26 @@ namespace JebbyJump.UI
         {
             ClearSelectedPreview();
             if (_panelRoot != null) _panelRoot.SetActive(false);
+            RestoreOpenerFocus();
         }
 
-        // Advances the selected-outfit preview carousel on UI (unscaled) time.
         private void Update()
         {
             if (_panelRoot == null || !_panelRoot.activeSelf) return;
+
+            MaybeApplyLayout();
+
+            // Real focus trap: while a ceremony is up, focus cannot leave its
+            // controls (the underlying rows/Equip/Back are also non-interactable).
+            if (_ceremony != null && _ceremony.IsActive)
+            {
+                EnforceCeremonyFocus();
+                return;
+            }
+
+            ScrollFocusedRowIntoView();
+
+            if (_reduceMotion) return; // static Idle; no pose cycling
             if (!_previewPlayer.HasFrames) return;
             _previewPlayer.Tick(Time.unscaledDeltaTime);
             ApplyCurrentPreviewFrame();
@@ -127,6 +179,212 @@ namespace JebbyJump.UI
 
         private int TotalStars =>
             _catalog != null ? StarRewardStore.GetTotalStars(_catalog.Count) : 0;
+
+        // ---- responsive layout (P20) ----
+
+        private void MaybeApplyLayout()
+        {
+            if (_safeAreaRoot == null) return;
+            Vector2 size = _safeAreaRoot.rect.size;
+            if (size.x <= 0f || size.y <= 0f) return;
+            if (Mathf.Approximately(size.x, _lastContentSize.x)
+                && Mathf.Approximately(size.y, _lastContentSize.y)) return;
+
+            _lastContentSize = size;
+            var layout = WardrobeResponsiveLayout.Compute(size);
+            ApplyRegion(_headerRegion, layout.Header);
+            ApplyRegion(_listRegion, layout.List);
+            ApplyRegion(_previewRegion, layout.Preview);
+            ApplyRegion(_actionRegion, layout.Actions);
+        }
+
+        private static void ApplyRegion(RectTransform rt, Rect r)
+        {
+            if (rt == null) return;
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.zero;
+            rt.pivot = Vector2.zero;
+            rt.anchoredPosition = new Vector2(r.x, r.y);
+            rt.sizeDelta = new Vector2(r.width, r.height);
+        }
+
+        // ---- focus / navigation (P20) ----
+
+        private void SetInitialFocus()
+        {
+            if (_ceremony != null && _ceremony.IsActive) { FocusCeremony(); return; }
+            var target = WardrobeFocusResolver.ResolvePanelFocus(
+                _rows.Count, EquippedRowIndex());
+            if (target == WardrobeFocusTarget.EquippedRow)
+                SelectRow(EquippedRowIndex());
+            else if (target == WardrobeFocusTarget.FirstRow)
+                SelectRow(0);
+        }
+
+        private void SelectRow(int index)
+        {
+            if (index < 0 || index >= _rows.Count) return;
+            var btn = _rows[index].Button;
+            if (btn != null && EventSystem.current != null)
+                EventSystem.current.SetSelectedGameObject(btn.gameObject);
+        }
+
+        private int EquippedRowIndex()
+        {
+            string eq = WardrobePersistenceMigrator.GetEffectiveOutfitId(TotalStars);
+            for (int i = 0; i < _rows.Count; i++)
+                if (_rows[i].Id == eq) return i;
+            return -1;
+        }
+
+        private void RestoreOpenerFocus()
+        {
+            if (EventSystem.current == null) return;
+            EventSystem.current.SetSelectedGameObject(
+                _opener != null && _opener.activeInHierarchy ? _opener : null);
+        }
+
+        private void EnforceCeremonyFocus()
+        {
+            if (EventSystem.current == null) return;
+            var sel = EventSystem.current.currentSelectedGameObject;
+            bool onCeremony =
+                (_ceremonyEquipButton != null
+                    && sel == _ceremonyEquipButton.gameObject)
+                || (_ceremonyContinueButton != null
+                    && sel == _ceremonyContinueButton.gameObject);
+            if (!onCeremony) FocusCeremony();
+        }
+
+        private void FocusCeremony()
+        {
+            if (EventSystem.current == null) return;
+            bool equipEnabled = _ceremonyEquipButton != null
+                && _ceremonyEquipButton.interactable;
+            var t = WardrobeFocusResolver.ResolveCeremonyFocus(equipEnabled);
+            GameObject go =
+                (t == WardrobeFocusTarget.CeremonyEquip
+                    && _ceremonyEquipButton != null)
+                ? _ceremonyEquipButton.gameObject
+                : (_ceremonyContinueButton != null
+                    ? _ceremonyContinueButton.gameObject : null);
+            if (go != null) EventSystem.current.SetSelectedGameObject(go);
+        }
+
+        private void ScrollFocusedRowIntoView()
+        {
+            if (EventSystem.current == null) return;
+            var sel = EventSystem.current.currentSelectedGameObject;
+            if (sel == null) return;
+            int idx = RowIndexOf(sel);
+            if (idx < 0 || idx == _lastFocusedRowIndex) return;
+            _lastFocusedRowIndex = idx;
+
+            var sr = ResolveScrollRect();
+            if (sr == null || sr.content == null || sr.viewport == null) return;
+            float itemTop = WardrobeLayoutMetrics.ListPadding
+                + idx * (WardrobeLayoutMetrics.RowMinHeight
+                    + WardrobeLayoutMetrics.RowSpacing);
+            sr.verticalNormalizedPosition =
+                ScrollIntoViewCalculator.ComputeVerticalNormalized(
+                    sr.content.rect.height, sr.viewport.rect.height,
+                    itemTop, WardrobeLayoutMetrics.RowMinHeight,
+                    sr.verticalNormalizedPosition);
+        }
+
+        private int RowIndexOf(GameObject go)
+        {
+            for (int i = 0; i < _rows.Count; i++)
+                if (_rows[i].Button != null && _rows[i].Button.gameObject == go)
+                    return i;
+            return -1;
+        }
+
+        private ScrollRect ResolveScrollRect()
+        {
+            if (_scrollRect != null) return _scrollRect;
+            if (_rowContainer != null)
+                _scrollRect = _rowContainer.GetComponentInParent<ScrollRect>();
+            return _scrollRect;
+        }
+
+        private void ConfigureNavigation()
+        {
+            for (int i = 0; i < _rows.Count; i++)
+            {
+                var btn = _rows[i].Button;
+                if (btn == null) continue;
+                var nav = new Navigation { mode = Navigation.Mode.Explicit };
+                nav.selectOnUp = i > 0 ? _rows[i - 1].Button : null;
+                nav.selectOnDown = i < _rows.Count - 1
+                    ? _rows[i + 1].Button : _equipButton;
+                btn.navigation = nav;
+            }
+
+            Button lastRow = _rows.Count > 0 ? _rows[_rows.Count - 1].Button : null;
+            if (_equipButton != null)
+                _equipButton.navigation = new Navigation
+                {
+                    mode = Navigation.Mode.Explicit,
+                    selectOnUp = lastRow, selectOnRight = _backButton,
+                };
+            if (_backButton != null)
+                _backButton.navigation = new Navigation
+                {
+                    mode = Navigation.Mode.Explicit,
+                    selectOnUp = lastRow, selectOnLeft = _equipButton,
+                };
+        }
+
+        private void ConfigureCeremonyNavigation()
+        {
+            if (_ceremonyEquipButton != null)
+                _ceremonyEquipButton.navigation = new Navigation
+                {
+                    mode = Navigation.Mode.Explicit,
+                    selectOnRight = _ceremonyContinueButton,
+                };
+            if (_ceremonyContinueButton != null)
+                _ceremonyContinueButton.navigation = new Navigation
+                {
+                    mode = Navigation.Mode.Explicit,
+                    selectOnLeft = _ceremonyEquipButton,
+                };
+        }
+
+        private void SetRowsInteractable(bool value)
+        {
+            for (int i = 0; i < _rows.Count; i++)
+                if (_rows[i].Button != null) _rows[i].Button.interactable = value;
+        }
+
+        // ---- reduce motion (P20; cached + event-driven) ----
+
+        private void SubscribeMotion()
+        {
+            if (_motionSubscribed) return;
+            AccessibilitySettingsStore.ReduceMotionChanged += OnReduceMotionChanged;
+            _motionSubscribed = true;
+        }
+
+        private void UnsubscribeMotion()
+        {
+            if (!_motionSubscribed) return;
+            AccessibilitySettingsStore.ReduceMotionChanged -= OnReduceMotionChanged;
+            _motionSubscribed = false;
+        }
+
+        private void OnReduceMotionChanged(bool value)
+        {
+            _reduceMotion = value;
+            if (_previewOutfitId != null)
+                _previewPlayer.SetFrames(WardrobePreviewSequenceBuilder.Build(
+                    _previewOutfitId, _previewLibrary,
+                    includeHurt: false, reduceMotion: _reduceMotion));
+            ApplyCurrentPreviewFrame();
+        }
+
+        // ---- build / refresh ----
 
         private void Rebuild()
         {
@@ -145,6 +403,8 @@ namespace JebbyJump.UI
             _selectedId = equippedId;
             _building = false;
 
+            ConfigureNavigation();
+            _lastFocusedRowIndex = -1;
             Refresh();
         }
 
@@ -156,7 +416,25 @@ namespace JebbyJump.UI
                 typeof(Image), typeof(Button), typeof(LayoutElement));
             go.transform.SetParent(_rowContainer, false);
             go.GetComponent<Image>().color = new Color(0.2f, 0.2f, 0.25f, 0.9f);
-            go.GetComponent<LayoutElement>().minHeight = 64f;
+            go.GetComponent<LayoutElement>().minHeight =
+                WardrobeLayoutMetrics.RowMinHeight; // P20 touch target
+
+            // Structural selection marker (P20): a left accent bar shown only on
+            // the selected row - a non-color-only cue. Non-raycast.
+            var barGo = new GameObject(
+                "SelectionBar",
+                typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            barGo.transform.SetParent(go.transform, false);
+            var bar = barGo.GetComponent<Image>();
+            bar.color = new Color(1f, 0.9f, 0.3f, 1f);
+            bar.raycastTarget = false;
+            bar.enabled = false;
+            var barRT = barGo.GetComponent<RectTransform>();
+            barRT.anchorMin = new Vector2(0f, 0f);
+            barRT.anchorMax = new Vector2(0f, 1f);
+            barRT.pivot = new Vector2(0f, 0.5f);
+            barRT.sizeDelta = new Vector2(8f, 0f);
+            barRT.anchoredPosition = Vector2.zero;
 
             var previewGo = new GameObject(
                 "Preview",
@@ -170,8 +448,8 @@ namespace JebbyJump.UI
             prt.anchorMin = new Vector2(0f, 0.5f);
             prt.anchorMax = new Vector2(0f, 0.5f);
             prt.pivot = new Vector2(0f, 0.5f);
-            prt.anchoredPosition = new Vector2(8f, 0f);
-            prt.sizeDelta = new Vector2(52f, 56f);
+            prt.anchoredPosition = new Vector2(20f, 0f);
+            prt.sizeDelta = new Vector2(64f, 72f);
 
             var labelGo = new GameObject("Label", typeof(RectTransform));
             labelGo.transform.SetParent(go.transform, false);
@@ -180,11 +458,13 @@ namespace JebbyJump.UI
             label.alignment = TextAlignmentOptions.Left;
             label.color = Color.white;
             label.raycastTarget = false;
+            label.enableWordWrapping = false;
+            label.overflowMode = TextOverflowModes.Ellipsis;
             var lrt = labelGo.GetComponent<RectTransform>();
             lrt.anchorMin = Vector2.zero;
             lrt.anchorMax = Vector2.one;
-            lrt.offsetMin = new Vector2(72f, 0f);  // clear the thumbnail
-            lrt.offsetMax = new Vector2(-92f, 0f);  // leave room for the New badge
+            lrt.offsetMin = new Vector2(96f, 0f);  // clear the thumbnail
+            lrt.offsetMax = new Vector2(-96f, 0f); // leave room for the New badge
 
             // "New" badge (P16), hidden unless the row model says IsNew.
             var badgeGo = new GameObject("NewBadge", typeof(RectTransform));
@@ -211,7 +491,7 @@ namespace JebbyJump.UI
             return new RowEntry
             {
                 Id = id, Button = btn, Label = label,
-                Preview = previewImg, NewBadge = badge,
+                Preview = previewImg, NewBadge = badge, SelectionMark = bar,
             };
         }
 
@@ -274,6 +554,7 @@ namespace JebbyJump.UI
                 TotalStars, _previewLibrary,
                 WardrobeUnlockAcknowledgementStore.IsAcknowledged);
 
+            bool ceremonyActive = _ceremony != null && _ceremony.IsActive;
             for (int i = 0; i < _rows.Count; i++)
             {
                 if (!TryGetModel(models, _rows[i].Id, out var m)) continue;
@@ -281,6 +562,8 @@ namespace JebbyJump.UI
                     _rows[i].Label.text = m.DisplayName + "  -  " + m.StateText;
                 ApplyPreview(_rows[i].Preview, m);
                 if (_rows[i].NewBadge != null) _rows[i].NewBadge.enabled = m.IsNew;
+                if (_rows[i].SelectionMark != null)
+                    _rows[i].SelectionMark.enabled = _rows[i].Id == _selectedId;
             }
 
             bool hasSelected = TryGetModel(models, _selectedId, out var selected);
@@ -292,13 +575,13 @@ namespace JebbyJump.UI
                 _stateLabel.text = hasSelected ? selected.StateText : string.Empty;
             RefreshSelectedPreview(hasSelected, selected);
             if (_equipButton != null)
-                _equipButton.interactable = hasSelected && selected.CanEquip;
+                _equipButton.interactable =
+                    hasSelected && selected.CanEquip && !ceremonyActive;
         }
 
         // Rebuilds the preview carousel when the selected outfit changes (resets
-        // to the first pose); otherwise just refreshes the locked dim. The
-        // animated frame is driven by Update(); this shows the first frame
-        // immediately and hides the image when there is no preview sequence.
+        // to the first pose); otherwise just refreshes the locked dim. Honours
+        // Reduce Motion (Idle-only). Animated frame driven by Update().
         private void RefreshSelectedPreview(
             bool hasSelected, WardrobeOutfitRowModel selected)
         {
@@ -310,7 +593,8 @@ namespace JebbyJump.UI
             {
                 _previewOutfitId = selected.OutfitId;
                 _previewPlayer.SetFrames(WardrobePreviewSequenceBuilder.Build(
-                    selected.OutfitId, _previewLibrary, includeHurt: false));
+                    selected.OutfitId, _previewLibrary,
+                    includeHurt: false, reduceMotion: _reduceMotion));
             }
             ApplyCurrentPreviewFrame();
         }
@@ -353,9 +637,7 @@ namespace JebbyJump.UI
         // Injected equip path for the ceremony, routed through the shared
         // WardrobeEquipService. Success emits cosmetic_equipped
         // (source=unlock_ceremony) and publishes the change event. Returns true
-        // for Success OR AlreadyEquipped (both satisfy "Equip Now", so the
-        // presenter acknowledges + advances); Locked/Unknown return false so it
-        // does not acknowledge or advance.
+        // for Success OR AlreadyEquipped; Locked/Unknown return false.
         private bool TryEquipFromCeremony(string id)
         {
             var def = WardrobeCatalog.GetById(id);
@@ -381,8 +663,11 @@ namespace JebbyJump.UI
             if (def == null) { HideCeremony(); return; }
 
             if (_ceremonyOverlay != null) _ceremonyOverlay.SetActive(true);
-            // Block exit while a ceremony is pending (acknowledge via the
-            // ceremony buttons only).
+            // Focus trap: the underlying rows + Equip + Back are made
+            // non-interactable so navigation cannot escape the ceremony, and
+            // Update() re-asserts ceremony focus. Restored when it ends.
+            SetRowsInteractable(false);
+            if (_equipButton != null) _equipButton.interactable = false;
             if (_backButton != null) _backButton.interactable = false;
 
             if (_ceremonyTitle != null)
@@ -408,6 +693,8 @@ namespace JebbyJump.UI
             if (_ceremonyEquipButton != null)
                 _ceremonyEquipButton.interactable =
                     WardrobeUnlockService.IsUnlocked(def, TotalStars);
+
+            FocusCeremony();
 
             AnalyticsService.Track(AnalyticsEvents.CosmeticUnlockPresented,
                 AnalyticsParam.Of(AnalyticsParams.CosmeticId, def.Id),
@@ -466,8 +753,16 @@ namespace JebbyJump.UI
 
         private void AfterCeremonyAdvance()
         {
-            if (_ceremony.IsActive) ShowCurrentCeremony();
-            else { HideCeremony(); Rebuild(); } // refresh New badges + equipped
+            if (_ceremony.IsActive)
+            {
+                ShowCurrentCeremony();
+            }
+            else
+            {
+                HideCeremony();
+                Rebuild();        // refresh New badges + equipped + re-enable rows
+                SetInitialFocus(); // return focus to the panel list
+            }
         }
 
         // ---- helpers ----

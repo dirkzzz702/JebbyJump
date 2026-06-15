@@ -315,6 +315,7 @@ Launch target:
 | P17   | Live Outfit Re-Sync + Default Visual Restoration | complete (WardrobeEquipService single equip path + WardrobeAppearanceEvents change event; applier restores captured default JebbyAnimator; PlayerOutfitVisualController live re-sync; missing entry -> default; 144/144 tests; Stars/unlock/ack unchanged; no art/gameplay/economy changes; live sync latent until same-scene wardrobe exists) |
 | P18   | In-Panel Outfit Preview + Wardrobe Persistence Migration | complete (UI-only animated pose carousel from extended WardrobePreviewLibrary; WardrobePersistenceMigrator separates ongoing equipped normalization from one-time schema stamp (v1) - runs at MainMenu init + Wardrobe.Open; 170/170 tests; no event/analytics on migration; Stars/acks/thresholds untouched; no art/gameplay/economy changes) |
 | P19   | Wardrobe Release Hardening + Save Migration Matrix | complete (read-only WardrobeStateAuditor + WardrobeStateSnapshot reading raw PlayerPrefs/key-presence; future-schema READ-ONLY policy + GetEffectiveOutfitId in-memory Classic fallback for player + panel; parameterized save-compatibility matrix + reset boundary + no-event/status/effective tests; editor Jebby Jump/QA/Audit Wardrobe State read-only command; no schema bump; Stars/unlocks/acks unchanged; no art/gameplay/economy changes) |
+| P20   | Accessibility + Mobile (Landscape) Wardrobe UI Hardening | complete (landscape-only ProjectSettings lock; SafeAreaFitter + pure responsive region layout incl. compact variant, validated across 16:9/18:9/19.5:9/20:9/4:3 x notch shapes; 90-unit touch targets; deterministic keyboard/gamepad nav + real ceremony focus trap + scroll-into-view; non-color-only Selected marker; Reduce Motion setting in Main Menu + Pause reusing settings_changed; no gameplay/economy/migration/art-semantic changes) |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -795,6 +796,61 @@ threshold, gameplay, or economy changes. Manual visual QA remains
 **DEFERRED / NOT VERIFIED**. Recommended next: P15A Wardrobe Art Visual QA
 Checklist Execution or P15B Wardrobe UI Preview Thumbnail / Outfit Card
 Polish.
+
+## P20 - Accessibility + Mobile (Landscape) Wardrobe UI Hardening
+
+Status: **complete** (automated structural layer). Accessibility + mobile
+interaction hardening for the Wardrobe and its entry/overlay surfaces. No new
+wardrobe feature; no outfit/reward/migration/gameplay/economy/art semantic
+changes. Rendered/on-device QA remains DEFERRED / NOT VERIFIED.
+
+**Orientation (confirmed):** the game is **landscape-only**. ProjectSettings now
+locks landscape (portrait autorotate disabled; AutoRotation between the two
+landscapes); reference resolution stays 1920x1080. Stale "portrait-first" doc
+lines were corrected.
+
+**Safe area:** pure `SafeAreaCalculator` + a runtime `SafeAreaFitter` on the
+wardrobe content root (`SafeArea`) and the ceremony card root
+(`CeremonySafeArea`); dim backdrops stay edge-to-edge. Cheap change-detection
+(no per-frame rebuild).
+
+**Responsive layout (objective validation):** pure `CanvasScalerMath` +
+`WardrobeResponsiveLayout` compute Header/List/Preview/Action region rects from
+the safe-area content size, switching to a **compact** layout on short landscape
+screens (20:9 logical height ~966). `WardrobeResponsiveLayoutTests` assert region
+bounds ⊆ safe area, non-overlap, and touch targets >= 90 across every approved
+aspect (16:9/18:9/19.5:9/20:9/4:3) x safe-area shape. The panel applies the
+computed layout to scaffolded region containers at runtime.
+
+**Touch / scroll:** `WardrobeLayoutMetrics` single-sources a 90-unit minimum
+(rows raised 64->90; action/ceremony buttons 90). Row preview + selection-bar
+Images are non-raycast; ScrollRect stays vertical-only/data-driven.
+
+**Navigation / focus:** explicit row<->row / row->Equip / Equip<->Back /
+ceremony nav (pure `WardrobeFocusResolver`); initial focus = equipped/first row;
+ceremony focus = Equip Now/Continue; close restores the opener. **Real focus
+trap**: underlying rows/Equip/Back set non-interactable AND focus re-asserted to
+a ceremony control each frame. Focused rows scroll into view (pure
+`ScrollIntoViewCalculator`).
+
+**Readability / non-color:** state stays text (`Equipped`/`Unlocked`/
+`Locked (N Stars)`/`New`); a structural left **Selected** bar marks the selected
+row; row labels use ellipsis overflow. No icon assets imported.
+
+**Reduce Motion:** new `AccessibilitySettingsStore` (`jebby.settings.reduceMotion`,
+default false) + a "Reduce Motion" toggle in **both** Main Menu and Pause
+settings (Game.unity scoped change). ON freezes the preview to a static Idle;
+cached + event-driven (no per-frame PlayerPrefs read); toggling while open
+re-applies. Reuses `settings_changed` (`setting_name=reduce_motion`); cosmetic UI
+motion only - gameplay movement/timers/physics untouched.
+
+Tests: pure layout/safe-area/scroll/focus/metrics/reduce-motion/store +
+readability + `WardrobeAccessibilitySceneIntegrityTests` (YAML: one SafeArea +
+one CeremonySafeArea, region/scrollRect refs wired, EventSystem present, Reduce
+Motion toggle in both scenes). Scaffolds run twice (idempotent; integrity tests
+assert singletons). No new analytics for focus/scroll/safe-area/carousel frames.
+No package/Jebby.prefab changes. Recommended next: P21C manual visual + device
+QA, or P21E wider shell accessibility hardening.
 
 ## P19 - Wardrobe Release Hardening + Save Migration Matrix
 
