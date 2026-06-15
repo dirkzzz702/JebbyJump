@@ -7,10 +7,11 @@ namespace JebbyJump.Wardrobe.Visual
     // (landscape) accessibility hardening - sizing only, no gameplay/semantics.
     public static class WardrobeLayoutMetrics
     {
-        // ~48 dp comfort target on dense landscape phones at the 1080-height
-        // reference (derived in the Accessibility checklist). Interactive
-        // controls must be at least this in canvas units.
-        public const float MinTouchTargetCanvasUnits = 90f;
+        // Single-sourced from the shell-wide standard (P21) so there is exactly
+        // one touch-target constant. ~48 dp on dense landscape phones at the
+        // 1080-height reference.
+        public const float MinTouchTargetCanvasUnits =
+            JebbyJump.Shell.ShellLayoutMetrics.MinTouchTargetCanvasUnits;
 
         // Runtime outfit-row height (was 64; raised to meet the touch minimum).
         public const float RowMinHeight = 90f;

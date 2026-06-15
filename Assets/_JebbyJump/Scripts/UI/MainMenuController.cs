@@ -1,7 +1,9 @@
+using System.Collections.Generic;
 using JebbyJump.Analytics;
 using JebbyJump.Flow;
 using JebbyJump.Progression;
 using JebbyJump.Rewards;
+using JebbyJump.Shell;
 using JebbyJump.Wardrobe;
 using UnityEngine;
 using UnityEngine.UI;
@@ -69,6 +71,25 @@ namespace JebbyJump.UI
             // Clear any stale selection so a fresh Main Menu always
             // starts from a clean handoff slot.
             PendingLevelSelection.Reset();
+        }
+
+        // P21: deterministic keyboard/gamepad navigation + initial focus.
+        // Sub-panels (Level Select / Settings / Wardrobe) capture + restore
+        // this focus on open/close, so closing one returns here.
+        private void Start()
+        {
+            var items = new List<Selectable>
+            {
+                _continueButton, _startButton, _settingsButton,
+                _wardrobeButton, _quitButton,
+            };
+            ShellFocusUtil.BuildVerticalNavigation(items);
+
+            var available = new List<bool>();
+            foreach (var b in items)
+                available.Add(b != null && b.interactable);
+            int idx = ShellFocusResolver.FirstAvailableIndex(available);
+            if (idx >= 0) ShellFocusUtil.Select(items[idx]);
         }
 
         private void OnDestroy()

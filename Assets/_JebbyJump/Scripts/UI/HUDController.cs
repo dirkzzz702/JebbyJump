@@ -1,11 +1,14 @@
+using System.Collections.Generic;
 using JebbyJump.Analytics;
 using JebbyJump.Flow;
 using JebbyJump.Level;
 using JebbyJump.Progression;
 using JebbyJump.Rewards;
 using JebbyJump.Sequence;
+using JebbyJump.Shell;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace JebbyJump.UI
@@ -121,6 +124,10 @@ namespace JebbyJump.UI
                 _liveTimerText.text = FormatTime(0f);
         }
 
+        // P21 modal focus island for the result / game-over panels.
+        private readonly List<GameObject> _resultFocusIsland =
+            new List<GameObject>();
+
         private void Update()
         {
             // Live HUD timer (top-right).
@@ -131,6 +138,27 @@ namespace JebbyJump.UI
             {
                 _liveTimerText.text = FormatTime(_levelTimer.Elapsed);
             }
+
+            // Modal focus trap while a result / game-over panel is up.
+            bool panelUp =
+                (_levelCompletePanel != null && _levelCompletePanel.activeSelf)
+                || (_gameOverPanel != null && _gameOverPanel.activeSelf);
+            if (panelUp && _resultFocusIsland.Count > 0)
+                ShellFocusUtil.ReassertWithin(
+                    _resultFocusIsland, _resultFocusIsland[0]);
+        }
+
+        // Explicit nav + initial focus for the result panel: Next (if active)
+        // -> Retry -> Menu. Game Over: Retry -> Menu.
+        private void BuildResultFocus(params Selectable[] candidates)
+        {
+            var items = new List<Selectable>();
+            foreach (var s in candidates)
+                if (s != null && s.gameObject.activeSelf) items.Add(s);
+            ShellFocusUtil.BuildVerticalNavigation(items);
+            _resultFocusIsland.Clear();
+            foreach (var s in items) _resultFocusIsland.Add(s.gameObject);
+            if (items.Count > 0) ShellFocusUtil.Select(items[0]);
         }
 
         // Format seconds as MM:SS.SS.
@@ -184,6 +212,7 @@ namespace JebbyJump.UI
                 _levelCompletePanel.SetActive(false);
             if (_gameOverPanel != null)
                 _gameOverPanel.SetActive(true);
+            BuildResultFocus(_gameOverRetryButton, _gameOverMenuButton);
         }
 
         private void OnLevelCompleted()
@@ -211,6 +240,10 @@ namespace JebbyJump.UI
             RecordLevelCompletion();
 
             PopulateTimeRank();
+
+            // Focus fallback: Next (if not final) -> Retry -> Menu.
+            BuildResultFocus(_levelCompleteNextButton,
+                _levelCompleteRetryButton, _levelCompleteMenuButton);
         }
 
         private void RecordLevelCompletion()
@@ -371,6 +404,7 @@ namespace JebbyJump.UI
 
         private void OnRetryClicked()
         {
+            _resultFocusIsland.Clear();
             if (_gameOverPanel != null)
                 _gameOverPanel.SetActive(false);
             if (_levelCompletePanel != null)
@@ -380,6 +414,7 @@ namespace JebbyJump.UI
 
         private void OnNextLevelClicked()
         {
+            _resultFocusIsland.Clear();
             if (_gameOverPanel != null)
                 _gameOverPanel.SetActive(false);
             if (_levelCompletePanel != null)

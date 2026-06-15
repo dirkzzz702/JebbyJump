@@ -4,7 +4,10 @@ using JebbyJump.Flow;
 using JebbyJump.Level;
 using JebbyJump.Progression;
 using JebbyJump.Rewards;
+using JebbyJump.Shell;
+using JebbyJump.Wardrobe.Visual; // ScrollIntoViewCalculator (reused)
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace JebbyJump.UI
@@ -26,9 +29,12 @@ namespace JebbyJump.UI
         [SerializeField] private Button _backButton;
 
         [SerializeField] private GameObject _panelRoot;
+        [SerializeField] private ScrollRect _scrollRect; // optional; scroll-to-focus
 
         private readonly List<LevelSelectCard> _spawned =
             new List<LevelSelectCard>();
+        private GameObject _opener;          // restore focus here on Close
+        private int _lastFocusedCardIndex = -1;
 
         private void Awake()
         {
@@ -43,14 +49,74 @@ namespace JebbyJump.UI
 
         public void Open()
         {
+            _opener = EventSystem.current != null
+                ? EventSystem.current.currentSelectedGameObject : null;
             AnalyticsService.Track(AnalyticsEvents.LevelSelectOpened);
             if (_panelRoot != null) _panelRoot.SetActive(true);
             Rebuild();
+            BuildNavigationAndFocus();
         }
 
         public void Close()
         {
             if (_panelRoot != null) _panelRoot.SetActive(false);
+            ShellFocusUtil.Select(_opener); // restore Main Menu opener (P21)
+        }
+
+        // P21: explicit grid navigation over the live cards (locked cards stay
+        // focusable; bottom row -> Back) + deterministic initial focus
+        // (current/continue level if valid, else first card, else Back).
+        private void BuildNavigationAndFocus()
+        {
+            var cards = new List<Selectable>(_spawned.Count);
+            foreach (var c in _spawned)
+                cards.Add(c != null ? c.Selectable : null);
+            ShellFocusUtil.BuildGridNavigation(
+                cards, ShellLayoutMetrics.LevelSelectColumns, _backButton);
+
+            int count = _spawned.Count;
+            int preferred = _catalog != null
+                ? LevelProgressStore.GetContinueIndex(_catalog.Count) : 0;
+            int idx = ShellFocusResolver.ResolvePreferredOrFirst(count, preferred);
+            _lastFocusedCardIndex = -1;
+            if (idx >= 0 && _spawned[idx] != null)
+                ShellFocusUtil.Select(_spawned[idx].Selectable);
+            else
+                ShellFocusUtil.Select(_backButton);
+        }
+
+        private void Update()
+        {
+            if (_panelRoot == null || !_panelRoot.activeSelf) return;
+            ScrollFocusedCardIntoView();
+        }
+
+        private void ScrollFocusedCardIntoView()
+        {
+            if (_scrollRect == null || _scrollRect.content == null
+                || _scrollRect.viewport == null || EventSystem.current == null)
+                return;
+            var sel = EventSystem.current.currentSelectedGameObject;
+            if (sel == null) return;
+
+            int idx = -1;
+            for (int i = 0; i < _spawned.Count; i++)
+                if (_spawned[i] != null && _spawned[i].Selectable != null
+                    && _spawned[i].Selectable.gameObject == sel) { idx = i; break; }
+            if (idx < 0 || idx == _lastFocusedCardIndex) return;
+            _lastFocusedCardIndex = idx;
+
+            int columns = ShellLayoutMetrics.LevelSelectColumns;
+            int row = idx / columns;
+            float itemTop = ShellLayoutMetrics.GridPadding
+                + row * (ShellLayoutMetrics.LevelSelectCellHeight
+                    + ShellLayoutMetrics.GridSpacing);
+            _scrollRect.verticalNormalizedPosition =
+                ScrollIntoViewCalculator.ComputeVerticalNormalized(
+                    _scrollRect.content.rect.height,
+                    _scrollRect.viewport.rect.height, itemTop,
+                    ShellLayoutMetrics.LevelSelectCellHeight,
+                    _scrollRect.verticalNormalizedPosition);
         }
 
         public void Rebuild()

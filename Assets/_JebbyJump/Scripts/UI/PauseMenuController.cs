@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using JebbyJump.Analytics;
 using JebbyJump.Flow;
 using JebbyJump.Inputs;
@@ -5,6 +6,7 @@ using JebbyJump.Level;
 using JebbyJump.Sequence;
 using JebbyJump.Session;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace JebbyJump.UI
@@ -30,6 +32,11 @@ namespace JebbyJump.UI
         private bool _canPause = true;
         private bool _settingsOpen;
         public bool IsPaused { get; private set; }
+
+        // P21 focus: opener to restore on user Resume + the modal focus island.
+        private GameObject _pauseOpener;
+        private readonly List<GameObject> _pauseFocusIsland =
+            new List<GameObject>();
 
         private void Awake()
         {
@@ -110,7 +117,7 @@ namespace JebbyJump.UI
         {
             _canPause = false;
             if (_pauseButton != null) _pauseButton.interactable = false;
-            if (IsPaused) Resume();
+            if (IsPaused) Resume(false); // result/game-over panel sets its focus
         }
 
         private void TogglePause()
@@ -131,10 +138,43 @@ namespace JebbyJump.UI
             PauseState.SetPaused(true);
             Time.timeScale = 0f;
             if (_pausePanel != null) _pausePanel.SetActive(true);
+            BuildPauseFocus();
             TrackPause(AnalyticsEvents.PauseOpened);
         }
 
-        public void Resume()
+        // P21: explicit nav Resume->Restart->Settings->MainMenu + initial focus
+        // Resume; record the focus island for the modal trap.
+        private void BuildPauseFocus()
+        {
+            _pauseOpener = EventSystem.current != null
+                ? EventSystem.current.currentSelectedGameObject : null;
+            var items = new List<Selectable>
+            {
+                _resumeButton, _restartButton, _settingsButton, _mainMenuButton,
+            };
+            ShellFocusUtil.BuildVerticalNavigation(items);
+            _pauseFocusIsland.Clear();
+            foreach (var s in items)
+                if (s != null) _pauseFocusIsland.Add(s.gameObject);
+            ShellFocusUtil.Select(_resumeButton);
+        }
+
+        // Modal focus trap: while paused (and Settings is not the active child),
+        // keep keyboard/gamepad focus inside the pause buttons so underlying
+        // gameplay/mobile controls cannot receive Submit. Pointer is blocked by
+        // the panel's dim backdrop. Gameplay controls are NOT modified.
+        private void Update()
+        {
+            if (!IsPaused || _settingsOpen || _pauseFocusIsland.Count == 0)
+                return;
+            ShellFocusUtil.ReassertWithin(_pauseFocusIsland,
+                _resumeButton != null ? _resumeButton.gameObject : null);
+        }
+
+        // Button listener path: user-resume restores focus to the opener.
+        public void Resume() => Resume(true);
+
+        public void Resume(bool restoreFocus)
         {
             if (!IsPaused) return;
             IsPaused = false;
@@ -142,6 +182,10 @@ namespace JebbyJump.UI
             PauseState.SetPaused(false);
             Time.timeScale = 1f;
             if (_pausePanel != null) _pausePanel.SetActive(false);
+            _pauseFocusIsland.Clear();
+            // On run-end (result/game-over) the panel sets its own focus - do
+            // not fight it.
+            if (restoreFocus) ShellFocusUtil.Select(_pauseOpener);
             TrackPause(AnalyticsEvents.PauseResumed);
         }
 

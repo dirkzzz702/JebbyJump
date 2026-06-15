@@ -10,7 +10,8 @@
         "JebbyJump.Analytics.Runtime",
         "JebbyJump.Rewards.Runtime",
         "JebbyJump.Wardrobe.Runtime",
-        "JebbyJump.Wardrobe.Visual"
+        "JebbyJump.Wardrobe.Visual",
+        "JebbyJump.Shell.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

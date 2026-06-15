@@ -1,10 +1,7 @@
 {
-    "name": "JebbyJump.Wardrobe.Visual",
-    "rootNamespace": "JebbyJump.Wardrobe.Visual",
-    "references": [
-        "JebbyJump.Wardrobe.Runtime",
-        "JebbyJump.Shell.Runtime"
-    ],
+    "name": "JebbyJump.Shell.Runtime",
+    "rootNamespace": "JebbyJump.Shell",
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using JebbyJump.Analytics;
 using JebbyJump.Audio;
 using JebbyJump.Settings;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace JebbyJump.UI
@@ -28,6 +30,7 @@ namespace JebbyJump.UI
 
         private bool _initializing;
         private Action _onClosed;
+        private GameObject _opener; // restore focus here on Close (P21)
 
         private void Awake()
         {
@@ -65,8 +68,27 @@ namespace JebbyJump.UI
 
         public void Open()
         {
+            _opener = EventSystem.current != null
+                ? EventSystem.current.currentSelectedGameObject : null;
             PopulateFromStore();
             if (_panelRoot != null) _panelRoot.SetActive(true);
+            BuildNavigationAndFocus();
+        }
+
+        // P21: explicit nav Music -> SFX -> Mute -> Reduce Motion -> Reset ->
+        // Back; sliders keep Left/Right value adjustment (only Up/Down links
+        // set). Initial focus = first available control.
+        private void BuildNavigationAndFocus()
+        {
+            var items = new List<Selectable>
+            {
+                _musicSlider, _sfxSlider, _muteToggle,
+                _reduceMotionToggle, _resetButton,
+            };
+            ShellFocusUtil.BuildVerticalNavigation(items, _backButton);
+            foreach (var s in items)
+                if (s != null) { ShellFocusUtil.Select(s); return; }
+            ShellFocusUtil.Select(_backButton);
         }
 
         // Pause-menu path: open with a callback that fires on Close so the
@@ -87,6 +109,9 @@ namespace JebbyJump.UI
             var cb = _onClosed;
             _onClosed = null;
             cb?.Invoke();
+            // Restore focus AFTER the callback (the Pause path re-activates the
+            // Pause panel in cb, so the opener button is active again).
+            ShellFocusUtil.Select(_opener);
         }
 
         private void PopulateFromStore()

@@ -32,6 +32,12 @@ namespace JebbyJump.UI
         public event Action<int> Clicked;
         public int LevelIndex { get; private set; }
 
+        // P21: the card's Selectable, for explicit grid navigation. Locked cards
+        // stay focusable (interactable) so players can read their info; the
+        // controller blocks activation (no scene load, no analytics).
+        public Selectable Selectable => _button;
+        public bool IsUnlocked { get; private set; }
+
         private void Awake()
         {
             if (_button != null) _button.onClick.AddListener(OnClicked);
@@ -51,6 +57,7 @@ namespace JebbyJump.UI
         {
             LevelIndex = levelIndex;
             bool isUnlocked = state != LevelCardState.Locked;
+            IsUnlocked = isUnlocked;
 
             if (_levelNumberText != null)
                 _levelNumberText.text = (levelIndex + 1).ToString();
@@ -67,8 +74,11 @@ namespace JebbyJump.UI
             if (_lockedOverlay != null)
                 _lockedOverlay.SetActive(!isUnlocked);
 
+            // P21: keep locked cards interactable so they remain focusable for
+            // keyboard/gamepad info; the controller no-ops their activation.
+            // Lock state is shown by the overlay + tint (non-color-only).
             if (_button != null)
-                _button.interactable = isUnlocked;
+                _button.interactable = true;
 
             if (_background != null)
             {
