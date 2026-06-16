@@ -5,6 +5,13 @@ direct entry/overlay surfaces. P20 adds NO new wardrobe feature and changes NO
 outfit/reward/migration/gameplay/economy/art semantics. Rendered/on-device
 confirmation remains DEFERRED / NOT VERIFIED.
 
+> **P21 update:** the same patterns now extend to the wider shell (Main Menu,
+> Level Select, Settings, Pause, Result, Game Over) - see
+> `Jebby_Jump_Shell_Accessibility_and_Mobile_UI_Checklist_v0.1.md`. The 90-unit
+> touch metric is single-sourced in `ShellLayoutMetrics` (WardrobeLayoutMetrics
+> reuses it); the wardrobe's own safe-area/focus/reduced-motion behaviour is
+> unchanged.
+
 ## Scope
 
 - Main Menu Wardrobe button, Wardrobe panel, runtime outfit rows, selected

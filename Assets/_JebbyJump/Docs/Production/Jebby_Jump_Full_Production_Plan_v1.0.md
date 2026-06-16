@@ -316,6 +316,7 @@ Launch target:
 | P18   | In-Panel Outfit Preview + Wardrobe Persistence Migration | complete (UI-only animated pose carousel from extended WardrobePreviewLibrary; WardrobePersistenceMigrator separates ongoing equipped normalization from one-time schema stamp (v1) - runs at MainMenu init + Wardrobe.Open; 170/170 tests; no event/analytics on migration; Stars/acks/thresholds untouched; no art/gameplay/economy changes) |
 | P19   | Wardrobe Release Hardening + Save Migration Matrix | complete (read-only WardrobeStateAuditor + WardrobeStateSnapshot reading raw PlayerPrefs/key-presence; future-schema READ-ONLY policy + GetEffectiveOutfitId in-memory Classic fallback for player + panel; parameterized save-compatibility matrix + reset boundary + no-event/status/effective tests; editor Jebby Jump/QA/Audit Wardrobe State read-only command; no schema bump; Stars/unlocks/acks unchanged; no art/gameplay/economy changes) |
 | P20   | Accessibility + Mobile (Landscape) Wardrobe UI Hardening | complete (landscape-only ProjectSettings lock; SafeAreaFitter + pure responsive region layout incl. compact variant, validated across 16:9/18:9/19.5:9/20:9/4:3 x notch shapes; 90-unit touch targets; deterministic keyboard/gamepad nav + real ceremony focus trap + scroll-into-view; non-color-only Selected marker; Reduce Motion setting in Main Menu + Pause reusing settings_changed; no gameplay/economy/migration/art-semantic changes) |
+| P21   | Wider Shell Accessibility + Mobile Navigation Hardening | complete (extends P20 to Main Menu / Level Select / Settings / Pause / Result / Game Over; JebbyJump.Shell.Runtime pure helpers - ShellLayoutMetrics single-sources the 90 metric, ShellFocusResolver, GridNavigationBuilder, per-surface stack/grid bounds policies - + ShellFocusUtil + ShellScaffold; deterministic nav + initial focus + real modal traps + focus restore; true Level Select grid nav with focusable no-op locked cards + scroll-to-focus; dedicated GameShellCanvas (shell panels off the gameplay HUD/MobileControls canvases; 800x600 SequenceCanvas memory-gameplay left untouched); result/game-over made modal cards; settings hit-areas >=90 without oversizing toggle/slider visuals, slider Left/Right preserved; reuses settings_changed; no gameplay HUD/mobile-control/migration/economy/art changes) |
 
 P4 balance is intentionally deferred because manual tester data is not available yet.
 Current LevelConfig values and TimeRankConfig thresholds remain provisional.
@@ -796,6 +797,51 @@ threshold, gameplay, or economy changes. Manual visual QA remains
 **DEFERRED / NOT VERIFIED**. Recommended next: P15A Wardrobe Art Visual QA
 Checklist Execution or P15B Wardrobe UI Preview Thumbnail / Outfit Card
 Polish.
+
+## P21 - Wider Shell Accessibility + Mobile Navigation Hardening
+
+Status: **complete** (automated structural layer). Extends the P20 wardrobe
+accessibility patterns to the non-gameplay shell: Main Menu, Level Select,
+Settings (Main Menu + Pause), Pause, Pause->Settings, Level Complete, Game Over.
+No gameplay/economy/wardrobe-semantic changes; gameplay HUD/mobile controls +
+the memory-phase SequenceCanvas are untouched. Rendered/device QA DEFERRED.
+
+**Canvas (correction #1, verified):** the Game.unity 800x600 Constant-Pixel
+canvas is **SequenceCanvas** (memory-phase gameplay) - left unchanged, flagged
+for P22A. The shell panels shared gameplay canvases (LevelComplete/GameOver on
+HUDCanvas; Pause/Settings on MobileControlsCanvas), so `BuildGameShellCanvas`
+creates a dedicated **GameShellCanvas** (1920x1080 SWSS, sorted above gameplay)
+and moves them onto it (serialized refs survive). No gameplay-canvas scaler
+change.
+
+**Shared layer:** new `JebbyJump.Shell.Runtime` - `ShellLayoutMetrics`
+(canonical 90 touch metric; `WardrobeLayoutMetrics` now single-sources it),
+`ShellFocusResolver`, `GridNavigationBuilder` (true grid incl. partial rows),
+`ShellStackLayoutPolicy` + `ShellGridLayoutPolicy` (per-surface landscape bounds,
+not one proof for all - correction #3). Plus `ShellFocusUtil` (focus/nav/grid/
+modal-trap) + `ShellScaffold` (safe-area re-parent, hit-area sizing, standard
+scaler).
+
+**Per-surface:** safe-area content roots (backdrops edge-to-edge); >=90 touch
+targets (settings toggle/slider get a >=90 hit area with small visuals, slider
+Left/Right preserved); explicit nav + deterministic initial focus; real modal
+traps (pointer backdrop + focus-island re-assert + exact restore - correction
+#4); Level Select true grid nav with **focusable but no-op (no-analytics) locked
+cards** (correction #2) + scroll-to-focus; result/game-over centered cards turned
+into modals (full-screen backdrop + Card). Result focus fallback Next->Retry->
+Menu / Retry. Pause keeps `Time.timeScale`/`PauseState`.
+
+**Reduced motion:** the shell has no transition animations, so the Wardrobe pose
+carousel remains the only affected motion (documented; nothing invented). Same
+`AccessibilitySettingsStore` setting in both settings panels.
+
+Tests: pure (`ShellAccessibilityPureTests`) + `ShellSceneIntegrityTests`
+(GameShellCanvas, result/game-over modal cards, MenuSafeArea, one EventSystem +
+InputSystemUIInputModule per scene, SequenceCanvas preserved); the P20 wardrobe
+scene-integrity test relaxed for the added shell SafeArea roots. Scaffolds run
+twice (idempotent). No new analytics; no package/Jebby.prefab/gameplay-script
+changes. Recommended next: P22A gameplay HUD + mobile-controls hardening, or
+P22B manual visual + device QA.
 
 ## P20 - Accessibility + Mobile (Landscape) Wardrobe UI Hardening
 

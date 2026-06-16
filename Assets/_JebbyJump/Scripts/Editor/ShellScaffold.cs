@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using JebbyJump.Shell;
 using JebbyJump.UI;
 using UnityEditor;
@@ -11,49 +12,67 @@ using UnityEngine.UI;
 // live in one place.
 internal static class ShellScaffold
 {
-    // Ensures `panel` has a full-stretch "SafeArea" child (with a SafeAreaFitter
-    // targeting itself) and moves the named direct-content children into it.
-    // The panel's own backdrop Image is left on the panel (edge-to-edge).
-    // Idempotent: already-moved children + an existing fitter are reused.
-    public static RectTransform EnsureSafeArea(
-        GameObject panel, string[] contentNames)
+    // Full-screen panel: move ALL direct content children under a full-stretch
+    // "SafeArea" (the panel's own backdrop Image stays edge-to-edge).
+    // Idempotent: on re-run the only direct child is SafeArea, so nothing moves.
+    public static RectTransform EnsureSafeAreaMoveAll(GameObject panel)
     {
-        var existing = panel.transform.Find("SafeArea") as RectTransform;
+        var safe = EnsureSafeAreaRoot(panel.transform, "SafeArea");
+        var toMove = new List<Transform>();
+        foreach (Transform c in panel.transform)
+            if (c != safe) toMove.Add(c);
+        foreach (var c in toMove) c.SetParent(safe, false);
+        return safe;
+    }
+
+    // Move specific objects under a named SafeArea child of `parent` (e.g. the
+    // Main Menu button stack, leaving sibling panels alone).
+    public static RectTransform EnsureSafeAreaForObjects(
+        Transform parent, string safeName, IList<GameObject> objects)
+    {
+        var safe = EnsureSafeAreaRoot(parent, safeName);
+        foreach (var go in objects)
+            if (go != null && go.transform.parent != safe)
+                go.transform.SetParent(safe, false);
+        return safe;
+    }
+
+    private static RectTransform EnsureSafeAreaRoot(Transform parent, string name)
+    {
+        var existing = parent.Find(name) as RectTransform;
         RectTransform safe;
         if (existing != null) safe = existing;
         else
         {
-            var go = new GameObject("SafeArea", typeof(RectTransform));
-            go.transform.SetParent(panel.transform, false);
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(parent, false);
             Stretch(go.GetComponent<RectTransform>());
             safe = go.GetComponent<RectTransform>();
         }
-
         var fitter = safe.GetComponent<SafeAreaFitter>()
             ?? safe.gameObject.AddComponent<SafeAreaFitter>();
         var so = new SerializedObject(fitter);
         so.FindProperty("_target").objectReferenceValue = safe;
         so.ApplyModifiedPropertiesWithoutUndo();
-
-        foreach (var name in contentNames)
-        {
-            var t = FindDeep(panel.transform, name);
-            if (t != null && t.parent != safe) t.SetParent(safe, false);
-        }
         return safe;
     }
 
     // Raises a control's RectTransform height to at least the shell touch
-    // minimum WITHOUT changing its width (hit area only).
-    public static void EnsureMinHeight(Transform root, string name)
+    // minimum WITHOUT changing its width (hit area only - keeps small visuals).
+    public static void EnsureMinHeight(GameObject control)
     {
-        var t = FindDeep(root, name);
-        if (t == null) return;
-        var rt = t.GetComponent<RectTransform>();
+        if (control == null) return;
+        var rt = control.GetComponent<RectTransform>();
         if (rt == null) return;
         float min = ShellLayoutMetrics.MinTouchTargetCanvasUnits;
         if (rt.sizeDelta.y < min)
             rt.sizeDelta = new Vector2(rt.sizeDelta.x, min);
+    }
+
+    public static void EnsureMinHeight(Transform root, string name)
+    {
+        var t = FindDeep(root, name);
+        if (t != null) EnsureMinHeight(t.gameObject);
     }
 
     // Standard landscape CanvasScaler (Scale With Screen Size, 1920x1080,

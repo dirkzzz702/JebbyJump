@@ -1,4 +1,5 @@
 using JebbyJump.Audio;
+using JebbyJump.Shell;
 using JebbyJump.UI;
 using TMPro;
 using UnityEditor;
@@ -157,6 +158,7 @@ public static class BuildSettingsPanel
             // Rewire children into the controller in case they were
             // recreated by hand.
             WirePanelChildren(existingCtrl);
+            ApplyShellHardening(existingCtrl.gameObject); // P21
             existingCtrl.gameObject.SetActive(false);
             return existingCtrl;
         }
@@ -192,6 +194,7 @@ public static class BuildSettingsPanel
         var controller =
             panelGO.AddComponent<SettingsPanelController>();
         WirePanelChildren(controller);
+        ApplyShellHardening(panelGO); // P21
 
         panelGO.SetActive(false);
         Debug.Log("[Settings] Created SettingsPanel.");
@@ -201,22 +204,30 @@ public static class BuildSettingsPanel
     private static void WirePanelChildren(SettingsPanelController ctrl)
     {
         var panel = ctrl.gameObject;
+        var t = panel.transform;
         var so = new SerializedObject(ctrl);
+        // Deep search: P21's safe-area move relocates controls under a SafeArea
+        // root, so direct-child paths would resolve to null and UNWIRE the refs.
         Set(so, "_panelRoot", panel);
-        Set(so, "_musicSlider",
-            panel.transform.Find("MusicSlider/Slider")?.GetComponent<Slider>());
-        Set(so, "_sfxSlider",
-            panel.transform.Find("SfxSlider/Slider")?.GetComponent<Slider>());
-        Set(so, "_muteToggle",
-            panel.transform.Find("MuteToggle/Toggle")?.GetComponent<Toggle>());
+        Set(so, "_musicSlider", RowChild<Slider>(t, "MusicSlider", "Slider"));
+        Set(so, "_sfxSlider", RowChild<Slider>(t, "SfxSlider", "Slider"));
+        Set(so, "_muteToggle", RowChild<Toggle>(t, "MuteToggle", "Toggle"));
         Set(so, "_reduceMotionToggle",
-            panel.transform.Find("ReduceMotionToggle/Toggle")?.GetComponent<Toggle>());
+            RowChild<Toggle>(t, "ReduceMotionToggle", "Toggle"));
         Set(so, "_backButton",
-            panel.transform.Find("BackButton")?.GetComponent<Button>());
+            ShellScaffold.FindDeep(t, "BackButton")?.GetComponent<Button>());
         Set(so, "_resetButton",
-            panel.transform.Find("ResetButton")?.GetComponent<Button>());
+            ShellScaffold.FindDeep(t, "ResetButton")?.GetComponent<Button>());
         so.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(ctrl);
+    }
+
+    private static T RowChild<T>(Transform panel, string row, string child)
+        where T : Component
+    {
+        var r = ShellScaffold.FindDeep(panel, row);
+        var c = r != null ? r.Find(child) : null;
+        return c != null ? c.GetComponent<T>() : null;
     }
 
     private static AudioSettingsApplier EnsureApplier(Canvas canvas)
@@ -356,8 +367,9 @@ public static class BuildSettingsPanel
             .anchoredPosition.x;
 
         // Idempotent SettingsButton (cloned from Resume so style matches).
+        // Deep search: P21's safe-area move relocates it under a SafeArea root.
         Button settingsBtn;
-        var existing = pausePanel.Find("SettingsButton");
+        var existing = ShellScaffold.FindDeep(pausePanel, "SettingsButton");
         if (existing != null)
         {
             settingsBtn = existing.GetComponent<Button>();
@@ -383,6 +395,8 @@ public static class BuildSettingsPanel
         // Sibling order: place Settings between Restart and Main Menu.
         settingsBtn.transform.SetSiblingIndex(
             mainMenuBtn.transform.GetSiblingIndex());
+
+        ShellScaffold.EnsureMinHeight(settingsBtn.gameObject); // P21 touch target
 
         ctrlSo.FindProperty("_settingsButton").objectReferenceValue =
             settingsBtn;
@@ -569,7 +583,9 @@ public static class BuildSettingsPanel
     // (both MainMenu and the Game/pause SettingsPanel reuse this builder).
     private static void EnsureReduceMotionToggle(GameObject panel)
     {
-        if (panel.transform.Find("ReduceMotionToggle") == null)
+        // Deep search: P21's safe-area move relocates the toggle under a
+        // SafeArea root, so a direct-child Find would wrongly re-create it.
+        if (ShellScaffold.FindDeep(panel.transform, "ReduceMotionToggle") == null)
             CreateLabeledToggle(
                 panel.transform, "ReduceMotionToggle", "Reduce Motion", -120f);
 
@@ -579,10 +595,60 @@ public static class BuildSettingsPanel
 
     private static void MoveTo(GameObject panel, string name, Vector2 pos)
     {
-        var t = panel.transform.Find(name);
+        var t = ShellScaffold.FindDeep(panel.transform, name);
         if (t == null) return;
         var rt = t.GetComponent<RectTransform>();
         rt.anchoredPosition = pos;
         EditorUtility.SetDirty(rt);
+    }
+
+    // ---- P21 shell hardening (safe area + touch hit areas) ----------------
+
+    private static void ApplyShellHardening(GameObject panel)
+    {
+        // Buttons -> >=90. Toggles/sliders -> >=90 HIT area with small visuals.
+        ShellScaffold.EnsureMinHeight(panel.transform, "BackButton");
+        ShellScaffold.EnsureMinHeight(panel.transform, "ResetButton");
+        EnlargeToggleHitArea(panel.transform, "MuteToggle");
+        EnlargeToggleHitArea(panel.transform, "ReduceMotionToggle");
+        EnlargeSliderHitArea(panel.transform, "MusicSlider");
+        EnlargeSliderHitArea(panel.transform, "SfxSlider");
+        // Backdrop stays edge-to-edge; content moves under a safe-area root.
+        ShellScaffold.EnsureSafeAreaMoveAll(panel);
+    }
+
+    // DefaultControls toggle keeps a small fixed-anchor checkbox graphic, so
+    // enlarging the Toggle RectTransform enlarges only the hit area.
+    private static void EnlargeToggleHitArea(Transform panel, string rowName)
+    {
+        var row = ShellScaffold.FindDeep(panel, rowName);
+        var toggle = row != null ? row.Find("Toggle") : null;
+        if (toggle == null) return;
+        float min = ShellLayoutMetrics.MinTouchTargetCanvasUnits;
+        toggle.GetComponent<RectTransform>().sizeDelta = new Vector2(min, min);
+    }
+
+    // Enlarge the slider hit area to >=90 tall but keep the visible track +
+    // handle in a thin centered band (no oversized visual). Left/Right value
+    // adjustment is unaffected.
+    private static void EnlargeSliderHitArea(Transform panel, string rowName)
+    {
+        var row = ShellScaffold.FindDeep(panel, rowName);
+        var slider = row != null ? row.Find("Slider") : null;
+        if (slider == null) return;
+        var srt = slider.GetComponent<RectTransform>();
+        srt.sizeDelta = new Vector2(
+            srt.sizeDelta.x, ShellLayoutMetrics.MinTouchTargetCanvasUnits);
+        Band(slider.Find("Background"), 0.42f, 0.58f);
+        Band(slider.Find("Fill Area"), 0.42f, 0.58f);
+        Band(slider.Find("Handle Slide Area"), 0.30f, 0.70f);
+    }
+
+    private static void Band(Transform t, float yMin, float yMax)
+    {
+        if (t == null) return;
+        var rt = t.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(rt.anchorMin.x, yMin);
+        rt.anchorMax = new Vector2(rt.anchorMax.x, yMax);
     }
 }

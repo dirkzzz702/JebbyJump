@@ -33,11 +33,14 @@ namespace JebbyJump.Tests
         }
 
         [Test]
-        public void MainMenu_HasSingleSafeAreaContentRoot()
+        public void MainMenu_HasSafeAreaContentRoots()
         {
-            // "SafeArea" (wardrobe) and "CeremonySafeArea" are distinct names.
-            Assert.AreEqual(1, Count(Read("MainMenu.unity"), @"m_Name: SafeArea\b"),
-                "expected exactly one wardrobe SafeArea root");
+            // P21 adds shell SafeArea roots (Level Select, Settings) alongside
+            // the wardrobe's, so there are now multiple "SafeArea" roots; the
+            // wardrobe-unique one is pinned by MainMenu_HasSingleCeremonySafeArea.
+            Assert.GreaterOrEqual(
+                Count(Read("MainMenu.unity"), @"m_Name: SafeArea\b"), 1,
+                "expected at least the wardrobe SafeArea content root");
         }
 
         [Test]

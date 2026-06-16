@@ -72,6 +72,25 @@ public static class BuildLevelSelectPanel
             controller, panelRoot, content, backButton, cardPrefab, catalog);
         bool menuWired = WireMainMenuStart(controller);
 
+        // P21: wire the ScrollRect (scroll-to-focus), enforce the Back touch
+        // target, and move content under a safe-area root (backdrop stays
+        // edge-to-edge). Wiring uses the original child paths above, so the
+        // refs survive the re-parent.
+        var scroll = panelRoot.GetComponentInChildren<ScrollRect>(true);
+        if (scroll != null)
+        {
+            var lsSo = new SerializedObject(controller);
+            var sp = lsSo.FindProperty("_scrollRect");
+            if (sp != null && sp.objectReferenceValue == null)
+            {
+                sp.objectReferenceValue = scroll;
+                lsSo.ApplyModifiedPropertiesWithoutUndo();
+                EditorUtility.SetDirty(controller);
+            }
+        }
+        ShellScaffold.EnsureMinHeight(panelRoot, "BackButton");
+        ShellScaffold.EnsureSafeAreaMoveAll(panelRoot.gameObject);
+
         // Default to hidden; Main Menu controls visibility via Open().
         panelRoot.gameObject.SetActive(false);
 

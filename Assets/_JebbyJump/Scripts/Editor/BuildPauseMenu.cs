@@ -42,9 +42,11 @@ public static class BuildPauseMenu
         Button pauseButton = EnsurePauseButton(canvas);
         Transform pauseMenu = EnsurePauseMenuRoot(canvas);
         GameObject pausePanel = EnsurePausePanel(pauseMenu);
-        Button resume   = pausePanel.transform.Find("ResumeButton")?.GetComponent<Button>();
-        Button restart  = pausePanel.transform.Find("RestartButton")?.GetComponent<Button>();
-        Button mainMenu = pausePanel.transform.Find("MainMenuButton")?.GetComponent<Button>();
+        // Deep search: P21's safe-area move relocates the buttons under a
+        // SafeArea root, so direct-child paths would null out the refs.
+        Button resume   = ShellScaffold.FindDeep(pausePanel.transform, "ResumeButton")?.GetComponent<Button>();
+        Button restart  = ShellScaffold.FindDeep(pausePanel.transform, "RestartButton")?.GetComponent<Button>();
+        Button mainMenu = ShellScaffold.FindDeep(pausePanel.transform, "MainMenuButton")?.GetComponent<Button>();
 
         var controller =
             pauseMenu.GetComponent<PauseMenuController>()
@@ -52,6 +54,13 @@ public static class BuildPauseMenu
 
         WireController(
             controller, pauseButton, pausePanel, resume, restart, mainMenu);
+
+        // P21: >=90 touch targets + safe-area content root (backdrop stays
+        // edge-to-edge). Done before hiding the panel.
+        ShellScaffold.EnsureMinHeight(pausePanel.transform, "ResumeButton");
+        ShellScaffold.EnsureMinHeight(pausePanel.transform, "RestartButton");
+        ShellScaffold.EnsureMinHeight(pausePanel.transform, "MainMenuButton");
+        ShellScaffold.EnsureSafeAreaMoveAll(pausePanel);
 
         // Panel hidden by default; controller toggles it.
         pausePanel.SetActive(false);
@@ -86,12 +95,15 @@ public static class BuildPauseMenu
 
     private static Button EnsurePauseButton(Canvas canvas)
     {
-        var existing = canvas.transform.Find("PauseButton");
-        if (existing != null)
-        {
-            Debug.Log("[Pause] PauseButton already present - reusing.");
-            return existing.GetComponent<Button>();
-        }
+        // Scene-wide search (robust to the P21 GameShellCanvas move).
+        var all = Object.FindObjectsByType<Button>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var b in all)
+            if (b.gameObject.name == "PauseButton")
+            {
+                Debug.Log("[Pause] PauseButton already present - reusing.");
+                return b;
+            }
 
         var go = CreateButton(canvas.transform, "PauseButton", "||");
         var rt = go.GetComponent<RectTransform>();
@@ -108,6 +120,12 @@ public static class BuildPauseMenu
 
     private static Transform EnsurePauseMenuRoot(Canvas canvas)
     {
+        // Prefer the existing PauseMenu (found via its controller) wherever it
+        // lives - P21 moves it onto a dedicated GameShellCanvas.
+        var ctrl = Object.FindFirstObjectByType<PauseMenuController>(
+            FindObjectsInactive.Include);
+        if (ctrl != null) return ctrl.transform;
+
         var existing = canvas.transform.Find("PauseMenu");
         if (existing != null) return existing;
 

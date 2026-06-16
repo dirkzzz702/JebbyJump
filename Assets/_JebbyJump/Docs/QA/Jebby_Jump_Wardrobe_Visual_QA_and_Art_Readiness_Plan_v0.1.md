@@ -424,6 +424,7 @@ P17 live outfit re-sync + default restoration ........ DEFERRED / NOT VERIFIED
 P18 in-panel preview carousel + save migration ....... DEFERRED / NOT VERIFIED
 P19 wardrobe save/release hardening (on-device migration) DEFERRED / NOT VERIFIED
 P20 wardrobe accessibility/mobile-device verification  DEFERRED / NOT VERIFIED
+P21 wider-shell accessibility/mobile-device verification DEFERRED / NOT VERIFIED
 P4B manual playtest + balance tuning ................. DEFERRED
 ```
 

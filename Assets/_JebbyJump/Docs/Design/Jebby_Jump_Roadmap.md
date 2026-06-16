@@ -176,6 +176,7 @@ P17 — Live Outfit Re-Sync + Default Visual Restoration   : complete (new Wardr
 P18 — In-Panel Outfit Preview + Wardrobe Persistence Migration : complete (A) preview: animated UI-only pose carousel (idle->run->jump->fall->land->victory, Hurt excluded; locked dimmed) driving the existing SelectedPreview Image on unscaled time - WardrobePreviewLibrary extended to per-pose sprites (TryGetPreview still returns Idle so P15 rows/ceremony unchanged) + pure WardrobePreviewSequenceBuilder + pure WardrobePreviewPlayer (large-delta/empty/zero-dt safe); separate from the gameplay Jebby. (B) persistence: new WardrobePersistenceKeys (centralizes the existing keys + a new jebby.wardrobe.schemaVersion) + WardrobePersistenceMigrator - ONGOING equipped normalization (unknown/empty/locked->default) runs every call regardless of schema version, ONE-TIME schema stamp (current=1; absent=legacy) only when behind, future version never downgraded; corrections write via WardrobeStore so NO event/analytics fire; never touches Stars/acks/thresholds. Invoked at MainMenu init (before Continue) + defensively in Wardrobe.Open. Reset Wardrobe stamps current schema. 170/170 tests; no art/gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED)
 P19 — Wardrobe Release Hardening + Save Migration Matrix : complete (release-hardening only, no new feature, NO schema bump; future schema (>current) now READ-ONLY - MigrateIfNeeded makes no normalization/schema/Stars/ack writes, no event/analytics, returns FutureVersionUnsupported, and the game shows in-memory Classic via new read-only GetEffectiveOutfitId([stars]) used by PlayerOutfitVisualController spawn + panel display; WardrobeMigrationResult gained Status+DidWrite, schema stamped LAST for interrupt-safe recovery; new read-only WardrobeStateAuditor + WardrobeStateSnapshot read RAW PlayerPrefs/key-presence, distinguishing a missing equipped key (clean implicit Classic) from a present-empty value (repairable), future schema flagged non-repairing; editor Jebby Jump/QA/Audit Wardrobe State read-only command (null-safe); parameterized save-compatibility matrix + reset boundary + no-event/status/effective/schema-last tests + duplicate-visual-id guard; Stars/unlocks/acks unchanged; no art/gameplay/economy changes; manual visual QA DEFERRED/NOT VERIFIED)
 P20 — Accessibility + Mobile (Landscape) Wardrobe UI Hardening : complete (automated structural layer; game confirmed LANDSCAPE-only, ProjectSettings locked; SafeAreaFitter on wardrobe + ceremony content roots via pure SafeAreaCalculator; pure CanvasScalerMath + WardrobeResponsiveLayout region layout with a COMPACT variant, validated by tests across 16:9/18:9/19.5:9/20:9/4:3 x notch shapes (bounds/non-overlap/touch>=90); rows 64->90 via single-sourced WardrobeLayoutMetrics; deterministic keyboard/gamepad nav + real ceremony focus trap (interactable + re-assert) + scroll-into-view (pure helpers); non-color-only Selected bar; Reduce Motion setting (AccessibilitySettingsStore, jebby.settings.reduceMotion default off) toggle in Main Menu + Pause, freezes preview to Idle, cached/event-driven, reuses settings_changed; YAML scene-integrity; scaffolds idempotent; no gameplay/economy/migration/art-semantic/package changes; manual/device QA DEFERRED/NOT VERIFIED)
+P21 — Wider Shell Accessibility + Mobile Navigation Hardening : complete (automated structural layer; extends P20 to Main Menu / Level Select / Settings / Pause / Result / Game Over; new JebbyJump.Shell.Runtime pure helpers (ShellLayoutMetrics single-sources the 90 touch metric, ShellFocusResolver, GridNavigationBuilder true-grid, Shell stack/grid bounds policies per-surface) + ShellFocusUtil + ShellScaffold; deterministic keyboard/gamepad nav + initial focus + real modal traps (pointer backdrop + focus-island re-assert) + focus restore; true Level Select grid nav with focusable no-op locked cards + scroll-to-focus; >=90 hit areas (settings toggle/slider hit-area enlarged without oversizing visuals, slider Left/Right preserved); dedicated GameShellCanvas (shell panels moved off gameplay HUD/MobileControls canvases) - 800x600 SequenceCanvas (memory gameplay) left untouched; result/game-over made modal cards; reuses settings_changed; no gameplay HUD/mobile-control/migration/economy/art changes; manual/device QA DEFERRED/NOT VERIFIED)
 ```
 
 P18 added (A) an in-panel outfit preview and (B) wardrobe save migration. The
@@ -198,6 +199,22 @@ at Main-Menu init (before Continue/any gameplay load) and defensively in
 Wardrobe.Open. Reset Wardrobe stamps the current schema. 170/170 tests. No new
 art, gameplay, economy, or threshold changes. Rendered preview + on-device
 migration remain DEFERRED / NOT VERIFIED.
+
+P21 extended the accessibility/mobile hardening from the Wardrobe to the wider
+shell - Main Menu, Level Select, Settings (both entry points), Pause,
+Pause->Settings, Level Complete, and Game Over. A shared JebbyJump.Shell.Runtime
+layer (pure focus/grid-nav/bounds helpers + the single-sourced 90-unit touch
+metric) plus ShellFocusUtil/ShellScaffold drive deterministic keyboard/gamepad
+navigation, initial focus, real modal traps (full-screen raycast backdrop +
+focus-island re-assert, no gameplay-control changes), and exact focus
+restoration. Level Select got true grid navigation (focusable but no-op locked
+cards, scroll-to-focus). Verified the Game.unity 800x600 canvas is the
+memory-phase SequenceCanvas (gameplay, left untouched, flagged for P22A); the
+shell panels were moved onto a dedicated GameShellCanvas, and the centered
+result/game-over panels became proper modals. Reduce Motion stays the only
+affected motion (no shell transitions). No gameplay HUD/mobile-control/
+migration/economy/art changes; rendered/device QA remains DEFERRED / NOT
+VERIFIED.
 
 P20 hardened the Wardrobe for landscape mobile + accessibility (no new feature).
 The game is landscape-only (ProjectSettings locked; stale "portrait" doc lines
@@ -508,6 +525,12 @@ P20 — wardrobe accessibility / mobile (landscape)  [DEFERRED / NOT VERIFIED]
   - safe-area/layout/nav/focus/reduce-motion logic test-verified, but rendered
     layout on real devices, notch handling, touch comfort, contrast, and
     gamepad/screen-reader UX were never observed
+
+P21 — wider-shell accessibility / mobile (landscape)  [DEFERRED / NOT VERIFIED]
+  - shell nav/focus/modal-trap/safe-area/grid logic test-verified, but rendered
+    Main Menu / Level Select / Settings / Pause / Result / Game Over layouts,
+    notch handling, touch comfort, contrast, and gamepad/screen-reader UX were
+    never observed on a device
 
 P19 — wardrobe save/release hardening  [DEFERRED / NOT VERIFIED]
   - audit/matrix/future-read-only/reset logic test-verified, but on-device
