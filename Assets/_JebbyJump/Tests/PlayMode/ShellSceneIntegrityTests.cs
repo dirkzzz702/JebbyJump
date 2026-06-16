@@ -57,6 +57,46 @@ namespace JebbyJump.Tests
             StringAssert.Contains("InputSystemUIInputModule", t);
         }
 
+        // Check 1: GameShellCanvas renders + receives input ABOVE gameplay.
+        // Only GameShellCanvas uses sortingOrder 500; its GraphicRaycaster is
+        // created with the canvas (BuildGameShellCanvas), so input ordering
+        // follows the render order.
+        [Test]
+        public void Game_GameShellCanvasSortsAboveGameplay()
+        {
+            Assert.GreaterOrEqual(
+                Count(Read("Game.unity"), @"m_SortingOrder: 500"), 1,
+                "GameShellCanvas should sort (and raycast) above gameplay");
+        }
+
+        // Check 4: every SafeAreaFitter target is wired (no fitter left
+        // pointing at fileID 0) in both scenes.
+        [Test]
+        public void SafeAreaFitters_AllTargetsWired()
+        {
+            Assert.AreEqual(0,
+                Count(Read("MainMenu.unity"), @"_target: \{fileID: 0\}"),
+                "a MainMenu SafeAreaFitter target is unwired");
+            Assert.AreEqual(0,
+                Count(Read("Game.unity"), @"_target: \{fileID: 0\}"),
+                "a Game SafeAreaFitter target is unwired");
+        }
+
+        // Check 4: idempotency guard - the scaffolds must not duplicate the
+        // safe-area roots on re-run (3 panel SafeAreas + 1 MenuSafeArea + the
+        // wardrobe's 1 CeremonySafeArea in Main Menu; pause + settings in Game).
+        [Test]
+        public void SafeAreaRoots_AreNotDuplicated()
+        {
+            string mm = Read("MainMenu.unity");
+            Assert.AreEqual(3, Count(mm, @"m_Name: SafeArea\b"),
+                "Main Menu: Level Select + Settings + Wardrobe SafeArea roots");
+            Assert.AreEqual(1, Count(mm, @"m_Name: MenuSafeArea\b"));
+            Assert.AreEqual(1, Count(mm, @"m_Name: CeremonySafeArea\b"));
+            Assert.AreEqual(2, Count(Read("Game.unity"), @"m_Name: SafeArea\b"),
+                "Game: Pause + Settings SafeArea roots");
+        }
+
         [Test]
         public void MainMenu_HasMenuSafeAreaAndEventSystem()
         {
