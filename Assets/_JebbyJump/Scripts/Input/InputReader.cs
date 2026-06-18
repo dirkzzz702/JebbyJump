@@ -17,6 +17,12 @@ namespace JebbyJump.Inputs
         public Vector2 Move { get; private set; }
         public bool IsJumpHeld { get; private set; }
 
+        // P22: gameplay input layer gate. When false, movement / jump / skill
+        // inputs are ignored and any held state is cleared (Pause + UI nav are
+        // unaffected). Defaults true so normal play is unchanged; only the
+        // GameplayModalInputGate flips it while a shell modal is active.
+        public bool GameplayInputEnabled { get; private set; } = true;
+
         private JebbyInputActions _actions;
 
         private void OnEnable()
@@ -40,13 +46,14 @@ namespace JebbyJump.Inputs
 
         void JebbyInputActions.IPlayerActions.OnMove(InputAction.CallbackContext ctx)
         {
-            Move = ctx.ReadValue<Vector2>();
+            Move = GameplayInputEnabled ? ctx.ReadValue<Vector2>() : Vector2.zero;
         }
 
         void JebbyInputActions.IPlayerActions.OnJump(InputAction.CallbackContext ctx)
         {
             if (ctx.started)
             {
+                if (!GameplayInputEnabled) return;
                 IsJumpHeld = true;
                 JumpStartedEvent?.Invoke();
             }
@@ -59,17 +66,37 @@ namespace JebbyJump.Inputs
 
         void JebbyInputActions.IPlayerActions.OnUseItem(InputAction.CallbackContext ctx)
         {
-            if (ctx.started) UseItemStartedEvent?.Invoke();
+            if (ctx.started && GameplayInputEnabled) UseItemStartedEvent?.Invoke();
         }
 
         void JebbyInputActions.IPlayerActions.OnUseSkill2(InputAction.CallbackContext ctx)
         {
-            if (ctx.started) UseSkill2StartedEvent?.Invoke();
+            if (ctx.started && GameplayInputEnabled) UseSkill2StartedEvent?.Invoke();
         }
 
         void JebbyInputActions.IPlayerActions.OnUseSkill3(InputAction.CallbackContext ctx)
         {
-            if (ctx.started) UseSkill3StartedEvent?.Invoke();
+            if (ctx.started && GameplayInputEnabled) UseSkill3StartedEvent?.Invoke();
+        }
+
+        // P22 correction #1: block AND clear the gameplay input layer. Disabling
+        // ignores move/jump/skill (keyboard, gamepad, and on-screen touch all
+        // route through these callbacks) and clears any held state so a control
+        // held when a modal opens cannot stick "on" or lurch on resume. The
+        // Pause action and the UI input module are deliberately untouched.
+        public void SetGameplayInputEnabled(bool enabled)
+        {
+            if (GameplayInputEnabled == enabled) return;
+            GameplayInputEnabled = enabled;
+            if (!enabled)
+            {
+                Move = Vector2.zero;
+                if (IsJumpHeld)
+                {
+                    IsJumpHeld = false;
+                    JumpCanceledEvent?.Invoke();
+                }
+            }
         }
 
         void JebbyInputActions.IPlayerActions.OnPause(InputAction.CallbackContext ctx)

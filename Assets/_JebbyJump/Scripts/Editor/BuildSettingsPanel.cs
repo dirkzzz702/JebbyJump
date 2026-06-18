@@ -152,9 +152,9 @@ public static class BuildSettingsPanel
                 FindObjectsInactive.Include);
         if (existingCtrl != null)
         {
-            // P20: ensure the Reduce Motion toggle exists on already-scaffolded
-            // panels (both MainMenu and the Game/pause panel) on re-run.
-            EnsureReduceMotionToggle(existingCtrl.gameObject);
+            // P20 Reduce Motion + P22 Memory Cues: ensure both accessibility
+            // toggles exist on already-scaffolded panels (MainMenu + Game/pause).
+            EnsureAccessibilityToggles(existingCtrl.gameObject);
             // Rewire children into the controller in case they were
             // recreated by hand.
             WirePanelChildren(existingCtrl);
@@ -179,16 +179,16 @@ public static class BuildSettingsPanel
         CreateLabeledSlider(panelGO.transform, "MusicSlider", "Music", 120f);
         CreateLabeledSlider(panelGO.transform, "SfxSlider", "SFX", 30f);
         CreateLabeledToggle(panelGO.transform, "MuteToggle", "Mute", -60f);
-        EnsureReduceMotionToggle(panelGO); // P20 accessibility (at -120)
+        EnsureAccessibilityToggles(panelGO); // P20 Reduce Motion + P22 Memory Cues
 
         var back = CreateButton(panelGO.transform, "BackButton", "Back");
         SetRect(back, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-            new Vector2(0.5f, 0.5f), new Vector2(-110f, -210f),
+            new Vector2(0.5f, 0.5f), new Vector2(-110f, -270f),
             new Vector2(180f, 72f));
 
         var reset = CreateButton(panelGO.transform, "ResetButton", "Reset");
         SetRect(reset, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-            new Vector2(0.5f, 0.5f), new Vector2(110f, -210f),
+            new Vector2(0.5f, 0.5f), new Vector2(110f, -270f),
             new Vector2(180f, 72f));
 
         var controller =
@@ -214,6 +214,8 @@ public static class BuildSettingsPanel
         Set(so, "_muteToggle", RowChild<Toggle>(t, "MuteToggle", "Toggle"));
         Set(so, "_reduceMotionToggle",
             RowChild<Toggle>(t, "ReduceMotionToggle", "Toggle"));
+        Set(so, "_memoryCuesToggle",
+            RowChild<Toggle>(t, "MemoryCuesToggle", "Toggle"));
         Set(so, "_backButton",
             ShellScaffold.FindDeep(t, "BackButton")?.GetComponent<Button>());
         Set(so, "_resetButton",
@@ -392,9 +394,14 @@ public static class BuildSettingsPanel
         SetY(settingsBtn, x, PauseSettingsY);
         SetY(mainMenuBtn, x, PauseMainMenuY);
 
-        // Sibling order: place Settings between Restart and Main Menu.
-        settingsBtn.transform.SetSiblingIndex(
-            mainMenuBtn.transform.GetSiblingIndex());
+        // Sibling order: place Settings before Main Menu. Idempotent - only
+        // move when Settings is currently AFTER Main Menu, so re-runs don't
+        // oscillate the two siblings (the buttons are positioned by
+        // anchoredPosition, so sibling order is render/nav order only).
+        if (settingsBtn.transform.GetSiblingIndex()
+            > mainMenuBtn.transform.GetSiblingIndex())
+            settingsBtn.transform.SetSiblingIndex(
+                mainMenuBtn.transform.GetSiblingIndex());
 
         ShellScaffold.EnsureMinHeight(settingsBtn.gameObject); // P21 touch target
 
@@ -578,19 +585,23 @@ public static class BuildSettingsPanel
             new Vector2(60f, 60f));
     }
 
-    // P20: idempotently add a "Reduce Motion" toggle and nudge Back/Reset down
-    // so they do not overlap it. Safe on fresh AND already-scaffolded panels
-    // (both MainMenu and the Game/pause SettingsPanel reuse this builder).
-    private static void EnsureReduceMotionToggle(GameObject panel)
+    // P20 Reduce Motion + P22 Memory Cues: idempotently add both accessibility
+    // toggles and nudge Back/Reset below them. Safe on fresh AND already-
+    // scaffolded panels (both MainMenu and the Game/pause SettingsPanel reuse
+    // this builder).
+    private static void EnsureAccessibilityToggles(GameObject panel)
     {
-        // Deep search: P21's safe-area move relocates the toggle under a
-        // SafeArea root, so a direct-child Find would wrongly re-create it.
+        // Deep search: P21's safe-area move relocates toggles under a SafeArea
+        // root, so a direct-child Find would wrongly re-create them.
         if (ShellScaffold.FindDeep(panel.transform, "ReduceMotionToggle") == null)
             CreateLabeledToggle(
                 panel.transform, "ReduceMotionToggle", "Reduce Motion", -120f);
+        if (ShellScaffold.FindDeep(panel.transform, "MemoryCuesToggle") == null)
+            CreateLabeledToggle(
+                panel.transform, "MemoryCuesToggle", "Memory Cues", -180f);
 
-        MoveTo(panel, "BackButton", new Vector2(-110f, -210f));
-        MoveTo(panel, "ResetButton", new Vector2(110f, -210f));
+        MoveTo(panel, "BackButton", new Vector2(-110f, -270f));
+        MoveTo(panel, "ResetButton", new Vector2(110f, -270f));
     }
 
     private static void MoveTo(GameObject panel, string name, Vector2 pos)
@@ -611,6 +622,7 @@ public static class BuildSettingsPanel
         ShellScaffold.EnsureMinHeight(panel.transform, "ResetButton");
         EnlargeToggleHitArea(panel.transform, "MuteToggle");
         EnlargeToggleHitArea(panel.transform, "ReduceMotionToggle");
+        EnlargeToggleHitArea(panel.transform, "MemoryCuesToggle");
         EnlargeSliderHitArea(panel.transform, "MusicSlider");
         EnlargeSliderHitArea(panel.transform, "SfxSlider");
         // Backdrop stays edge-to-edge; content moves under a safe-area root.

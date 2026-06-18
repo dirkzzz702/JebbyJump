@@ -24,6 +24,7 @@ namespace JebbyJump.UI
         [SerializeField] private Slider _sfxSlider;
         [SerializeField] private Toggle _muteToggle;
         [SerializeField] private Toggle _reduceMotionToggle;
+        [SerializeField] private Toggle _memoryCuesToggle;
         [SerializeField] private Button _backButton;
         [SerializeField] private Button _resetButton;
         [SerializeField] private AudioSettingsApplier _applier;
@@ -44,6 +45,8 @@ namespace JebbyJump.UI
                 _muteToggle.onValueChanged.AddListener(OnMuteChanged);
             if (_reduceMotionToggle != null)
                 _reduceMotionToggle.onValueChanged.AddListener(OnReduceMotionChanged);
+            if (_memoryCuesToggle != null)
+                _memoryCuesToggle.onValueChanged.AddListener(OnMemoryCuesChanged);
             if (_backButton != null)
                 _backButton.onClick.AddListener(Close);
             if (_resetButton != null)
@@ -60,6 +63,8 @@ namespace JebbyJump.UI
                 _muteToggle.onValueChanged.RemoveListener(OnMuteChanged);
             if (_reduceMotionToggle != null)
                 _reduceMotionToggle.onValueChanged.RemoveListener(OnReduceMotionChanged);
+            if (_memoryCuesToggle != null)
+                _memoryCuesToggle.onValueChanged.RemoveListener(OnMemoryCuesChanged);
             if (_backButton != null)
                 _backButton.onClick.RemoveListener(Close);
             if (_resetButton != null)
@@ -83,7 +88,7 @@ namespace JebbyJump.UI
             var items = new List<Selectable>
             {
                 _musicSlider, _sfxSlider, _muteToggle,
-                _reduceMotionToggle, _resetButton,
+                _reduceMotionToggle, _memoryCuesToggle, _resetButton,
             };
             ShellFocusUtil.BuildVerticalNavigation(items, _backButton);
             foreach (var s in items)
@@ -125,6 +130,8 @@ namespace JebbyJump.UI
                 _muteToggle.isOn = AudioSettingsStore.Muted;
             if (_reduceMotionToggle != null)
                 _reduceMotionToggle.isOn = AccessibilitySettingsStore.ReduceMotion;
+            if (_memoryCuesToggle != null)
+                _memoryCuesToggle.isOn = AccessibilitySettingsStore.MemoryCues;
             _initializing = false;
         }
 
@@ -167,6 +174,19 @@ namespace JebbyJump.UI
             AccessibilitySettingsStore.ReduceMotion = value;
             AnalyticsService.Track(AnalyticsEvents.SettingsChanged,
                 AnalyticsParam.Of(AnalyticsParams.SettingName, "reduce_motion"),
+                AnalyticsParam.Of(AnalyticsParams.Value, value));
+        }
+
+        // Memory Cues (P22 accessibility): opt-in non-color cue on the memory
+        // swatches + platforms. Default OFF; never changes sequence timing,
+        // order, colors, or answer validation. Reuses the generic
+        // settings_changed analytic (no new event).
+        private void OnMemoryCuesChanged(bool value)
+        {
+            if (_initializing) return;
+            AccessibilitySettingsStore.MemoryCues = value;
+            AnalyticsService.Track(AnalyticsEvents.SettingsChanged,
+                AnalyticsParam.Of(AnalyticsParams.SettingName, "memory_cues"),
                 AnalyticsParam.Of(AnalyticsParams.Value, value));
         }
 

@@ -40,13 +40,26 @@ namespace JebbyJump.Tests
         }
 
         [Test]
-        public void Game_SequenceCanvasLeftUntouched()
+        public void Game_SequenceCanvasConvertedToStandardScaler()
         {
-            // The memory-phase gameplay canvas (out of scope) keeps its scaler.
-            StringAssert.Contains("m_Name: SequenceCanvas", Read("Game.unity"));
-            Assert.GreaterOrEqual(
-                Count(Read("Game.unity"), @"x: 800, y: 600"), 1,
-                "SequenceCanvas 800x600 scaler must be preserved (gameplay)");
+            // P22: the memory-phase canvas is migrated off the legacy 800x600
+            // Constant-Pixel scaler to the standard SWSS 1920x1080 (visual-only;
+            // RenderMode + sorting are untouched). No 800x600 ref resolution
+            // remains, and the canvas itself is still present.
+            string t = Read("Game.unity");
+            StringAssert.Contains("m_Name: SequenceCanvas", t);
+            Assert.AreEqual(0, Count(t, @"x: 800, y: 600"),
+                "SequenceCanvas must be converted off the legacy 800x600 scaler");
+        }
+
+        // P22: the gameplay modal input gate exists (blocks + clears gameplay
+        // input under shell modals). Lives on the always-active HUDCanvas.
+        [Test]
+        public void Game_HasGameplayModalInputGate()
+        {
+            Assert.AreEqual(1,
+                Count(Read("Game.unity"), @"GameplayModalInputGate"),
+                "expected exactly one GameplayModalInputGate");
         }
 
         [Test]
@@ -93,8 +106,9 @@ namespace JebbyJump.Tests
                 "Main Menu: Level Select + Settings + Wardrobe SafeArea roots");
             Assert.AreEqual(1, Count(mm, @"m_Name: MenuSafeArea\b"));
             Assert.AreEqual(1, Count(mm, @"m_Name: CeremonySafeArea\b"));
-            Assert.AreEqual(2, Count(Read("Game.unity"), @"m_Name: SafeArea\b"),
-                "Game: Pause + Settings SafeArea roots");
+            Assert.AreEqual(5, Count(Read("Game.unity"), @"m_Name: SafeArea\b"),
+                "Game: Pause + Settings + HUD + MobileControls + Sequence "
+                + "SafeArea roots (P22)");
         }
 
         [Test]

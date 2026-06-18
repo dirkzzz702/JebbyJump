@@ -200,6 +200,20 @@ Wardrobe.Open. Reset Wardrobe stamps the current schema. 170/170 tests. No new
 art, gameplay, economy, or threshold changes. Rendered preview + on-device
 migration remain DEFERRED / NOT VERIFIED.
 
+P22 extended the same accessibility/mobile hardening to the ACTIVE gameplay
+layer - the HUD (lives/level/timer), the mobile controls (move/jump/3 skills/
+pause), and the memory phase - under safe-area roots across the landscape
+aspect matrix. A GameplayModalInputGate now blocks AND clears gameplay input
+(keyboard/gamepad/touch, with held-state release) under Pause/Result/Game Over
+while keeping Pause + UI navigation live. An opt-in "Memory Cues" setting
+(default OFF) renders a stable non-color cue (numbers via PlatformCueMapping) on
+both the memory swatches and the platforms - the same mapping on both - without
+touching sequence order/timing/colors/validation. SequenceCanvas was migrated
+off the legacy 800x600 Constant-Pixel scaler to the standard SWSS 1920x1080
+(visual/layout-only; render/sorting preserved). No physics/skill/timer/economy/
+art changes; rendered/device QA (incl. the SWSS swatch re-check) remains
+DEFERRED / NOT VERIFIED.
+
 P21 extended the accessibility/mobile hardening from the Wardrobe to the wider
 shell - Main Menu, Level Select, Settings (both entry points), Pause,
 Pause->Settings, Level Complete, and Game Over. A shared JebbyJump.Shell.Runtime

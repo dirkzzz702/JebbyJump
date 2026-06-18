@@ -4,6 +4,7 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
+        "JebbyJump.Core.Runtime",
         "JebbyJump.Progression.Runtime",
         "JebbyJump.Session.Runtime",
         "JebbyJump.Settings.Runtime",

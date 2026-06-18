@@ -153,7 +153,9 @@ namespace JebbyJump.Tests
         [Test]
         public void Settings_FitsApprovedLandscapeMatrix()
             => AssertStackFitsMatrix(
-                new List<float> { Title, Btn, Btn, Btn, Btn, Btn }, // title+5 rows
+                // title + Music/SFX/Mute/ReduceMotion/MemoryCues/Reset (P22 adds
+                // the Memory Cues row).
+                new List<float> { Title, Btn, Btn, Btn, Btn, Btn, Btn },
                 ShellLayoutMetrics.SettingsRowWidth, "Settings");
 
         [Test]

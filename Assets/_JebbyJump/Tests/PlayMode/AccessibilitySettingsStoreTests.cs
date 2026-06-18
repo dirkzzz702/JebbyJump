@@ -17,6 +17,7 @@ namespace JebbyJump.Tests
         {
             AccessibilitySettingsStore.ResetForTests();
             PlayerPrefs.DeleteKey("jebby.settings.reduceMotion");
+            PlayerPrefs.DeleteKey("jebby.settings.memoryCues");
             PlayerPrefs.Save();
         }
 
@@ -60,6 +61,51 @@ namespace JebbyJump.Tests
             AccessibilitySettingsStore.ReduceMotionChanged += _ => calls++;
             AccessibilitySettingsStore.ReduceMotion = false; // already false
             Assert.AreEqual(0, calls);
+        }
+
+        // P22 Memory Cues (opt-in, default OFF) - same persistence + event
+        // contract as Reduce Motion.
+        [Test]
+        public void MemoryCues_DefaultIsFalse()
+        {
+            Assert.IsFalse(AccessibilitySettingsStore.MemoryCues);
+        }
+
+        [Test]
+        public void MemoryCues_Set_Persists()
+        {
+            AccessibilitySettingsStore.MemoryCues = true;
+            Assert.IsTrue(AccessibilitySettingsStore.MemoryCues);
+        }
+
+        [Test]
+        public void MemoryCues_ResetToDefaults_RestoresFalse()
+        {
+            AccessibilitySettingsStore.MemoryCues = true;
+            AccessibilitySettingsStore.ResetToDefaults();
+            Assert.IsFalse(AccessibilitySettingsStore.MemoryCues);
+        }
+
+        [Test]
+        public void MemoryCues_Change_RaisesEventWithNewValue()
+        {
+            int calls = 0;
+            bool last = false;
+            AccessibilitySettingsStore.MemoryCuesChanged += v =>
+            { calls++; last = v; };
+            AccessibilitySettingsStore.MemoryCues = true;
+            Assert.AreEqual(1, calls);
+            Assert.IsTrue(last);
+        }
+
+        [Test]
+        public void ResetToDefaults_RestoresBothAccessibilitySettings()
+        {
+            AccessibilitySettingsStore.ReduceMotion = true;
+            AccessibilitySettingsStore.MemoryCues = true;
+            AccessibilitySettingsStore.ResetToDefaults();
+            Assert.IsFalse(AccessibilitySettingsStore.ReduceMotion);
+            Assert.IsFalse(AccessibilitySettingsStore.MemoryCues);
         }
     }
 }

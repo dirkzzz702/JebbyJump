@@ -798,6 +798,52 @@ threshold, gameplay, or economy changes. Manual visual QA remains
 Checklist Execution or P15B Wardrobe UI Preview Thumbnail / Outfit Card
 Polish.
 
+## P22 - Gameplay HUD + Mobile Controls + Memory Accessibility Hardening
+
+Status: **complete** (automated structural layer). Extends the P20/P21
+accessibility patterns to the ACTIVE gameplay layer: the HUD (lives/level/timer +
+feedback), the mobile controls (move/jump/3 skills/pause), and the memory phase
+(swatches + platforms). No gameplay rules, physics, balance, timing, level
+content, answer validation, or input semantics changed. Rendered/device QA
+DEFERRED / NOT VERIFIED.
+
+**Input gate (correction #1):** `GameplayModalInputGate` (on the always-active
+HUDCanvas) blocks AND clears the gameplay input layer under any shell modal -
+disables the mobile-control `CanvasGroup` AND calls
+`InputReader.SetGameplayInputEnabled(false)` (ignores move/jump/skill for
+keyboard/gamepad/touch and releases held state), while leaving Pause + UI nav
+active. Keys off the explicit active panels (result/game-over) + `PauseState`,
+not the GameShellCanvas object. Pure decision tested via `GameplayInputBlockPolicy`.
+
+**Memory cues (corrections #2,#3,#4,#6):** opt-in `AccessibilitySettingsStore.MemoryCues`
+(default OFF, both Settings panels, in Reset Defaults, `setting_name=memory_cues`)
+renders a stable non-color cue (numbers 1-6 via an explicit, tested
+`PlatformCueMapping` in the new `JebbyJump.Core.Runtime` asmdef) on BOTH the
+swatches and the spawned platforms - same mapping on both. Swatch labels are
+idempotent (rebuilt per sequence, subscribed once); platform labels are
+world-space `TextMeshPro` (sorted above the sprite, no collider/input,
+counter-scaled, safely unsubscribed). Validation/timing/order/colors unchanged.
+
+**SequenceCanvas:** migrated off the legacy 800x600 Constant-Pixel scaler to the
+standard SWSS 1920x1080 (visual/layout-only; RenderMode + sorting preserved, stays
+below GameShellCanvas); swatch proportions/relative positions kept; top safe-area
+inset applied. The on-screen swatch size changes - rendered re-check deferred.
+
+**Layout (correction #5):** HUD content, controls, and the memory `SequencePanel`
+each sit under a `SafeArea` root (reusing the P20/P21 `SafeAreaCalculator` /
+`ShellScaffold`). Controls stay >=90 (never shrunk). A combined cross-canvas
+`GameplayLayoutPolicy` asserts the PauseButton clears the Timer + skills and that
+clusters do not collide across the 16:9/18:9/19.5:9/20:9/4:3 x safe-area matrix.
+
+Tests: pure (`PlatformCueMappingTests`, `GameplayInputBlockPolicyTests`,
+`GameplayLayoutPolicyTests`, Memory-Cues store tests) + `ShellSceneIntegrityTests`
+(one gate; SequenceCanvas converted off 800x600; 5 SafeArea roots; fitters wired).
+Scaffolds (`BuildSettingsPanel`, `BuildGameplayAccessibility`) run twice with no
+second-run diff (fixed a latent pause SettingsButton sibling-order oscillation).
+317/317 PlayMode tests pass. No new analytics/packages; no
+Jebby.prefab/physics/skill/timer/economy/art changes. Recommended next: P23A
+manual visual + device QA, or P23B production build / RC checklist.
+
 ## P21 - Wider Shell Accessibility + Mobile Navigation Hardening
 
 Status: **complete** (automated structural layer). Extends the P20 wardrobe
