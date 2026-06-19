@@ -798,6 +798,40 @@ threshold, gameplay, or economy changes. Manual visual QA remains
 Checklist Execution or P15B Wardrobe UI Preview Thumbnail / Outfit Card
 Polish.
 
+## P23 - Production Build + Release-Candidate Automated Readiness
+
+Status: **complete** (automated build-readiness layer). Proves the repo produces a
+clean, correctly configured **Android AAB** via an editor-only preflight + CLI
+builder + artifact/hash report. Claims automated build readiness ONLY - never store/
+signing/device/visual/performance/balance/art. Manual QA DEFERRED / NOT VERIFIED.
+
+- **Editor-only tooling** (`JebbyJump.Release.Editor`, `includePlatforms:["Editor"]`):
+  excluded from the player; pure DTOs tested via a new `JebbyJump.Tests.EditMode`
+  asmdef. `[Serializable]` field-based report serialized with JsonUtility in the
+  editor layer.
+- **Fixed the release blocker:** `EditorBuildSettings` enabled only a non-existent
+  `SampleScene`. `Apply Approved Build Config` (the only tracked-config writer) sets
+  identity (SparkLibrary / com.sparklibrary.jebbyjump) + the scene list from the
+  immutable `ReleaseSceneContract` (Boot->MainMenu->Game; persisted to disk directly
+  because the EditorBuildSettings API does not flush in batchmode).
+- **Preflight (validate, never fix):** identity/scenes/orientation/input/backend/arch/
+  packages/required-assets; read-only AssetDatabase loads + TMP digit-glyph check; no
+  SaveAssets/menu-tools/mutation. Fails on drift.
+- **Builder:** Android AAB; **Windows smoke only if the Android toolchain is
+  unavailable** (statuses AndroidAabBuilt / AndroidToolchainBlocked_WindowsSmokePassed
+  / AndroidBuildFailed - a real Android failure is never masked). Captures + restores
+  build target / `buildAppBundle` / dev-debug-profiler flags in try/finally; menu
+  never exits; CLI exits non-zero on failure; always writes the report; post-build
+  warning gate (classified allowlist). Honest signing (debug-signed; store upload
+  external). Hashes the complete distributable (AAB file; or full Windows dir
+  manifest), paths relative to Builds/P23, no secrets.
+- **Packages** explicitly classified (purchasing/gdk/cloud-build/coplay = unused/
+  editor/target-irrelevant); none added/removed.
+- Tests: a full EditMode release suite (preflight matrix, decision/exit/readiness,
+  state-guard restore, report/secrets/relative-paths, hasher, package classification,
+  editor-only asmdef, runtime/editor + manifest audits) + the unchanged PlayMode suite
+  + outfit QA. Recommended next: P24A manual device/visual QA, or P24B perf profiling.
+
 ## P22 - Gameplay HUD + Mobile Controls + Memory Accessibility Hardening
 
 Status: **complete** (automated structural layer). Extends the P20/P21

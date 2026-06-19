@@ -200,6 +200,21 @@ Wardrobe.Open. Reset Wardrobe stamps the current schema. 170/170 tests. No new
 art, gameplay, economy, or threshold changes. Rendered preview + on-device
 migration remain DEFERRED / NOT VERIFIED.
 
+P23 added an automated, **editor-only** release-candidate pipeline for the
+Android AAB target: an `Apply Approved Build Config` command (the only writer of
+tracked config) sets the approved identity (SparkLibrary / com.sparklibrary.jebbyjump)
+and the build scene list from an immutable contract (Boot->MainMenu->Game, replacing
+the stale non-existent SampleScene entry); a read-only RC preflight validates
+identity/scenes/orientation/input/backend/arch/packages/required-assets (and fails on
+drift, never fixing); a deterministic CLI builder builds the AAB (Windows smoke only
+when the Android toolchain is unavailable - never masking a real Android failure),
+gates post-build warnings, hashes the complete distributable, and always writes an
+independent-status report under the ignored Builds/P23. Signing is reported honestly
+(debug-signed; production signing + store upload external). The release tooling is in
+an Editor-only asmdef (excluded from the player). No gameplay/economy/wardrobe/
+migration changes. Manual device/visual/performance/accessibility/balance/art-final/
+signing/store verification remain DEFERRED / NOT VERIFIED.
+
 P22 extended the same accessibility/mobile hardening to the ACTIVE gameplay
 layer - the HUD (lives/level/timer), the mobile controls (move/jump/3 skills/
 pause), and the memory phase - under safe-area roots across the landscape

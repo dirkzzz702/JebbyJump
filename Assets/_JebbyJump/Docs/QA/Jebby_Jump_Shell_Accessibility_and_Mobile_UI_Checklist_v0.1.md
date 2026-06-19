@@ -4,6 +4,12 @@ Structural accessibility + mobile (landscape) hardening for the non-gameplay
 shell, extending the P20 wardrobe patterns. No gameplay/economy/wardrobe-semantic
 changes. Rendered/on-device confirmation remains DEFERRED / NOT VERIFIED.
 
+> P23 note: the automated release-candidate preflight
+> (`Docs/Release/Jebby_Jump_Release_Candidate_Checklist_v0.1.md`) pins the
+> landscape-only + new-Input-System invariants and the Boot→MainMenu→Game scene
+> contract these shell scenes rely on. Manual rendered/device shell QA stays
+> DEFERRED / NOT VERIFIED.
+
 ## Scope (and excluded gameplay surfaces)
 
 In scope: Main Menu, Level Select, Settings (Main Menu + Pause), Pause,

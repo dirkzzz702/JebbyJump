@@ -111,3 +111,12 @@ size/legibility looks correct; default (cues OFF) is unchanged.
 - Memory Cues default OFF (opt-in); color-only is still the default experience.
 - Cue contrast color is luminance-derived (black/white); not yet outlined.
 - All rendered/on-device verification is DEFERRED / NOT VERIFIED.
+
+## P23 note
+
+P23 added the automated Android release-candidate build pipeline (see
+`Docs/Release/Jebby_Jump_Release_Candidate_Checklist_v0.1.md` +
+`…_Build_and_Preflight_Guide_v0.1.md`). The RC preflight pins these gameplay
+accessibility/mobile invariants (landscape-only, new Input System, scene contract,
+TMP digit glyphs for the memory cues). Manual rendered/device verification of the HUD,
+controls, and memory cues remains DEFERRED / NOT VERIFIED.

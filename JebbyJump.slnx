@@ -2,6 +2,7 @@
   <Project Path="JebbyJump.Tests.PlayMode.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="JebbyJump.Release.Editor.csproj" />
   <Project Path="JebbyJump.Shell.Runtime.csproj" />
   <Project Path="JebbyJump.Wardrobe.Runtime.csproj" />
   <Project Path="JebbyJump.Session.Runtime.csproj" />
@@ -9,6 +10,7 @@
   <Project Path="JebbyJump.Settings.Runtime.csproj" />
   <Project Path="JebbyJump.Wardrobe.Visual.csproj" />
   <Project Path="JebbyJump.Rewards.Runtime.csproj" />
+  <Project Path="JebbyJump.Tests.EditMode.csproj" />
   <Project Path="JebbyJump.Progression.Runtime.csproj" />
   <Project Path="JebbyJump.Core.Runtime.csproj" />
 </Solution>

@@ -12,7 +12,7 @@ PlayerSettings:
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: DefaultCompany
+  companyName: SparkLibrary
   productName: JebbyJump
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
@@ -165,7 +165,9 @@ PlayerSettings:
   androidMaxAspectRatio: 2.4
   androidMinAspectRatio: 1
   applicationIdentifier:
-    Standalone: com.DefaultCompany.2D-URP
+    Android: com.sparklibrary.jebbyjump
+    Standalone: com.sparklibrary.jebbyjump
+    iPhone: com.sparklibrary.jebbyjump
   buildNumber:
     Standalone: 0
     VisionOS: 0

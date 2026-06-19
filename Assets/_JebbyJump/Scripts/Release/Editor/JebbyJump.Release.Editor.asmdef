@@ -1,0 +1,19 @@
+{
+    "name": "JebbyJump.Release.Editor",
+    "rootNamespace": "JebbyJump.Release",
+    "references": [
+        "JebbyJump.Core.Runtime",
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
