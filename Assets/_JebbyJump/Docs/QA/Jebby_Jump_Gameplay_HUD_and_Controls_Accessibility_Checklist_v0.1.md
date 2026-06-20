@@ -120,3 +120,8 @@ P23 added the automated Android release-candidate build pipeline (see
 accessibility/mobile invariants (landscape-only, new Input System, scene contract,
 TMP digit glyphs for the memory cues). Manual rendered/device verification of the HUD,
 controls, and memory cues remains DEFERRED / NOT VERIFIED.
+
+P24 made the live HUD timer and skill-cooldown label allocation-free (reused
+StringBuilder + TimeFormat), with text proven exactly equivalent to the prior
+formatting - no visible HUD change. Manual frame-smoothness/legibility checks on a
+device remain DEFERRED / NOT VERIFIED.

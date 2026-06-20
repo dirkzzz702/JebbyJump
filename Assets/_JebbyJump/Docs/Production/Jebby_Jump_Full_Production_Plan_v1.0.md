@@ -798,6 +798,40 @@ threshold, gameplay, or economy changes. Manual visual QA remains
 Checklist Execution or P15B Wardrobe UI Preview Thumbnail / Outfit Card
 Polish.
 
+## P24 - Automated Performance + Memory + Build-Size + Stability Baseline
+
+Status: **complete** (automated regression baseline). No physical device: editor/
+headless metrics are regression signals, NOT FPS/battery/thermal certification
+(DEFERRED / NOT VERIFIED). Frame target documented as 60 / 30-floor (targetFrameRate
++ vSync unchanged).
+
+- **Two measured fixes (display-only, behavior-neutral):** the live HUD timer
+  (`HUDController`) and skill-cooldown label (`ActiveSkillHUD`) allocated a string
+  every frame; now they format into a reused `StringBuilder` via `TimeFormat`
+  (Core.Runtime) using .NET `TryFormat` into a stack buffer - **zero allocation** and
+  **exactly text-equivalent** to the old `$"{m:00}:{rest:00.00}"` / `$"{x:F1}"`
+  (proven by dense sweep tests; .NET formats the shortest-round-trippable value +
+  rounds half-away-from-zero, which a hand-rolled rounder can't match - hence
+  TryFormat). Pre-fix evidence captured before editing (correction #1).
+- **Measurement (correction #2):** Unity Test Framework GC constraint
+  (`Is.[Not.]AllocatingGCMemory`), not `GC.GetAllocatedBytesForCurrentThread` (returns
+  0 under the editor Boehm GC). Subscriber-leak probe via reflection on the event's
+  backing delegate (correction #6).
+- **Tooling (editor-only `JebbyJump.Performance.Editor`):** pure report models,
+  `PerformanceRegressionPolicy` (leak/GC zero-tolerance; timing relative-only; never
+  device-cert), `BuildSizeMath`, `BuildSizeAuditTool` (authoritative compressed AAB
+  from the P23 report + packed contributors from a fresh `BuildReport`; distinguishes
+  bytes/MB/MiB/packed/compressed). `ProfilerMarker`s on scene/spawn/swatch paths.
+- **Build size (corrections #8,#9):** compressed AAB 113,625,618 -> 113,630,295 B
+  (**+4,677 B / ~4.6 KiB**, markers + formatters; ships per Decision 8). Packed total
+  ~337 MB; outfit sprite PNGs (~6.29 MB packed each) dominate.
+- **Re-ran P23 gates (correction #10):** assembly-exclusion (EditMode), preflight,
+  warning gate, Android AAB build - all still complete.
+- Tests 355 -> 379 (PlayMode 333, EditMode 46); outfit QA 49/49. Committed env-tagged
+  baseline (`Docs/Performance/...baseline_v0.1.json`); raw samples ignored
+  (`Builds/P24`). No gameplay/reward/wardrobe/migration/quality/import/package change.
+  Recommended next: P25A manual device/visual QA, or P25B P4B balance playtest.
+
 ## P23 - Production Build + Release-Candidate Automated Readiness
 
 Status: **complete** (automated build-readiness layer). Proves the repo produces a

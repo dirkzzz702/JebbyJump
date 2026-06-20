@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using JebbyJump.Core;
 using JebbyJump.Obstacles;
 using JebbyJump.Platforms;
+using Unity.Profiling;
 using UnityEngine;
 
 namespace JebbyJump.Level
@@ -14,6 +15,8 @@ namespace JebbyJump.Level
         [SerializeField] private GameObject _cactusPrefab;
 
         public event Action CactusHit;
+
+        private static readonly ProfilerMarker s_Spawn = new ProfilerMarker("JebbyJump.Memory.SpawnPlatforms");
 
         public void SetConfig(LevelConfig config)
         {
@@ -35,6 +38,7 @@ namespace JebbyJump.Level
 
         public void SpawnPlatforms(IReadOnlyList<PlatformColor> sequence)
         {
+            using var _ = s_Spawn.Auto();
             if (_config == null) { Debug.LogError("[PlatformSpawner] Cannot spawn - config not assigned.", this); return; }
             if (_platformPrefab == null) { Debug.LogError("[PlatformSpawner] Cannot spawn - prefab not assigned.", this); return; }
             if (sequence == null || sequence.Count == 0) { Debug.LogError("[PlatformSpawner] Cannot spawn - sequence is null or empty.", this); return; }

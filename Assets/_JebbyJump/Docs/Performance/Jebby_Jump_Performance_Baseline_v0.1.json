@@ -1,0 +1,44 @@
+{
+  "phase": "P24",
+  "schema": "jebbyjump.performance.baseline/0.1",
+  "environment": {
+    "unityVersion": "6000.4.7f1",
+    "runtime": "Editor (Mono, headless batchmode)",
+    "os": "Windows",
+    "captureCommit": "f38a7ec (P23) + uncommitted P24 changes at capture",
+    "note": "Editor/headless metrics are regression signals only, NOT physical-device certification."
+  },
+  "frameTargetPolicy": {
+    "targetFps": 60,
+    "minFloorFps": 30,
+    "frameBudgetMs60": 16.67,
+    "frameBudgetMs30": 33.33,
+    "appliesToDeviceOnly": true
+  },
+  "regressionPolicy": {
+    "subscriberLeak": "zero-tolerance",
+    "objectOrTypeCountGrowth": "zero-tolerance",
+    "steadyStateGcAllocOnZeroExpectedPaths": "zero-tolerance",
+    "timing": "relative-regression-only (no absolute device-cert limit for editor/headless)"
+  },
+  "metrics": {
+    "mainMenuLoadToReadyMs_editorHeadless": 1881,
+    "hudTimerPerFrameAlloc": {"preFix": "allocates (interpolated string)", "postFix": "zero (TimeFormat.AppendClock + SetText)"},
+    "skillCooldownPerFrameAlloc": {"preFix": "allocates (interpolated string)", "postFix": "zero (TimeFormat.AppendF1 + SetText)"},
+    "steadyStateZeroAlloc": ["GameplayInputBlockPolicy.ShouldBlock", "SafeAreaCalculator.ComputeAnchors", "PlatformCueMapping.CueFor", "TimeFormat.AppendClock", "TimeFormat.AppendF1"],
+    "analyticsBufferCapacity": 64,
+    "staticSubscriberLeak": "none (AccessibilitySettingsStore returns to baseline)"
+  },
+  "buildSize": {
+    "p23CompressedAabBytes": 113625618,
+    "p24CompressedAabBytes": 113630295,
+    "aabDeltaBytes": 4677,
+    "aabDeltaNote": "+~4.6 KiB from P24 ProfilerMarkers + formatter code; markers ship at negligible overhead (Decision 8). The on-disk P23 report was overwritten by the P24 rebuild (shared Builds/P23 path); the authoritative P23 figure is the P23 commit record.",
+    "p23CompressedAabMiB": 108.36,
+    "totalPackedBytes_uncompressedInPackage": 337184617,
+    "packedNote": "Packed sizes are uncompressed-in-package and do NOT sum to the compressed AAB.",
+    "largestContributorCategory": "outfit character sprite PNGs (~6.29 MB packed each)"
+  },
+  "testCounts": {"playMode": 333, "editMode": 46, "total": 379, "outfitQA": "49/49"},
+  "deferred": ["device FPS", "battery", "thermal", "on-device memory", "GPU timing", "manual visual QA", "P4B balance"]
+}

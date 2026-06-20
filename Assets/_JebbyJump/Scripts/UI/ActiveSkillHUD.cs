@@ -1,3 +1,5 @@
+using System.Text;
+using JebbyJump.Core;
 using JebbyJump.Items;
 using TMPro;
 using UnityEngine;
@@ -14,6 +16,11 @@ namespace JebbyJump.UI
         [SerializeField] private Image  _icon;
         [SerializeField] private Image  _cooldownOverlay;   // dark fill that drains as cooldown expires
         [SerializeField] private TMP_Text _cooldownLabel;   // shows "3.2s" while cooling; hidden otherwise
+
+        // P24: reused builder so the per-frame cooldown text is allocation-free
+        // (TimeFormat.AppendF1 + TMP SetText), exactly equal to the prior
+        // $"{remaining:F1}" string (proven by TimeFormatTests).
+        private readonly StringBuilder _cooldownSb = new StringBuilder(8);
 
         private void Update()
         {
@@ -45,10 +52,13 @@ namespace JebbyJump.UI
             {
                 if (cooling)
                 {
-                    _cooldownLabel.gameObject.SetActive(true);
-                    _cooldownLabel.text = $"{_skillController.CooldownRemaining:F1}";
+                    if (!_cooldownLabel.gameObject.activeSelf)
+                        _cooldownLabel.gameObject.SetActive(true);
+                    _cooldownSb.Clear();
+                    TimeFormat.AppendF1(_cooldownSb, _skillController.CooldownRemaining);
+                    _cooldownLabel.SetText(_cooldownSb);
                 }
-                else
+                else if (_cooldownLabel.gameObject.activeSelf)
                 {
                     _cooldownLabel.gameObject.SetActive(false);
                 }

@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Text;
 using JebbyJump.Analytics;
+using JebbyJump.Core;
 using JebbyJump.Flow;
 using JebbyJump.Level;
 using JebbyJump.Progression;
@@ -128,6 +130,11 @@ namespace JebbyJump.UI
         private readonly List<GameObject> _resultFocusIsland =
             new List<GameObject>();
 
+        // P24: reused builder for the per-frame live timer (zero-allocation
+        // formatting via TimeFormat.AppendClock + TMP SetText). Same displayed text
+        // as the prior FormatTime string (proven by TimeFormatTests).
+        private readonly StringBuilder _timerSb = new StringBuilder(16);
+
         private void Update()
         {
             // Live HUD timer (top-right).
@@ -136,7 +143,9 @@ namespace JebbyJump.UI
                 && _levelTimer != null
                 && _levelTimer.IsRunning)
             {
-                _liveTimerText.text = FormatTime(_levelTimer.Elapsed);
+                _timerSb.Clear();
+                TimeFormat.AppendClock(_timerSb, _levelTimer.Elapsed);
+                _liveTimerText.SetText(_timerSb);
             }
 
             // Modal focus trap while a result / game-over panel is up.

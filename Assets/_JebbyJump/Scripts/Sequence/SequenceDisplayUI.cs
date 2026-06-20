@@ -3,6 +3,7 @@ using JebbyJump.Core;
 using JebbyJump.Platforms;
 using JebbyJump.Settings;
 using TMPro;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,6 +18,8 @@ namespace JebbyJump.Sequence
 
         private readonly List<GameObject> _swatches = new();
         private readonly List<GameObject> _cueLabels = new();
+
+        private static readonly ProfilerMarker s_Show = new ProfilerMarker("JebbyJump.Memory.BuildSwatches");
 
         private void Awake()
         {
@@ -39,6 +42,7 @@ namespace JebbyJump.Sequence
 
         public void Show(IReadOnlyList<PlatformColor> sequence)
         {
+            using var _ = s_Show.Auto();
             if (_container == null) return;
             ClearSwatches();
 

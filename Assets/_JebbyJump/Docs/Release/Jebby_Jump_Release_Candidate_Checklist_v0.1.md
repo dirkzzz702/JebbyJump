@@ -114,3 +114,11 @@ store-submission verification all remain DEFERRED / NOT VERIFIED.
 - Debug-signed only; production signing + store upload are external.
 - Prototype outfit art not final-certified; reward thresholds are placeholders.
 - IAP/GDK/cloud-build packages present but unused (kept; not removed in P23).
+
+## P24 note
+
+P24 added an automated performance / build-size baseline (see `Docs/Performance/`).
+The compressed AAB is ~113.6 MB / ~108.4 MiB; P24's display-only zero-alloc fixes
+added +~4.6 KiB. The Android AAB build + preflight + warning gate were re-verified
+complete after P24. Device FPS / battery / thermal + manual visual QA remain
+DEFERRED / NOT VERIFIED.

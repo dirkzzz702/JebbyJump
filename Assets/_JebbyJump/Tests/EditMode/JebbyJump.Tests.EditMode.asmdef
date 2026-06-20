@@ -5,6 +5,7 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "JebbyJump.Release.Editor",
+        "JebbyJump.Performance.Editor",
         "JebbyJump.Core.Runtime"
     ],
     "includePlatforms": [

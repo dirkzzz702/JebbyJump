@@ -200,6 +200,23 @@ Wardrobe.Open. Reset Wardrobe stamps the current schema. 170/170 tests. No new
 art, gameplay, economy, or threshold changes. Rendered preview + on-device
 migration remain DEFERRED / NOT VERIFIED.
 
+P24 established an automated performance / memory / build-size / lifecycle-stability
+baseline (no device; editor/headless regression signals only). Two measured,
+behavior-neutral display-only fixes removed per-frame string allocations: the live
+HUD timer and the skill-cooldown label now format into a reused StringBuilder via a
+zero-alloc TimeFormat helper (TryFormat-based, proven EXACTLY text-equivalent to the
+old $"{}" expressions by dense sweep tests). Added: a pure regression policy
+(leak/object/steady-state-GC zero-tolerance; timing relative-only), a concrete
+static-subscriber-leak probe + analytics-cap + steady-state zero-alloc tests, a full
+scene load-to-readiness benchmark, ProfilerMarkers on scene/spawn/swatch paths, and
+an editor-only Performance.Editor build-size audit (authoritative compressed AAB
+baseline vs fresh-BuildReport packed contributors; outfit sprite PNGs dominate
+packed size). The AAB grew +~4.6 KiB (markers + formatters; negligible, ships).
+Tests 355 -> 379 (PlayMode 333, EditMode 46); outfit QA 49/49; the Android AAB build
++ preflight remain complete. No gameplay/timing/economy/quality/import/package
+changes. Device FPS / battery / thermal / on-device memory + manual visual QA remain
+DEFERRED / NOT VERIFIED.
+
 P23 added an automated, **editor-only** release-candidate pipeline for the
 Android AAB target: an `Apply Approved Build Config` command (the only writer of
 tracked config) sets the approved identity (SparkLibrary / com.sparklibrary.jebbyjump)
