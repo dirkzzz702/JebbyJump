@@ -32,7 +32,18 @@ namespace JebbyJump.Release
             var result = ReleasePreflightCore.Evaluate(snapshot, ReleaseSceneContract.Scenes);
             AddSceneExistenceChecks(result);
             ReleaseAssetChecks.Evaluate(GatherAssetPresence(), result);
+            // Informational only (never fails the gate; never prints secrets): the
+            // resolved signing intent for this environment.
+            result.Add(ReleaseCheckResult.Info("signing.intent", SigningIntentLine()));
             return result;
+        }
+
+        // Reports signing INTENT + resolved mode from the environment using only the
+        // PRESENCE of the keystore vars - never their values, the path, or passwords.
+        private static string SigningIntentLine()
+        {
+            var r = JebbyJumpReleaseSigning.ResolveFromEnvironment();
+            return $"intent={r.Intent}; resolved={r.Mode}; {r.Reason}";
         }
 
         public static ReleaseConfigSnapshot GatherSnapshot()

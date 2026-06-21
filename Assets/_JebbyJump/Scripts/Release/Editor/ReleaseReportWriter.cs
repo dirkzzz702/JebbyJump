@@ -38,6 +38,11 @@ namespace JebbyJump.Release
             sb.AppendLine($"- Android build: {r.AndroidBuildStatus}");
             sb.AppendLine($"- Windows smoke: {r.WindowsSmokeStatus}");
             sb.AppendLine($"- Signing: {r.SigningStatus}  |  Store-upload ready: {r.StoreUploadReady}");
+            sb.AppendLine($"- Signing intent: {r.SigningIntent}  |  Signature: {r.SignatureVerifyStatus} ({r.SignatureVerifyTool})  |  Config restored: {r.SigningConfigRestored}");
+            if (!string.IsNullOrEmpty(r.SignerCertSha256))
+                sb.AppendLine($"- Signer cert SHA-256: {r.SignerCertSha256}");
+            sb.AppendLine($"- Artifact format: {r.ArtifactFormat} — {r.DistributionPurpose}");
+            sb.AppendLine($"- Resolved artifact target SDK: {(r.ResolvedArtifactTargetSdk > 0 ? r.ResolvedArtifactTargetSdk.ToString() : r.ResolvedTargetSdkStatus)}  |  16 KB pages: {r.PageSize16kStatus}");
             sb.AppendLine($"- Warning gate: {r.WarningGateStatus} (warnings {r.WarningCount}, errors {r.ErrorCount})");
             sb.AppendLine($"- Artifact hashing: {r.ArtifactHashingStatus}");
             sb.AppendLine($"- Manual QA: {r.ManualQaStatus}");

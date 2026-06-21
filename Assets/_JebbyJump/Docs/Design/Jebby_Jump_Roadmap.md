@@ -179,6 +179,37 @@ P20 — Accessibility + Mobile (Landscape) Wardrobe UI Hardening : complete (aut
 P21 — Wider Shell Accessibility + Mobile Navigation Hardening : complete (automated structural layer; extends P20 to Main Menu / Level Select / Settings / Pause / Result / Game Over; new JebbyJump.Shell.Runtime pure helpers (ShellLayoutMetrics single-sources the 90 touch metric, ShellFocusResolver, GridNavigationBuilder true-grid, Shell stack/grid bounds policies per-surface) + ShellFocusUtil + ShellScaffold; deterministic keyboard/gamepad nav + initial focus + real modal traps (pointer backdrop + focus-island re-assert) + focus restore; true Level Select grid nav with focusable no-op locked cards + scroll-to-focus; >=90 hit areas (settings toggle/slider hit-area enlarged without oversizing visuals, slider Left/Right preserved); dedicated GameShellCanvas (shell panels moved off gameplay HUD/MobileControls canvases) - 800x600 SequenceCanvas (memory gameplay) left untouched; result/game-over made modal cards; reuses settings_changed; no gameplay HUD/mobile-control/migration/economy/art changes; manual/device QA DEFERRED/NOT VERIFIED)
 ```
 
+P25 (physical Android device QA) was DEFERRED — no device/tester available — and is
+honestly recorded **NOT RUN** (no fabricated results). The team pivoted to P26.
+
+P26 added release-distribution-readiness **scaffolding** (no production signing, no
+upload, no balance/SDK change, no device QA):
+- **Signing:** env-driven Android signing with EXPLICIT intent
+  (`JJ_SIGNING_MODE=debug|upload`). Upload intent FAILS HARD on missing/invalid keystore
+  vars (never a silent debug fallback); `EnvUploadKeySigned` is an UPLOAD key, NOT the
+  Play App Signing key and NOT store-readiness. Every build now verifies the ACTUAL
+  artifact signature (apksigner/jarsigner) and restores the signing config
+  byte-for-byte. A separate installable APK path (`JJ_BUILD_FORMAT=apk`) is produced
+  alongside the Play AAB in separate output dirs/reports with documented
+  distribution/signature purposes. `*.keystore`/`*.jks`/`*.p12` are gitignored; no
+  secret is ever committed or persisted.
+- **Store:** a read-only `Store Compliance Audit` reports CONFIGURED vs RESOLVED target
+  SDK (Automatic=0 is a reproducibility flag, not auto-noncompliance; resolved API 36
+  PASSes the assumed ≥35), flags a missing adaptive launcher icon (distinct from Console
+  listing graphics), and carries DATED/sourced Play-policy assumptions incl. 16 KB page
+  support. The submission-readiness doc keeps data-safety as a DRAFT pending
+  artifact/SDK/Console review, marks a privacy policy REQUIRED, records target audience =
+  mixed (children + older) → Families Policy, and does NOT predict the IARC rating.
+- **Balance:** a read-only `Level Difficulty Audit` treats ONLY intra-level S<A<B
+  ordering as a hard invariant; cross-level difficulty scoring + proposals are a
+  transparent, deterministic, LOW-CONFIDENCE heuristic pending P4B. It hashes every
+  LevelConfig/TimeRankConfig before+after to PROVE read-only (verified; 0 invariant
+  failures across 10 levels; no asset changed).
+
+Tests 379 → 402 (EditMode 46 → 69, PlayMode 333); outfit QA 49/49; Android AAB build +
+preflight remain complete. No gameplay/economy/migration/art/SDK/threshold changes.
+Physical device QA (P25) and P4B balance playtest remain DEFERRED / NOT VERIFIED.
+
 P18 added (A) an in-panel outfit preview and (B) wardrobe save migration. The
 preview is a UI-only animated pose carousel (idle->run->jump->fall->land->
 victory; Hurt excluded; locked outfits dimmed) shown in the existing

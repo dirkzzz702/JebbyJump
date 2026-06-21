@@ -40,6 +40,19 @@ namespace JebbyJump.Release
         public string ManualQaStatus = "DEFERRED / NOT VERIFIED";
         public string ReadinessVerdict = ReleaseReadiness.Blocked;
 
+        // ---- P26: artifact format + signing intent / signature verification ----
+        public string ArtifactFormat = "AAB";              // "AAB" | "APK"
+        public string DistributionPurpose = "";
+        public string SigningIntent = "Debug";
+        public string SigningResolutionReason = "";
+        public string SignatureVerifyStatus = "NotRun";    // Verified | Failed | Skipped
+        public string SignatureVerifyTool = "";
+        public string SignerCertSha256 = "";               // public signer fingerprint (not secret)
+        public string SigningConfigRestored = "NotChecked";// "Restored" | "DRIFT"
+        public int ResolvedArtifactTargetSdk;              // from aapt2 on the APK (0 = not read)
+        public string ResolvedTargetSdkStatus = "NotRun";
+        public string PageSize16kStatus = "NotRun";        // Aligned16k | NotAligned16k | Skipped
+
         // details
         public int TestsTotal;
         public int TestsPassed;

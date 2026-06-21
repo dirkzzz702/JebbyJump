@@ -71,8 +71,16 @@ namespace JebbyJump.Release
         public static ReleaseReport BuildReleaseCandidate()
         {
             var report = NewReportSkeleton();
-            string outputDir = AbsOutput(report.Target, report.BundleVersion);
+            bool wantApk = ReadBuildFormat() == "apk";
+            report.ArtifactFormat = wantApk ? "APK" : "AAB";
+            report.OutputType = wantApk ? "APK" : "AAB";
+            report.DistributionPurpose = wantApk
+                ? "APK: directly installable (sideload / adb / internal sharing). Signed as-is; NOT processed by Play App Signing."
+                : "AAB: Google Play distribution. Play re-signs with the App Signing key and generates per-device APKs.";
+            // APK and AAB land in SEPARATE output dirs + reports (correction #11).
+            string outputDir = AbsOutput(wantApk ? "AndroidApk" : "Android", report.BundleVersion);
             var state = CaptureState();
+            var signing = JebbyJumpReleaseSigning.Capture();
             try
             {
                 // 1. Preflight (validate only).
@@ -99,15 +107,32 @@ namespace JebbyJump.Release
 
                 if (action == AndroidBuildAction.BuildAab)
                 {
-                    EditorUserBuildSettings.buildAppBundle = true;
-                    string aab = Path.Combine(outputDir, "JebbyJump.aab");
+                    // Resolve signing intent FIRST. Upload intent fails HARD on any
+                    // missing/invalid input - it never silently falls back to debug.
+                    var signRes = JebbyJumpReleaseSigning.ResolveFromEnvironment();
+                    report.SigningIntent = signRes.Intent;
+                    report.SigningResolutionReason = signRes.Reason;
+                    report.SigningStatus = SigningResolution.StatusString(signRes);
+                    if (signRes.BuildShouldFail)
+                    {
+                        report.AndroidBuildStatus = AndroidBuildStatus.AndroidBuildFailed.ToString();
+                        report.ReadinessVerdict = ReleaseReadiness.Blocked;
+                        return report; // finally restores build + signing state
+                    }
+                    JebbyJumpReleaseSigning.ApplyResolved(signRes);
+
+                    EditorUserBuildSettings.buildAppBundle = !wantApk;
+                    string artifact = Path.Combine(outputDir, wantApk ? "JebbyJump.apk" : "JebbyJump.aab");
                     Directory.CreateDirectory(outputDir);
-                    var br = ExecuteBuild(BuildTarget.Android, BuildTargetGroup.Android, aab);
+                    var br = ExecuteBuild(BuildTarget.Android, BuildTargetGroup.Android, artifact);
                     androidOk = br.summary.result == BuildResult.Succeeded;
                     FillBuildSummary(report, br);
                     warningGateOk = EvaluateWarnings(report, br);
-                    DetectAndroidSigning(report);
-                    if (androidOk) hashingOk = HashSingleFile(report, br.summary.outputPath);
+                    if (androidOk)
+                    {
+                        hashingOk = HashSingleFile(report, br.summary.outputPath);
+                        InspectSignedArtifact(report, br.summary.outputPath, wantApk);
+                    }
                     else hashingOk = false; // nothing to hash
                 }
                 else
@@ -146,6 +171,11 @@ namespace JebbyJump.Release
             finally
             {
                 RestoreState(state);
+                // Byte-for-byte restore of the signing config (correction #3); nothing
+                // secret is ever persisted to ProjectSettings.asset.
+                JebbyJumpReleaseSigning.Restore(signing);
+                report.SigningConfigRestored =
+                    JebbyJumpReleaseSigning.VerifyRestored(signing) ? "Restored" : "DRIFT";
                 try { ReleaseReportWriter.Write(report, outputDir); }
                 catch (Exception e) { Debug.LogError("[Release] report write failed: " + e); }
             }
@@ -344,14 +374,38 @@ namespace JebbyJump.Release
             return unclassified.Count == 0;
         }
 
-        private static void DetectAndroidSigning(ReleaseReport r)
+        private static string ReadBuildFormat()
         {
-            bool custom = PlayerSettings.Android.useCustomKeystore;
-            string ks = PlayerSettings.Android.keystoreName;
-            r.SigningStatus = custom && !string.IsNullOrEmpty(ks)
-                ? "CustomKeySigned (external; password not handled here)"
-                : "DebugSigned (development; NOT production)";
-            r.StoreUploadReady = false; // never claimed in P23
+            string f = (Environment.GetEnvironmentVariable("JJ_BUILD_FORMAT") ?? "aab")
+                .Trim().ToLowerInvariant();
+            return f == "apk" ? "apk" : "aab";
+        }
+
+        // Verifies the ACTUAL artifact signature (+ APK target SDK & 16KB pages) using
+        // the real toolchain; degrades to an honest Skipped when a tool is unavailable.
+        private static void InspectSignedArtifact(ReleaseReport r, string artifactPath, bool isApk)
+        {
+            var sig = isApk
+                ? AndroidArtifactInspector.VerifyApk(artifactPath)
+                : AndroidArtifactInspector.VerifyAab(artifactPath);
+            r.SignatureVerifyStatus = sig.Status;
+            r.SignatureVerifyTool = sig.Tool;
+            r.SignerCertSha256 = sig.CertSha256 ?? "";
+            r.StoreUploadReady = false; // never claimed
+            if (isApk)
+            {
+                var tsdk = AndroidArtifactInspector.ReadApkTargetSdk(artifactPath);
+                r.ResolvedArtifactTargetSdk = tsdk.ResolvedTargetSdk;
+                r.ResolvedTargetSdkStatus = tsdk.Status;
+                r.PageSize16kStatus = AndroidArtifactInspector.CheckApk16kAlignment(artifactPath).Status;
+            }
+            else
+            {
+                // The AAB target SDK lives in a protobuf manifest; the resolved value is
+                // read from the APK artifact / installed platforms (store-compliance audit).
+                r.ResolvedTargetSdkStatus = "Skipped(aab-protobuf-manifest)";
+                r.PageSize16kStatus = "Skipped(aab)";
+            }
         }
 
         private static bool HashSingleFile(ReleaseReport r, string artifactPath)

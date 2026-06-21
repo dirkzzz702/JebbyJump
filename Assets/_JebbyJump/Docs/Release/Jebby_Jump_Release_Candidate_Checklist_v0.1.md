@@ -122,3 +122,29 @@ The compressed AAB is ~113.6 MB / ~108.4 MiB; P24's display-only zero-alloc fixe
 added +~4.6 KiB. The Android AAB build + preflight + warning gate were re-verified
 complete after P24. Device FPS / battery / thermal + manual visual QA remain
 DEFERRED / NOT VERIFIED.
+
+## P26 note
+
+P26 added release-distribution-readiness scaffolding on top of the P23 pipeline:
+
+- **Signing intent is explicit** (`JJ_SIGNING_MODE`): default `debug`; `upload` applies a
+  custom UPLOAD key from env and **fails the build** on any missing/invalid keystore var
+  (never a silent debug fallback). The signing MODE (`DebugSigned` / `EnvUploadKeySigned`)
+  is independent of store-readiness; an upload key is NOT the Play App Signing key.
+- **Signature is verified on the built artifact** (apksigner for APK, jarsigner for AAB;
+  recorded `Verified`/`Failed`/`Skipped`, never a false pass), and the PlayerSettings
+  signing config is **restored byte-for-byte** after every build (`SigningConfigRestored`).
+- **Separate APK + AAB** outputs/reports (`JJ_BUILD_FORMAT=apk|aab`): AAB → Play
+  (re-signed by App Signing), APK → direct sideload. The report records `ArtifactFormat`,
+  `DistributionPurpose`, signature status + signer fingerprint, resolved artifact target
+  SDK (APK, via aapt2), and 16 KB page alignment (APK, via zipalign).
+- **Store Compliance Audit** (read-only, `Builds/P26`): configured target SDK (Automatic)
+  vs resolved (API 36 meets the assumed ≥35 minimum — Automatic flagged for
+  reproducibility, not non-compliance), launcher/adaptive icon vs Console listing
+  graphics, and DATED Play-policy assumptions (verify — they age). See
+  `Jebby_Jump_Store_Submission_Readiness_v0.1.md` +
+  `Jebby_Jump_Production_Signing_and_Internal_Testing_v0.1.md`.
+
+`*.keystore`/`*.jks`/`*.p12` are gitignored; no keystore/password is committed or
+persisted. Production signing, Play App Signing enrolment, store upload, IARC rating,
+and device QA all remain DEFERRED / external / NOT VERIFIED.

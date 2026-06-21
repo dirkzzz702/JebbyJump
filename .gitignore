@@ -81,6 +81,11 @@ mono_crash.*
 *.unitypackage.meta
 *.app
 
+# Android signing keys / secrets (NEVER commit)
+*.keystore
+*.jks
+*.p12
+
 # Crashlytics generated file
 crashlytics-build.properties
 

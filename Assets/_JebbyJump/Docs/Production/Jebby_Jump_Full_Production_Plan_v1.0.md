@@ -1249,6 +1249,31 @@ StarReward/threshold/gameplay/economy changes. Outfits still apply at next spawn
 **DEFERRED / NOT VERIFIED**. Recommended next: P16A unlock ceremony or P16B
 in-panel live character preview; P16E manual visual QA when a tester is available.
 
+## P26 — Release-Distribution Readiness (signing scaffolding + store prep + balance analysis)
+
+P25 physical device QA was DEFERRED (no device) and recorded NOT RUN. P26 advanced the
+agent-doable release-distribution work, additively and with no production signing, no
+upload, no balance/SDK change, and no device QA:
+
+- Env-driven Android signing with explicit intent (`JJ_SIGNING_MODE`); upload intent
+  fails hard on invalid keystore config (never a silent debug fallback);
+  `EnvUploadKeySigned` is an upload key, not the Play App Signing key and not
+  store-readiness. Every build verifies the real artifact signature and restores the
+  signing config byte-for-byte. A separate installable APK (`JJ_BUILD_FORMAT=apk`) ships
+  alongside the Play AAB, in separate outputs/reports. Keystores (`*.keystore/.jks/.p12`)
+  are gitignored; nothing secret is committed or persisted.
+- A read-only Store Compliance Audit (configured vs resolved target SDK — Automatic is a
+  reproducibility flag, resolved API 36 meets the assumed >=35; adaptive launcher icon vs
+  Console listing graphics; dated Play-policy assumptions incl. 16 KB pages) plus a
+  submission-readiness doc (data-safety DRAFT, privacy policy required, target audience =
+  mixed -> Families Policy, IARC rating not predicted).
+- A read-only Level Difficulty Audit (intra-level S<A<B is the only hard invariant;
+  cross-level scoring/proposals are a transparent, deterministic, LOW-CONFIDENCE
+  heuristic pending P4B; before/after asset hashing proves it touches no config).
+
+Tests 379 -> 402; outfit QA 49/49; Android AAB build + preflight remain complete.
+Physical device QA (P25) and P4B balance tuning remain DEFERRED / NOT VERIFIED.
+
 ## Open Decisions Before Implementation
 
 ```text
