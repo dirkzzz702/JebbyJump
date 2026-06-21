@@ -102,3 +102,14 @@ Two **different** things, do not conflate:
 Actual upload, real metadata values, privacy-policy hosting, production signing, the
 pre-launch report, and store acceptance are all **external / DEFERRED**. Device/visual QA
 remains **DEFERRED / NOT VERIFIED**.
+
+## P27 note
+
+P27 (Preparation only) turned this readiness material into actionable worksheets: the
+final Play declarations + listing copy draft + content-rating questionnaire worksheet are
+in `Jebby_Jump_Play_Declaration_Record_v0.1.md` (all **DRAFT/WORKSHEET**, none submitted),
+the operator steps are in `Jebby_Jump_Play_Internal_Testing_Runbook_v0.1.md`, and the
+`Distribution Readiness Audit` enumerates the missing external items. Data Safety stays a
+DRAFT pending artifact audit + Console review + approval; a privacy-policy URL is still
+**REQUIRED/MISSING**; the IARC rating is **not predicted**. Target audience remains
+**mixed (children + older) → Families**.

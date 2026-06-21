@@ -1274,6 +1274,23 @@ upload, no balance/SDK change, and no device QA:
 Tests 379 -> 402; outfit QA 49/49; Android AAB build + preflight remain complete.
 Physical device QA (P25) and P4B balance tuning remain DEFERRED / NOT VERIFIED.
 
+## P27 — Play Internal-Testing Distribution PREPARATION (no upload, no keystore, no device)
+
+P27 ran in Preparation-only mode (the agent has no Play Console access, no real upload
+keystore, and no device, and never fabricates upload results). It added: a
+dry-run/refuse-by-default `Apply Approved Distribution Config` writer (version name/code +
+optional target-SDK pin applied only when explicitly approved + valid) with a version-code
+policy; a read-only `Distribution Readiness Audit` with an independent status model
+(including `PlayConsoleActionStatus=NotRun`), an enumerated missing-external-items list,
+dated policy snapshots carrying a `PolicyVerificationStatus`, and a secret/tester-email
+guard; pure policies + automated tests; and committed runbook + declaration-record
+(worksheets) + readiness-result docs. The rebuilt debug-signed AAB is labeled a
+regression-gate artifact, not upload-ready. The tracked tree is genuinely clean (the
+personal `.gitignore` line was relocated to `.git/info/exclude`). Decision: P27
+preparation complete — upload requires authorized external action; physical install NOT
+RUN; no production rollout. P25 stays plan-created / deferred / NOT RUN; P4B balance
+deferred; no gameplay/economy/art/SDK/ProjectSettings change.
+
 ## Open Decisions Before Implementation
 
 ```text

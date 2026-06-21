@@ -148,3 +148,16 @@ P26 added release-distribution-readiness scaffolding on top of the P23 pipeline:
 `*.keystore`/`*.jks`/`*.p12` are gitignored; no keystore/password is committed or
 persisted. Production signing, Play App Signing enrolment, store upload, IARC rating,
 and device QA all remain DEFERRED / external / NOT VERIFIED.
+
+## P27 note
+
+P27 added **Preparation-only** Play internal-testing distribution readiness (no Console
+action, no real upload keystore, no device): a dry-run/refuse-by-default
+`Apply Approved Distribution Config` writer (version/code/target-SDK applied only when
+explicitly approved + valid), a read-only `Distribution Readiness Audit` (independent
+status model incl. `PlayConsoleActionStatus=NotRun`, enumerated missing external items,
+dated `PolicyVerificationStatus` snapshots, secret/tester-email guard), and the Play
+internal-testing runbook + declaration-record worksheets + readiness result docs. The
+rebuilt debug-signed AAB is a regression-gate artifact, **not upload-ready**. Decision:
+**P27 preparation complete — upload requires authorized external action** (physical install
+NOT RUN; no production rollout). EditMode 89 / PlayMode 333 / outfit 49/49 green.

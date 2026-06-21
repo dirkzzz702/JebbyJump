@@ -179,6 +179,23 @@ P20 — Accessibility + Mobile (Landscape) Wardrobe UI Hardening : complete (aut
 P21 — Wider Shell Accessibility + Mobile Navigation Hardening : complete (automated structural layer; extends P20 to Main Menu / Level Select / Settings / Pause / Result / Game Over; new JebbyJump.Shell.Runtime pure helpers (ShellLayoutMetrics single-sources the 90 touch metric, ShellFocusResolver, GridNavigationBuilder true-grid, Shell stack/grid bounds policies per-surface) + ShellFocusUtil + ShellScaffold; deterministic keyboard/gamepad nav + initial focus + real modal traps (pointer backdrop + focus-island re-assert) + focus restore; true Level Select grid nav with focusable no-op locked cards + scroll-to-focus; >=90 hit areas (settings toggle/slider hit-area enlarged without oversizing visuals, slider Left/Right preserved); dedicated GameShellCanvas (shell panels moved off gameplay HUD/MobileControls canvases) - 800x600 SequenceCanvas (memory gameplay) left untouched; result/game-over made modal cards; reuses settings_changed; no gameplay HUD/mobile-control/migration/economy/art changes; manual/device QA DEFERRED/NOT VERIFIED)
 ```
 
+P27 (Play internal-testing distribution) ran in **PREPARATION ONLY** mode — no Play
+Console account, no real upload keystore, no device — so no upload/console/device action
+was performed or fabricated. Decision: **P27 preparation complete — upload requires
+authorized external action** (physical install NOT RUN; no production rollout). Delivered:
+a dry-run/refuse-by-default `Apply Approved Distribution Config` writer (+ version-code
+policy), a `Distribution Readiness Audit` with an independent status model (incl.
+`PlayConsoleActionStatus=NotRun`), enumerated missing external items, dated policy
+snapshots carrying a `PolicyVerificationStatus`, and a secret/tester-email guard; pure
+policies + automated tests (dry-run config, dirty-tree, debug-not-upload-ready, prep-only
+claims, external enumeration, console/device-not-claimed, report guards); and the Play
+internal-testing runbook + declaration-record worksheets + readiness result docs. The
+rebuilt debug-signed AAB is a **regression-gate artifact, NOT upload-ready**. Tests
+402 → 422 (EditMode 69 → 89, PlayMode 333); outfit QA 49/49; preflight + AAB gate green.
+The tracked tree is genuinely clean (the personal `.gitignore` line was relocated to
+`.git/info/exclude`). P25 stays plan-created / deferred / NOT RUN; P4B balance remains
+deferred; no gameplay/economy/art/SDK/ProjectSettings change.
+
 P25 (physical Android device QA) was DEFERRED — no device/tester available — and is
 honestly recorded **NOT RUN** (no fabricated results). The team pivoted to P26.
 

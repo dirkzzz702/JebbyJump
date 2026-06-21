@@ -103,3 +103,15 @@ After every build the pipeline:
 - Mechanism: **ready** (env-driven, fail-hard, verified, byte-for-byte restored).
 - Production signing, Play App Signing enrolment, and store upload: **DEFERRED / external**.
 - No keystore/password/certificate is committed or persisted by this repo.
+
+## P27 note
+
+P27 exercised this pipeline in **Preparation only** mode. No real upload keystore was
+supplied, so the env-upload path was **NOT RUN** and the rebuilt debug-signed AAB is a
+**regression-gate artifact (not upload-ready)**. The full operator step list (keytool
+keystore generation, env-upload build, signature verification, Play App Signing, internal
+track, testers, rollout) now lives in `Jebby_Jump_Play_Internal_Testing_Runbook_v0.1.md`,
+and the Play declarations are drafted in `Jebby_Jump_Play_Declaration_Record_v0.1.md`.
+A `Distribution Readiness Audit` records the independent statuses + enumerated external
+blockers. Decision: **P27 preparation complete — upload requires authorized external
+action.**
