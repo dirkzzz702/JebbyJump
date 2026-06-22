@@ -179,6 +179,24 @@ P20 — Accessibility + Mobile (Landscape) Wardrobe UI Hardening : complete (aut
 P21 — Wider Shell Accessibility + Mobile Navigation Hardening : complete (automated structural layer; extends P20 to Main Menu / Level Select / Settings / Pause / Result / Game Over; new JebbyJump.Shell.Runtime pure helpers (ShellLayoutMetrics single-sources the 90 touch metric, ShellFocusResolver, GridNavigationBuilder true-grid, Shell stack/grid bounds policies per-surface) + ShellFocusUtil + ShellScaffold; deterministic keyboard/gamepad nav + initial focus + real modal traps (pointer backdrop + focus-island re-assert) + focus restore; true Level Select grid nav with focusable no-op locked cards + scroll-to-focus; >=90 hit areas (settings toggle/slider hit-area enlarged without oversizing visuals, slider Left/Right preserved); dedicated GameShellCanvas (shell panels moved off gameplay HUD/MobileControls canvases) - 800x600 SequenceCanvas (memory gameplay) left untouched; result/game-over made modal cards; reuses settings_changed; no gameplay HUD/mobile-control/migration/economy/art changes; manual/device QA DEFERRED/NOT VERIFIED)
 ```
 
+P28 prepared the long-deferred P4B balance work as an **evidence system for all 10 levels**
+— preparation only, **hypotheses/proposals only**, zero asset edits. The user chose: no
+human playtest available now → manual balance playtest **NOT RUN**; tuning authority =
+proposals only; intended curve = gentle-to-moderate family/casual (a *preparation
+assumption*, not a final decision). Added: field-based playtest models
+(attempt/level-summary/review-candidate/report), a pure readiness policy (NOT-RUN wording;
+heuristic can never authorize tuning; "validated" needs recorded attempts), a
+review-candidate catalog (every entry `AuthorizedForApply=false` + `DeferredPendingPlaytest=
+true`, **no exact replacement values**), and a read-only `Playtest Kit + Baseline` tool that
+emits the all-10-levels baseline (`EvidenceStatus=NotRun`) + a manual CSV template and proves
+read-only by hashing LevelConfig + TimeRankConfig + LevelCatalog + the wardrobe/star threshold
+sources before+after (`NoHiddenTuningProof`). Progression-economy observations (e.g. the
+30/30 wardrobe unlock) are kept **separate** from level-balance candidates. The P26 heuristic
+analysis is used as a hypothesis list, not authority. 15 EditMode tests (89→104) incl.
+real-asset invariants (all 10 levels have ordered S<A<B rank configs) + a no-hidden-tuning
+guard; PlayMode 333; outfit 49/49. No LevelConfig/TimeRankConfig/protected-system change;
+balance stays provisional. Real human play (P4B execution) remains the next step (P29D).
+
 P27 (Play internal-testing distribution) ran in **PREPARATION ONLY** mode — no Play
 Console account, no real upload keystore, no device — so no upload/console/device action
 was performed or fabricated. Decision: **P27 preparation complete — upload requires

@@ -1291,6 +1291,24 @@ preparation complete — upload requires authorized external action; physical in
 RUN; no production rollout. P25 stays plan-created / deferred / NOT RUN; P4B balance
 deferred; no gameplay/economy/art/SDK/ProjectSettings change.
 
+## P28 — P4B Gameplay Balance + Difficulty PREPARATION (proposals only, playtest NOT RUN)
+
+P28 prepared the long-deferred P4B balance work as an evidence system for all 10 levels,
+without collecting playtest evidence (no human tester available). User decisions: manual
+playtest NOT RUN; tuning authority = proposals only; intended curve = gentle-to-moderate
+family/casual (a preparation assumption, not final). Added field-based playtest models, a
+pure readiness policy (NOT-RUN wording; heuristic never authorizes tuning; validated needs
+recorded attempts), a review-candidate catalog (every entry AuthorizedForApply=false +
+DeferredPendingPlaytest=true, no exact replacement values), progression-economy observations
+kept separate from level-balance candidates, and a read-only Playtest Kit + Baseline tool
+that emits the all-10-levels baseline (EvidenceStatus=NotRun) + a manual CSV template and
+proves read-only by hashing LevelConfig + TimeRankConfig + LevelCatalog + wardrobe/star
+sources before+after (NoHiddenTuningProof). 15 EditMode tests (89->104) incl. real-asset
+invariants + a no-hidden-tuning guard; PlayMode 333; outfit 49/49. No LevelConfig/
+TimeRankConfig/protected-system change; current balance stays provisional. Decision: P28
+preparation complete - manual balance playtest NOT RUN. Real human play (P4B execution)
+remains the next step.
+
 ## Open Decisions Before Implementation
 
 ```text

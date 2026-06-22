@@ -161,3 +161,14 @@ internal-testing runbook + declaration-record worksheets + readiness result docs
 rebuilt debug-signed AAB is a regression-gate artifact, **not upload-ready**. Decision:
 **P27 preparation complete — upload requires authorized external action** (physical install
 NOT RUN; no production rollout). EditMode 89 / PlayMode 333 / outfit 49/49 green.
+
+## P28 note
+
+P28 prepared the deferred P4B balance evidence system (preparation only, proposals only):
+field-based playtest models, a pure readiness policy (decision **"P28 preparation complete —
+manual balance playtest NOT RUN"**; heuristic never authorizes tuning), a review-candidate
+catalog (all `AuthorizedForApply=false` + deferred, no exact values), and a read-only
+`Playtest Kit + Baseline` tool emitting the all-10-levels baseline (`EvidenceStatus=NotRun`)
++ a manual CSV template, proving read-only by hashing LevelConfig + TimeRankConfig +
+LevelCatalog + wardrobe/star sources (`NoHiddenTuningProof`). No LevelConfig/TimeRankConfig
+or protected-system change; balance provisional. EditMode 89→104, PlayMode 333, outfit 49/49.
