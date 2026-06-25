@@ -113,3 +113,12 @@ the operator steps are in `Jebby_Jump_Play_Internal_Testing_Runbook_v0.1.md`, an
 DRAFT pending artifact audit + Console review + approval; a privacy-policy URL is still
 **REQUIRED/MISSING**; the IARC rating is **not predicted**. Target audience remains
 **mixed (children + older) → Families**.
+
+## P31 note
+
+These readiness items were finalized as dedicated DRAFT docs in P31 — `Store_Listing_Final_
+Copy`, `Privacy_Policy_Draft`, `Data_Safety_Worksheet`, `Content_Rating_Worksheet`,
+`Store_Graphics_Checklist`, `Families_Readiness_Worksheet`, `Internal_Testing_Release_Notes`,
+and `Store_External_Readiness_Checklist`. All remain **NOT SUBMITTED**; decision: **Store
+listing package blocked — missing external content** (privacy URL, support email, listing
+graphics, adaptive icon external/missing).

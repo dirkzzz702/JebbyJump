@@ -179,6 +179,22 @@ P20 — Accessibility + Mobile (Landscape) Wardrobe UI Hardening : complete (aut
 P21 — Wider Shell Accessibility + Mobile Navigation Hardening : complete (automated structural layer; extends P20 to Main Menu / Level Select / Settings / Pause / Result / Game Over; new JebbyJump.Shell.Runtime pure helpers (ShellLayoutMetrics single-sources the 90 touch metric, ShellFocusResolver, GridNavigationBuilder true-grid, Shell stack/grid bounds policies per-surface) + ShellFocusUtil + ShellScaffold; deterministic keyboard/gamepad nav + initial focus + real modal traps (pointer backdrop + focus-island re-assert) + focus restore; true Level Select grid nav with focusable no-op locked cards + scroll-to-focus; >=90 hit areas (settings toggle/slider hit-area enlarged without oversizing visuals, slider Left/Right preserved); dedicated GameShellCanvas (shell panels moved off gameplay HUD/MobileControls canvases) - 800x600 SequenceCanvas (memory gameplay) left untouched; result/game-over made modal cards; reuses settings_changed; no gameplay HUD/mobile-control/migration/economy/art changes; manual/device QA DEFERRED/NOT VERIFIED)
 ```
 
+P31 finalized the **store listing package** (docs only; nothing uploaded/submitted; not legal
+advice): draft listing copy, a privacy-policy draft (public URL still missing → Blocked), a
+**multi-source** Data Safety worksheet (an aapt2 artifact audit found `INTERNET` +
+`ACCESS_NETWORK_STATE` + `BILLING` permissions — engine defaults + the present-but-unused IAP
+package — so "no data collected" is a candidate to confirm, never an automatic pass), a
+content-rating questionnaire worksheet (rating **NOT predicted**), a **3-tier** graphics
+checklist (internal/public/production; launcher/adaptive icon vs Console-listing graphics
+separated), a **new Families readiness worksheet** (obligations to verify; compliance **NOT
+claimed**), and honest internal release notes. Added pure `StoreGraphicsPolicy` (asset
+separation + tiers) + `StoreReadinessPolicy` (placeholders can never pass final readiness),
+reusing the P26 `DistributionDeclarationPolicy`; 8 EditMode tests (104→112). Every doc carries
+a DRAFT/NOT-SUBMITTED status block + an evidence/sources block; `<PROVIDE>` placeholders only
+in blocked/draft sections. Decision: **Store listing package blocked — missing external
+content** (privacy URL, support email, listing graphics, adaptive icon external/missing). No
+gameplay/ProjectSettings/package/art change.
+
 P28 prepared the long-deferred P4B balance work as an **evidence system for all 10 levels**
 — preparation only, **hypotheses/proposals only**, zero asset edits. The user chose: no
 human playtest available now → manual balance playtest **NOT RUN**; tuning authority =

@@ -1309,6 +1309,22 @@ TimeRankConfig/protected-system change; current balance stays provisional. Decis
 preparation complete - manual balance playtest NOT RUN. Real human play (P4B execution)
 remains the next step.
 
+## P31 — Store Assets + Privacy Policy + Listing Finalization (docs only; NOT submitted)
+
+P31 finalized the store-facing content as drafts/worksheets without uploading or submitting:
+draft listing copy, a privacy-policy draft (public URL missing -> Blocked), a multi-source
+Data Safety worksheet (an aapt2 artifact audit found INTERNET/ACCESS_NETWORK_STATE/BILLING
+permissions from engine defaults + the present-but-unused IAP package, so "no data" is a
+candidate pending confirmation), a content-rating worksheet (rating not predicted), a 3-tier
+graphics checklist (internal/public/production; launcher/adaptive vs Console-listing assets
+separated), a new Families readiness worksheet (obligations to verify; compliance not
+claimed), honest internal release notes, and an external-readiness checklist. Added pure
+StoreGraphicsPolicy + StoreReadinessPolicy (placeholders can never pass final readiness)
+reusing DistributionDeclarationPolicy; 8 EditMode tests (104->112). Every doc has a DRAFT/NOT
+SUBMITTED status block + evidence/sources block. Decision: Store listing package blocked -
+missing external content. No gameplay/ProjectSettings/package/art change; nothing uploaded or
+submitted.
+
 ## Open Decisions Before Implementation
 
 ```text

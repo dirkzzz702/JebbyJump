@@ -172,3 +172,17 @@ catalog (all `AuthorizedForApply=false` + deferred, no exact values), and a read
 + a manual CSV template, proving read-only by hashing LevelConfig + TimeRankConfig +
 LevelCatalog + wardrobe/star sources (`NoHiddenTuningProof`). No LevelConfig/TimeRankConfig
 or protected-system change; balance provisional. EditMode 89→104, PlayMode 333, outfit 49/49.
+
+## P31 note
+
+P31 finalized the store listing package as drafts/worksheets (docs only; **NOT submitted**):
+listing copy draft, privacy-policy draft (public URL Blocked), a **multi-source** Data Safety
+worksheet (an aapt2 audit found `INTERNET`/`ACCESS_NETWORK_STATE`/`BILLING` — engine defaults
++ the present-but-unused IAP package — so "no data" is a candidate, not an automatic pass), a
+content-rating worksheet (rating **not predicted**), a **3-tier** graphics checklist
+(internal/public/production; launcher/adaptive vs Console-listing separated), a **new Families
+readiness worksheet** (compliance **not claimed**), honest internal release notes, and an
+external-readiness checklist. Added `StoreGraphicsPolicy` + `StoreReadinessPolicy`
+(placeholders can never pass final readiness); 8 EditMode tests (104→112). Decision: **Store
+listing package blocked — missing external content**. No gameplay/ProjectSettings/package/art
+change; nothing uploaded or submitted.
