@@ -10,7 +10,7 @@ namespace JebbyJump.Release
     // Correction #2: signing INTENT is explicit. Upload intent FAILS the build on any
     // missing/invalid input - it must never silently fall back to debug signing.
 
-    public enum SigningIntent { Debug, Upload }
+    public enum SigningIntent { Debug, Upload, Unknown }
 
     public enum SigningMode
     {
@@ -35,12 +35,17 @@ namespace JebbyJump.Release
             if (string.IsNullOrEmpty(raw)) return SigningIntent.Debug;
             switch (raw.Trim().ToLowerInvariant())
             {
+                case "debug":
+                    return SigningIntent.Debug;   // explicit debug
                 case "upload":
                 case "custom":
                 case "release":
+                case "env-upload":                // P32 spec token
+                case "env_upload":
                     return SigningIntent.Upload;
                 default:
-                    return SigningIntent.Debug; // "debug"/empty/unknown -> EXPLICIT debug
+                    return SigningIntent.Unknown;  // fail-closed: an unrecognized mode never
+                                                   // silently falls back to debug (P32 corr #2)
             }
         }
 
@@ -56,6 +61,17 @@ namespace JebbyJump.Release
                     Mode = nameof(SigningMode.DebugSigned),
                     BuildShouldFail = false,
                     Reason = "No production signing requested; debug-signed (development; NOT production).",
+                };
+
+            // Fail-closed: an unknown/unrecognized signing mode refuses to build and never
+            // falls back to debug (P32 correction #2).
+            if (intent == SigningIntent.Unknown)
+                return new SigningResolutionResult
+                {
+                    Intent = nameof(SigningIntent.Unknown),
+                    Mode = nameof(SigningMode.EnvIncomplete),
+                    BuildShouldFail = true,
+                    Reason = "Unknown JJ_SIGNING_MODE; refusing to build (fail-closed; no debug fallback).",
                 };
 
             // Upload intent: FAIL HARD on any missing/invalid input (correction #2).

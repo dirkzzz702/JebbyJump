@@ -11,14 +11,26 @@ namespace JebbyJump.Tests.EditMode
         [Serializable] private class AsmdefShape { public string name; public string[] includePlatforms; }
 
         [Test]
-        public void ParseIntent_DefaultsToDebug()
+        public void ParseIntent_DefaultsToDebug_UnknownIsFailClosed()
         {
             Assert.AreEqual(SigningIntent.Debug, SigningResolution.ParseIntent(null));
             Assert.AreEqual(SigningIntent.Debug, SigningResolution.ParseIntent(""));
             Assert.AreEqual(SigningIntent.Debug, SigningResolution.ParseIntent("debug"));
-            Assert.AreEqual(SigningIntent.Debug, SigningResolution.ParseIntent("nonsense"));
             Assert.AreEqual(SigningIntent.Upload, SigningResolution.ParseIntent("upload"));
             Assert.AreEqual(SigningIntent.Upload, SigningResolution.ParseIntent("UPLOAD"));
+            // P32 spec token + fail-closed unknown (corr #2)
+            Assert.AreEqual(SigningIntent.Upload, SigningResolution.ParseIntent("env-upload"));
+            Assert.AreEqual(SigningIntent.Upload, SigningResolution.ParseIntent("env_upload"));
+            Assert.AreEqual(SigningIntent.Unknown, SigningResolution.ParseIntent("nonsense"));
+        }
+
+        [Test]
+        public void Unknown_FailsClosed_NeverDebug()
+        {
+            var r = SigningResolution.Resolve(SigningIntent.Unknown, envComplete: true, keystoreFileExists: true);
+            Assert.IsTrue(r.BuildShouldFail);
+            Assert.AreNotEqual(nameof(SigningMode.DebugSigned), r.Mode);
+            StringAssert.Contains("fail-closed", r.Reason);
         }
 
         [Test]

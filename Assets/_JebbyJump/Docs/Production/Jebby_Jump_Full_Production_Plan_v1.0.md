@@ -1325,6 +1325,23 @@ SUBMITTED status block + evidence/sources block. Decision: Store listing package
 missing external content. No gameplay/ProjectSettings/package/art change; nothing uploaded or
 submitted.
 
+## P32 — Production Upload-Key Signing + Play Internal-Testing Upload (PREPARATION ONLY / BLOCKED)
+
+P32 ran preparation only: no upload-key signing, no Play Console action, no upload. The gate
+confirmed every external prerequisite still missing (upload keystore, Console account, hosted
+privacy URL, listing graphics, approvals, tester list, device). It hardened signing to
+fail-closed (unknown JJ_SIGNING_MODE refuses to build; env-upload/env_upload map to Upload
+intent) and proved the env-upload path fails hard (no keystore -> build refused, no AAB,
+signing restored). Added pure UploadDistributionPolicy (fingerprint match; internal-track
+complete requires Console evidence) + a five-separate-status UploadDistributionReport
+(UploadKey/UploadKeySignedArtifact/PlayAppSigning/PlayConsoleAction/InternalTrackUpload;
+SubmittedInConsole/VerifiedInConsole=false; version code NotVerified) with
+secret/email/path/env-dump guards + a Builds/P32 report tool (env presence only). Docs:
+upload-signing record, declaration record v0.2, internal-testing result. Pre-submission
+cleanup flagged for the unused IAP/BILLING permission. 8 EditMode tests (112->120); PlayMode
+333; outfit 49/49. No gameplay/ProjectSettings/package/art change. Decision: P32 blocked -
+see Play distribution blocker report.
+
 ## Open Decisions Before Implementation
 
 ```text

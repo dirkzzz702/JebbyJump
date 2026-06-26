@@ -179,6 +179,24 @@ P20 — Accessibility + Mobile (Landscape) Wardrobe UI Hardening : complete (aut
 P21 — Wider Shell Accessibility + Mobile Navigation Hardening : complete (automated structural layer; extends P20 to Main Menu / Level Select / Settings / Pause / Result / Game Over; new JebbyJump.Shell.Runtime pure helpers (ShellLayoutMetrics single-sources the 90 touch metric, ShellFocusResolver, GridNavigationBuilder true-grid, Shell stack/grid bounds policies per-surface) + ShellFocusUtil + ShellScaffold; deterministic keyboard/gamepad nav + initial focus + real modal traps (pointer backdrop + focus-island re-assert) + focus restore; true Level Select grid nav with focusable no-op locked cards + scroll-to-focus; >=90 hit areas (settings toggle/slider hit-area enlarged without oversizing visuals, slider Left/Right preserved); dedicated GameShellCanvas (shell panels moved off gameplay HUD/MobileControls canvases) - 800x600 SequenceCanvas (memory gameplay) left untouched; result/game-over made modal cards; reuses settings_changed; no gameplay HUD/mobile-control/migration/economy/art changes; manual/device QA DEFERRED/NOT VERIFIED)
 ```
 
+P32 (production upload-key signing + Play internal-testing upload) ran **PREPARATION ONLY /
+BLOCKED** — no upload-key signing performed, no Play Console action, no upload. The gate
+confirmed all external prerequisites still missing (no upload keystore, no Console account, no
+hosted privacy URL, no listing graphics, no approvals, no tester list, no device). It
+**hardened signing to fail-closed** (an unknown `JJ_SIGNING_MODE` refuses to build — never a
+debug fallback; `env-upload`/`env_upload` map to Upload intent) and **proved the env-upload
+path fails hard** (no keystore → build refused, no AAB, signing config restored). Added pure
+`UploadDistributionPolicy` (cert-fingerprint match; "internal-track complete" requires real
+Console evidence) + a **five-separate-status** `UploadDistributionReport`
+(UploadKey/UploadKeySignedArtifact/PlayAppSigning/PlayConsoleAction/InternalTrackUpload;
+`SubmittedInConsole`/`VerifiedInConsole`=false; version code **NotVerified**) with
+secret/tester-email/local-path/env-dump guards, and a `Builds/P32` report tool recording env
+**presence only** (never values). Docs: upload-signing record, declaration record v0.2,
+internal-testing result — all PREPARATION ONLY. Pre-submission cleanup flagged for the unused
+IAP/`BILLING` + network permissions. 8 EditMode tests (112→120); PlayMode 333; outfit 49/49.
+No gameplay/ProjectSettings/package/art change. Decision: **P32 blocked — see Play distribution
+blocker report.**
+
 P31 finalized the **store listing package** (docs only; nothing uploaded/submitted; not legal
 advice): draft listing copy, a privacy-policy draft (public URL still missing → Blocked), a
 **multi-source** Data Safety worksheet (an aapt2 artifact audit found `INTERNET` +

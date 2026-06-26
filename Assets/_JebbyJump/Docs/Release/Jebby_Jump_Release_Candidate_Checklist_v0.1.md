@@ -186,3 +186,17 @@ external-readiness checklist. Added `StoreGraphicsPolicy` + `StoreReadinessPolic
 (placeholders can never pass final readiness); 8 EditMode tests (104→112). Decision: **Store
 listing package blocked — missing external content**. No gameplay/ProjectSettings/package/art
 change; nothing uploaded or submitted.
+
+## P32 note
+
+P32 (upload-key signing + Play internal-testing upload) ran **PREPARATION ONLY / BLOCKED** —
+no signing performed, no Console action, no upload. Hardened signing to **fail-closed**
+(unknown `JJ_SIGNING_MODE` refuses to build — never a debug fallback; `env-upload` maps to
+Upload) and **proved env-upload fails hard** (no keystore → build refused, no AAB, signing
+restored). Added `UploadDistributionPolicy` + a **five-separate-status**
+`UploadDistributionReport` (UploadKey/UploadKeySignedArtifact/PlayAppSigning/PlayConsoleAction/
+InternalTrackUpload; `SubmittedInConsole`/`VerifiedInConsole`=false; version code
+`NotVerified`) with secret/email/path/env-dump guards + a `Builds/P32` report (env presence
+only). Pre-submission cleanup flagged for the unused IAP/`BILLING` permission. 8 EditMode
+tests (112→120); PlayMode 333; outfit 49/49. Decision: **P32 blocked — see Play distribution
+blocker report**.
