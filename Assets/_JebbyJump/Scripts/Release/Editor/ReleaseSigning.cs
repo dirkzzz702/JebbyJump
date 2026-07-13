@@ -111,7 +111,9 @@ namespace JebbyJump.Release
                 case nameof(SigningMode.EnvUploadKeySigned):
                     return "EnvUploadKeySigned (custom upload key; NOT Play App Signing; NOT store-certified)";
                 case nameof(SigningMode.EnvIncomplete):
-                    return "EnvIncomplete (upload requested but config invalid; build failed)";
+                    return r.Intent == nameof(SigningIntent.Unknown)
+                        ? "EnvIncomplete (unknown JJ_SIGNING_MODE; build failed, fail-closed)"
+                        : "EnvIncomplete (upload requested but config invalid; build failed)";
                 default:
                     return "DebugSigned (development; NOT production)";
             }

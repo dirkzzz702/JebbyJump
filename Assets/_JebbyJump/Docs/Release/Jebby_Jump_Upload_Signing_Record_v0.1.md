@@ -31,12 +31,18 @@ With `JJ_SIGNING_MODE=env-upload` and **no** keystore env vars set, the RC build
 - resolves to **EnvIncomplete → build refused** (verdict Blocked, non-zero exit),
 - produces **no AAB**,
 - never falls back to debug signing,
-- restores the signing configuration byte-for-byte (ProjectSettings untouched — the
+- restores the signing configuration field-exact (all signing fields captured + restored + verified) (ProjectSettings untouched — the
   fail-hard path returns before any signing apply).
 
 Additionally, an **unknown** `JJ_SIGNING_MODE` is **fail-closed** (refuses to build; never a
 debug fallback). Both behaviors are covered by EditMode tests
 (`SigningResolution` + `Unknown_FailsClosed_NeverDebug`).
+
+**Pre-commit secret scan (hardening):** run `Jebby Jump/Release/Scan ProjectSettings For
+Signing Secrets` (pure `SigningSecretGuard`, EditMode-tested) after any env-upload build to
+confirm no non-empty keystore/alias password was persisted to `ProjectSettings.asset` — this
+catches the rare case where an interrupted build left a secret on disk before it could be
+reverted. If it reports a leak, revert `ProjectSettings.asset` and do not commit.
 
 ## Pre-submission cleanup recommendation (permissions)
 

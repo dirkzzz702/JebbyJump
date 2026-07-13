@@ -16,7 +16,13 @@ namespace JebbyJump.Sequence
         public IReadOnlyList<PlatformColor> Sequence { get; private set; }
         public int CurrentStepIndex { get; private set; }
         public bool IsComplete => Sequence != null && CurrentStepIndex >= Sequence.Count;
-        public PlatformColor ExpectedColor => Sequence[CurrentStepIndex]; // only safe when !IsComplete
+
+        // Bounds-safe: returns default when the sequence is ungenerated/complete so a
+        // stray access can't throw. Callers must still gate on !IsComplete before acting.
+        public PlatformColor ExpectedColor =>
+            (Sequence != null && CurrentStepIndex >= 0 && CurrentStepIndex < Sequence.Count)
+                ? Sequence[CurrentStepIndex]
+                : default;
 
         private void Awake()
         {

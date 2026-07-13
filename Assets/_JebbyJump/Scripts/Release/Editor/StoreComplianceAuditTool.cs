@@ -137,7 +137,10 @@ namespace JebbyJump.Release
             string dir = Path.GetFullPath(Path.Combine(
                 Application.dataPath, "..", OutputRootRel, r.GitCommit));
             Directory.CreateDirectory(dir);
-            File.WriteAllText(Path.Combine(dir, "store-compliance.json"), JsonUtility.ToJson(r, true));
+            string json = JsonUtility.ToJson(r, true);
+            if (ReleaseReport.ContainsSecretLike(json))
+                throw new InvalidOperationException("[StoreCompliance] report contains secret-like text; aborting write.");
+            File.WriteAllText(Path.Combine(dir, "store-compliance.json"), json);
             File.WriteAllText(Path.Combine(dir, "store-compliance.md"), ToMarkdown(r));
         }
 

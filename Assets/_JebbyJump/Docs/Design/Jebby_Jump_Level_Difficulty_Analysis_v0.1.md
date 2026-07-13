@@ -2,7 +2,6 @@
 
 Data-driven, **read-only** analysis of the 10 LevelConfig + TimeRankConfig assets. Proposals are heuristic and **LOW-CONFIDENCE**; no balance values are changed by this audit (thresholds stay as authored until the P4B playtest).
 
-- Timestamp: 2026-06-20T13:31:33.3411826Z  |  Git: 74f76d1
 - Read-only proof: **READ-ONLY VERIFIED (config asset hash unchanged: d0510c5e96f1877c…)**
 - Confidence: LOW — cross-level scoring is a heuristic pending the P4B human playtest. Only intra-level S<A<B threshold ordering is a hard invariant.
 - Heuristic: `score = 1*seqLen + 0.5*colors + 0.3*max(0,10-memorySec) + 2*cactusChance + 0.1*platformsPerRow - 0.4*lives  (transparent heuristic; LOW-CONFIDENCE pending P4B playtest)`

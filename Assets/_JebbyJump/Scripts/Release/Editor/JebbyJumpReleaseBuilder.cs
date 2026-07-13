@@ -115,7 +115,9 @@ namespace JebbyJump.Release
                     report.SigningStatus = SigningResolution.StatusString(signRes);
                     if (signRes.BuildShouldFail)
                     {
-                        report.AndroidBuildStatus = AndroidBuildStatus.AndroidBuildFailed.ToString();
+                        // Signing config refused BEFORE any build attempt -> leave
+                        // AndroidBuildStatus at NotRun (accurate: the build never ran);
+                        // SigningStatus + verdict explain the refusal.
                         report.ReadinessVerdict = ReleaseReadiness.Blocked;
                         return report; // finally restores build + signing state
                     }

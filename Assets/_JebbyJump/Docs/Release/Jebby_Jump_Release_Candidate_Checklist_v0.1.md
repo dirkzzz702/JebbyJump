@@ -133,7 +133,7 @@ P26 added release-distribution-readiness scaffolding on top of the P23 pipeline:
   is independent of store-readiness; an upload key is NOT the Play App Signing key.
 - **Signature is verified on the built artifact** (apksigner for APK, jarsigner for AAB;
   recorded `Verified`/`Failed`/`Skipped`, never a false pass), and the PlayerSettings
-  signing config is **restored byte-for-byte** after every build (`SigningConfigRestored`).
+  signing config is **restored field-exact (all signing fields, verified)** after every build (`SigningConfigRestored`).
 - **Separate APK + AAB** outputs/reports (`JJ_BUILD_FORMAT=apk|aab`): AAB → Play
   (re-signed by App Signing), APK → direct sideload. The report records `ArtifactFormat`,
   `DistributionPurpose`, signature status + signer fingerprint, resolved artifact target

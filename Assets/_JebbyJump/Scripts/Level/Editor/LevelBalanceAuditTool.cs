@@ -140,7 +140,10 @@ namespace JebbyJump.Level
             string dir = Path.GetFullPath(Path.Combine(
                 Application.dataPath, "..", OutputRootRel, r.GitCommit));
             Directory.CreateDirectory(dir);
-            File.WriteAllText(Path.Combine(dir, "level-difficulty.json"), JsonUtility.ToJson(r, true));
+            string json = JsonUtility.ToJson(r, true);
+            if (JebbyJump.Release.ReleaseReport.ContainsSecretLike(json))
+                throw new System.InvalidOperationException("[Balance] report contains secret-like text; aborting write.");
+            File.WriteAllText(Path.Combine(dir, "level-difficulty.json"), json);
             File.WriteAllText(Path.Combine(dir, "level-difficulty.md"),
                 BalanceReportFormat.ToMarkdown(r, committedDoc: false));
         }

@@ -35,7 +35,10 @@ namespace JebbyJump.Balance
                 + "assets. Proposals are heuristic and **LOW-CONFIDENCE**; no balance values are "
                 + "changed by this audit (thresholds stay as authored until the P4B playtest).");
             sb.AppendLine();
-            sb.AppendLine($"- Timestamp: {r.Timestamp}  |  Git: {r.GitCommit}");
+            // Committed doc stays deterministic (no timestamp/commit -> no re-run churn);
+            // the ignored Builds report keeps them.
+            if (!committedDoc)
+                sb.AppendLine($"- Timestamp: {r.Timestamp}  |  Git: {r.GitCommit}");
             sb.AppendLine($"- Read-only proof: **{r.ReadOnlyProof}**");
             sb.AppendLine($"- Confidence: {r.Confidence}");
             sb.AppendLine($"- Heuristic: `{r.Formula}`");

@@ -34,6 +34,19 @@ namespace JebbyJump.Tests.EditMode
         }
 
         [Test]
+        public void SigningSecretGuard_DetectsNonEmptyPasswordOnly()
+        {
+            Assert.IsTrue(SigningSecretGuard.ProjectSettingsHasSigningSecret("  AndroidKeystorePass: c29tZXNlY3JldA=="));
+            Assert.IsTrue(SigningSecretGuard.ProjectSettingsHasSigningSecret("  AndroidKeyaliasPass: hunter2"));
+            // empty passwords + a bare name line are NOT secrets, and an empty value must not
+            // let the match spill onto the next line
+            Assert.IsFalse(SigningSecretGuard.ProjectSettingsHasSigningSecret(
+                "  AndroidKeystorePass: \n  AndroidKeyaliasPass: \n  AndroidKeystoreName: myapp"));
+            Assert.IsFalse(SigningSecretGuard.ProjectSettingsHasSigningSecret("  AndroidKeystoreName: com.x"));
+            Assert.IsFalse(SigningSecretGuard.ProjectSettingsHasSigningSecret(""));
+        }
+
+        [Test]
         public void Debug_NeverFails_AndIsNotProduction()
         {
             var r = SigningResolution.Resolve(SigningIntent.Debug, envComplete: false, keystoreFileExists: false);

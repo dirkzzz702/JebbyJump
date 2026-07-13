@@ -5,7 +5,7 @@ P26 adds the *mechanism* (and proves it round-trips safely); it does **not** cre
 production-signed build or upload anything. Keystores, passwords, and certificates are
 **NEVER** committed (`*.keystore` / `*.jks` / `*.p12` are gitignored) and are **never**
 persisted to `ProjectSettings.asset` — the builder applies them transiently and restores
-the prior signing config byte-for-byte after every build.
+the prior signing config field-exact (all signing fields captured, restored, and verified) after every build.
 
 ## Signing modes (correction #1 — names matter)
 
@@ -83,7 +83,7 @@ After every build the pipeline:
    APK (records the public signer SHA-256 cert fingerprint), `jarsigner -verify` for the
    AAB. Result is recorded as `Verified` / `Failed` / `Skipped` (Skipped only if the tool
    genuinely can't be located — never a false pass).
-2. **Restores the signing config byte-for-byte** (`useCustomKeystore`, keystore/alias
+2. **Restores the signing config field-exact (all signing fields captured, restored, and verified)** (`useCustomKeystore`, keystore/alias
    names, and passwords) to the pre-build snapshot and asserts no drift
    (`SigningConfigRestored = Restored | DRIFT`). No secret is ever written to disk.
 
@@ -100,7 +100,7 @@ After every build the pipeline:
 
 ## Status (P26)
 
-- Mechanism: **ready** (env-driven, fail-hard, verified, byte-for-byte restored).
+- Mechanism: **ready** (env-driven, fail-hard, verified, field-exact (all signing fields captured, restored, and verified) restored).
 - Production signing, Play App Signing enrolment, and store upload: **DEFERRED / external**.
 - No keystore/password/certificate is committed or persisted by this repo.
 

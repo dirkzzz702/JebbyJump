@@ -46,7 +46,7 @@ namespace JebbyJump.Release
         }
 
         // True iff the current PlayerSettings signing fields match the snapshot exactly
-        // (byte-for-byte restore proof, correction #3).
+        // (field-exact restore proof, correction #3).
         public static bool VerifyRestored(SigningSnapshot s)
         {
             var now = Capture();
