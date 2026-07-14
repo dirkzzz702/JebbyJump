@@ -1,0 +1,12 @@
+asset,type,created_by,for,notes
+Assets/_JebbyJump/Art/Icons/*.png.meta,meta,Unity import,ART-002/003/015,commit with wiring change
+Assets/_JebbyJump/Art/Sprites/Platforms/spr_floor_strip_01.png.meta,meta,Unity import,ART-005,PPU/pivot/wrap set at import per brief section 12
+Assets/_JebbyJump/Art/Sprites/Backgrounds/bg_menu_01.png.meta,meta,Unity import,ART-006,
+Assets/_JebbyJump/Art/Sprites/UI/ui_panel_soft_9s.png.meta,meta,Unity import + Sprite Editor borders,ART-007,border 64 all sides
+Assets/_JebbyJump/Art/Sprites/UI/ui_btn_pill_9s.png.meta,meta,Unity import + Sprite Editor borders,ART-008,border 48/48/40/40
+Assets/_JebbyJump/Art/Sprites/UI/ui_icon_skill_*.png.meta,meta,Unity import,ART-011/012,
+Assets/_JebbyJump/Art/Sprites/VFX/*.png.meta,meta,Unity import,ART-013/014,new VFX folder + folder.meta
+scene edits (MainMenu.unity/Game.unity),scene,editor wiring,ART-005..008/010..014,run overlap+integrity tests after
+LevelSelectCard.prefab edit,prefab,editor wiring,ART-007/008,
+PlayerSettings icon assignment,ProjectSettings,editor wiring (approval-gated writer),ART-002/003/015,P23 rule: config writes only via approved command
+NO new .anim/.controller/.spriteatlas needed,,-,this gap set,character pipeline untouched

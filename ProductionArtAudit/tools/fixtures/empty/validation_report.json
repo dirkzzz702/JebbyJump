@@ -1,0 +1,32 @@
+{
+ "manifest": "D:\\Workspace\\JebbyJump\\ProductionArtAudit\\zip_blueprint\\zip_manifest.json",
+ "dir": "D:\\Workspace\\JebbyJump\\ProductionArtAudit\\tools\\fixtures\\empty",
+ "assets_checked": 0,
+ "required": 21,
+ "errors": [
+  "missing required file: StoreAssets/Icons/jebby_jump_icon_512.png",
+  "missing required file: Assets/_JebbyJump/Art/Icons/ic_launcher_foreground_432.png",
+  "missing required file: Assets/_JebbyJump/Art/Icons/ic_launcher_background_432.png",
+  "missing required file: StoreAssets/Feature/jebby_jump_feature_1024x500.png",
+  "missing required file: Assets/_JebbyJump/Art/Sprites/Backgrounds/bg_menu_01.png",
+  "missing required file: Assets/_JebbyJump/Art/Sprites/UI/ui_btn_pill_9s.png",
+  "missing required file: StoreAssets/Screenshots/shot_01_gameplay.png",
+  "missing required file: StoreAssets/Screenshots/shot_02_memory.png",
+  "missing required file: StoreAssets/Screenshots/shot_03_wardrobe.png",
+  "missing required file: StoreAssets/Screenshots/shot_04_levelselect.png",
+  "missing required file: Assets/_JebbyJump/Art/Sprites/UI/ui_icon_skill_shield_01.png",
+  "missing required file: Assets/_JebbyJump/Art/Sprites/UI/ui_icon_skill_potion_01.png",
+  "missing required file: Assets/_JebbyJump/Art/Sprites/VFX/fx_bubble_shield_01.png",
+  "missing required file: Assets/_JebbyJump/Art/Sprites/VFX/fx_color_echo_ring_01.png",
+  "missing required file: Assets/_JebbyJump/Art/Icons/ic_launcher_monochrome_432.png",
+  "missing required file: Marketing/KeyArt/jebby_jump_keyart_3840x2160.png"
+ ],
+ "warnings": [
+  "Assets/_JebbyJump/Art/Sprites/Platforms/spr_floor_strip_01.png: missing (asset is decision-blocked - allowed)",
+  "Assets/_JebbyJump/Art/Sprites/UI/ui_panel_soft_9s.png: missing (asset is decision-blocked - allowed)",
+  "Assets/_JebbyJump/Art/Sprites/UI/ui_wordmark_jebbyjump.png: missing (asset is decision-blocked - allowed)",
+  "Marketing/Brand/jebby_jump_wordmark_master.svg: missing (asset is decision-blocked - allowed)",
+  "Assets/_JebbyJump/Art/Sprites/Obstacles/spr_cactus_obstacle_warn_01.png: missing (asset is decision-blocked - allowed)"
+ ],
+ "result": "FAIL"
+}

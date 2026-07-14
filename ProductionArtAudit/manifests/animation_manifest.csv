@@ -1,0 +1,12 @@
+clip_path,role,frame_count,frames_reality,fps_meaningful,loop,sprite_source,pivot,flipx_safe,gap_assessment
+Assets/_JebbyJump/Art/Animations/Jebby_Idle.anim,base idle,1,SINGLE STILL SPRITE (accurately reported; not multi-frame),n/a single frame,loops trivially,RookiePage idle (retargeted 355dba3),"(0.5,0) bottom-centre",yes (symmetric-enough silhouette; RUNTIME-OBSERVED),multi-frame idle = POST_LAUNCH upgrade; not required for slice
+Assets/_JebbyJump/Art/Animations/Jebby_Run.anim,base run,1,single still,n/a,loops,RookiePage run,"(0.5,0)",yes,same
+Assets/_JebbyJump/Art/Animations/Jebby_Jump.anim,base jump,1,single still,n/a,hold,RookiePage jump,"(0.5,0)",yes,same
+Assets/_JebbyJump/Art/Animations/Jebby_Fall.anim,base fall,1,single still,n/a,hold,RookiePage fall,"(0.5,0)",yes,same
+Assets/_JebbyJump/Art/Animations/Jebby_Land.anim,base land,1,single still,n/a,one-shot,RookiePage land,"(0.5,0)",yes,same
+Assets/_JebbyJump/Art/Animations/Jebby_Hurt.anim,base hurt,1,single still,n/a,one-shot,RookiePage hurt,"(0.5,0)",yes,same
+Assets/_JebbyJump/Art/Animations/Jebby_Victory.anim,base victory,1,single still,n/a,hold,RookiePage victory,"(0.5,0)",yes,same
+Assets/_JebbyJump/Art/Characters/Jebby/Outfits/<6 variants>/Animations/*.anim,42 variant clips (6 outfits x 7 states),1 each,single stills mirroring base,n/a,per state,per-outfit sprites 1122x1402,"(0.5,0)",yes,PROTOTYPE certification pending; no new frames required for slice
+Assets/_JebbyJump/Art/Characters/Jebby/Outfits/RookiePage/Animations/*.anim,7 rookie clips,1 each,UNREFERENCED since 355dba3 (base clips sample rookie sprites directly),n/a,n/a,rookie sprites,"(0.5,0)",yes,harmless orphans; keep for future variant re-add
+Assets/_JebbyJump/Art/Animations/JebbyAnimator.controller,base controller (7 states),n/a,state machine only,n/a,n/a,n/a,n/a,n/a,UNITY_NATIVE - never AI-generated
+Assets/_JebbyJump/Art/Characters/Jebby/Outfits/<6>/Controllers/aoc_jebby_*.overrideController,6 AOCs,n/a,7 clip overrides each (P14 test-pinned),n/a,n/a,n/a,n/a,n/a,UNITY_NATIVE

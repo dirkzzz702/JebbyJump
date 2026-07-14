@@ -1,0 +1,13 @@
+﻿{
+    "scene":  "MainMenu",
+    "screen":  "MainMenu root",
+    "resolution":  "1686x948",
+    "aspect_ratio":  "~16:9 (editor Game view size; requested sizes ignored by capture tool)",
+    "safe_area":  "none simulated",
+    "play_mode":  "true",
+    "navigation_state":  "default menu; shows pre-P33 overlap defects (title/wardrobe)",
+    "progression_state":  "L1 unlocked only; stars 0; fresh editor prefs",
+    "outfit_state":  "classic (default) equipped",
+    "source_commit":  "66eb4d0",
+    "timestamp":  "2026-07-14 (live review session)"
+}

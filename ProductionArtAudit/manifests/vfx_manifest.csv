@@ -1,0 +1,11 @@
+vfx,trigger,current_implementation,classification,art_needed,evidence
+bubble shield aura,Bubble Shield skill active,SpriteRenderer showing ui_btn_right.png (ARROW sprite) tinted,sprite texture required,ART-013 fx_bubble_shield_01.png,DEPENDENCY-VERIFIED Game.unity
+color echo pulse,Color Echo skill,SpriteRenderer showing ui_btn_bg.png tinted,sprite texture required (neutral ring; runtime tint),ART-014 fx_color_echo_ring_01.png,DEPENDENCY-VERIFIED
+correct-landing feedback,landing validation,GameFeedbackUI text + colour flash (TMP/procedural),no artwork,none,STATIC-INSPECTED
+wrong-landing/hurt feedback,life lost,feedback text + hurt sprite state,no artwork beyond hurt pose,none,STATIC-INSPECTED
+victory/game-over,level end,panels + victory pose,no artwork (panels covered by UI kit),none,RUNTIME-OBSERVED
+rank/star reveal,result panel,TMP colour-coded (S gold etc.),no artwork for slice; medal art POST_LAUNCH,none,STATIC-INSPECTED HUDController
+button press,UI,Unity tint transition,no artwork,none,correct
+memory cue,accessibility,TMP digits via PlatformCueMapping,no artwork,none,P22 tested
+screen transitions,scene loads,none (instant),POST_LAUNCH polish,none,RUNTIME-OBSERVED
+rocket boots trail,skill 1,none observed,OPEN (design decision whether trail wanted),none for slice,not implemented

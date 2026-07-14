@@ -1,0 +1,2 @@
+asset_id,existing_path,existing_guid,rule
+(none),,,"No DROP_IN_REPLACEMENT rows in this manifest: every gap is a NEW asset or store/marketing file. If a future batch replaces an existing sprite (e.g. outfit re-cert), copy the image OVER the file and NEVER touch its .meta."

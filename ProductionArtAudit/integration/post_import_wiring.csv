@@ -1,0 +1,16 @@
+order,asset_id,scene_or_asset,object_path,component,field,action,test_gate
+1,ART-002,ProjectSettings,PlayerSettings,Android icons,adaptive foreground,assign texture,AAB build + preflight
+1,ART-003,ProjectSettings,PlayerSettings,Android icons,adaptive background,assign texture,AAB build + preflight
+1,ART-015,ProjectSettings/Gradle,PlayerSettings,Android icons,monochrome (if exposed),assign texture,launcher check Android 13+
+2,ART-005,Game.unity,Floor,SpriteRenderer,m_Sprite + drawMode + m_Color,assign; Tiled; white,scene-integrity + overlap tests
+2,ART-005b,Assets,Art/Sprites/Placeholder.png,,,DELETE after floor lands (verify unreferenced),reference scan zero
+3,ART-006,MainMenu.unity,MainMenuCanvas/(new first child) MenuBackground,Image,m_Sprite,create+assign,MainMenu overlap tests
+4,ART-007,both scenes + LevelSelectCard.prefab,all shell panels/cards,Image,m_Sprite + m_Type=Sliced + white,swap,overlap + shell suites
+4,ART-008,both scenes,all shell Buttons,Image,m_Sprite + Sliced,swap,>=90u touch tests
+5,ART-010,MainMenu.unity,TitleText slot (y=380),Image,new wordmark image,replace TMP title,MainMenu overlap tests
+6,ART-011,Game.unity,MobileControlsCanvas/SafeArea/Btn_Skill2/Skill2Icon,Image,m_Sprite,assign,HUD visual
+6,ART-012,Game.unity,MobileControlsCanvas/SafeArea/Btn_Skill3/Skill3Icon,Image,m_Sprite,assign,HUD visual
+7,ART-013,Game.unity,BubbleShieldEffect,SpriteRenderer,m_Sprite,assign,skill activation play test
+7,ART-014,Game.unity,ColorEchoEffect,SpriteRenderer,m_Sprite,assign,tint sweep 6 colours
+8,ART-009,none,capture task,,,capture AFTER 2-7,store upload
+9,ART-017,GATED,design decision D4 first,,,HOLD,

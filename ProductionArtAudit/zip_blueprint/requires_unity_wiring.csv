@@ -1,0 +1,15 @@
+asset_id,archive_path,wiring
+ART-002,Assets/_JebbyJump/Art/Icons/ic_launcher_foreground_432.png,PlayerSettings > Android > Adaptive icon foreground slot (or extend Apply Approved Build Config); rebuild AAB; re-run preflight
+ART-003,Assets/_JebbyJump/Art/Icons/ic_launcher_background_432.png,PlayerSettings adaptive background slot; rebuild
+ART-005,Assets/_JebbyJump/Art/Sprites/Platforms/spr_floor_strip_01.png,assign to Floor SpriteRenderer (drawMode Tiled recommended); reset tint to white; adjust scale; keep collider unchanged; then delete Placeholder.png
+ART-006,Assets/_JebbyJump/Art/Sprites/Backgrounds/bg_menu_01.png,add full-screen Image behind TitleText in MainMenuCanvas (first sibling); assign sprite; envelope scaling
+ART-007,Assets/_JebbyJump/Art/Sprites/UI/ui_panel_soft_9s.png,"set 9-slice borders in Sprite Editor; swap Image sprites on panels/cards (scene edit, multiple objects); keep tint white"
+ART-008,Assets/_JebbyJump/Art/Sprites/UI/ui_btn_pill_9s.png,9-slice borders; swap Button Image sprites across shell; verify tint-based states + focus ring still read
+ART-010,Assets/_JebbyJump/Art/Sprites/UI/ui_wordmark_jebbyjump.png,replace TitleText TMP with Image (or add above); optional Unity splash logo slot; store reuse
+ART-010,Marketing/Brand/jebby_jump_wordmark_master.svg,replace TitleText TMP with Image (or add above); optional Unity splash logo slot; store reuse
+ART-011,Assets/_JebbyJump/Art/Sprites/UI/ui_icon_skill_shield_01.png,assign to Skill2Icon Image in Game.unity
+ART-012,Assets/_JebbyJump/Art/Sprites/UI/ui_icon_skill_potion_01.png,assign to Skill3Icon Image in Game.unity
+ART-013,Assets/_JebbyJump/Art/Sprites/VFX/fx_bubble_shield_01.png,assign to BubbleShieldEffect SpriteRenderer; keep tint/animation code unchanged
+ART-014,Assets/_JebbyJump/Art/Sprites/VFX/fx_color_echo_ring_01.png,assign to ColorEchoEffect SpriteRenderer
+ART-015,Assets/_JebbyJump/Art/Icons/ic_launcher_monochrome_432.png,Unity Android icon monochrome slot (if exposed) or Gradle template note
+ART-017,Assets/_JebbyJump/Art/Sprites/Obstacles/spr_cactus_obstacle_warn_01.png,requires code: swap/flash on anticipation (design decision)

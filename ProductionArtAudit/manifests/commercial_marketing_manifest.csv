@@ -1,0 +1,13 @@
+item,platform,required_size,format_alpha,source,verified,status,asset_id
+store listing app icon,Google Play,512x512,32-bit PNG WITH alpha; max 1024KB,support.google.com/googleplay/android-developer/answer/9866151 (2026-07-14),EXTERNAL-SPEC-VERIFIED,MISSING,ART-001
+feature graphic,Google Play,1024x500,JPEG or 24-bit PNG NO alpha,same,EXTERNAL-SPEC-VERIFIED,MISSING,ART-004
+phone screenshots,Google Play,"min 2; 320..3840px; max<=2x min; promo rec >=4 at 1920x1080 landscape",JPEG/24-bit PNG NO alpha,same,EXTERNAL-SPEC-VERIFIED,MISSING (capture after UI kit),ART-009
+7in/10in tablet screenshots,Google Play,"min 4 each for promo eligibility; 1080..7680px; 16:9/9:16",JPEG/24-bit PNG,same,EXTERNAL-SPEC-VERIFIED,OPTIONAL for internal testing; LAUNCH_RECOMMENDED for public,ART-009 extension
+adaptive icon foreground,Android launcher,108x108dp layers (432x432px @xxxhdpi); logo 48-66dp safe,PNG RGBA,developer.android.com adaptive icons (2026-07-14),EXTERNAL-SPEC-VERIFIED,MISSING (PlayerSettings empty - IMPORT-VERIFIED),ART-002
+adaptive icon background,Android launcher,432x432px opaque,PNG,same,EXTERNAL-SPEC-VERIFIED,MISSING,ART-003
+adaptive monochrome,Android 13+ theming,432x432px alpha silhouette,PNG,same (optional),EXTERNAL-SPEC-VERIFIED,MISSING (optional),ART-015
+legacy round/legacy icons,Android <8,Unity derives from adaptive/legacy slots,PNG,Unity PlayerSettings,IMPORT-VERIFIED empty,fill legacy slot with 512 master downscales at wiring time,ART-001 derivative
+splash logo,Unity splash,vector/PNG per Unity splash settings,PNG RGBA,Unity Personal splash constraints,STATIC (not exercised),wordmark reuse; OPTIONAL for internal testing,ART-010
+key art,press/store reuse,3840x2160 recommended master,PNG opaque,internal standard (not external-mandated),n/a internal,MISSING,ART-016
+iOS icon set,App Store,n/a this phase,n/a,not fetched (iOS not an active target),FUTURE_UNAPPROVED,not in scope,none
+promo video/trailer cards,Play optional,n/a,n/a,not fetched,not verified,POST_LAUNCH,none

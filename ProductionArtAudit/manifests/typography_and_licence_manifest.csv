@@ -1,0 +1,8 @@
+item,path,role,licence_status,commercial_ok,gap,action
+LiberationSans.ttf,Assets/TextMesh Pro/Fonts/LiberationSans.ttf,TMP default: body/buttons/numerals/timer,SIL OFL 1.1 (LiberationSans - OFL.txt present alongside - STATIC-INSPECTED),yes (OFL permits embedding; keep licence file in builds per OFL),digits 0-9 verified by release preflight; generic look,keep for body; do NOT ship as brand voice alone
+LiberationSans SDF,Assets/TextMesh Pro/.../LiberationSans SDF.asset,TMP font asset,derived from OFL font,yes,none,keep
+title/wordmark lettering,none,brand display,MISSING,n/a,no display treatment exists,ART-010 (original lettering or licensed display font; record licence)
+localisation glyphs,n/a,future,n/a,n/a,EN-only today; no localisation scope approved,OPEN_SCOPE_DECISION before store localisation
+outfit sprite provenance,49 PNGs under Art/Characters/Jebby/Outfits/,character art,user-supplied AI palette transfers; NO provenance/licence record in repo,unknown until recorded,LICENCE_EVIDENCE_MISSING,create licence/provenance register (decisions/OPEN_DECISIONS.md item D3)
+ui/world sprite provenance,"ui_btn_*, bg_sky, cactus, rocket boots, memory base, life icon",UI/world art,no provenance record,unknown until recorded,LICENCE_EVIDENCE_MISSING,same register
+locked reference boards,Docs/Art/References/*.png,style authority (not shipped),AI-generated boards; no provenance record,n/a (not distributed in builds),record provenance for brand-derivation chain,same register

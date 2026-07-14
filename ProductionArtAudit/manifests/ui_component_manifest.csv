@@ -1,0 +1,17 @@
+component,where_used,current_visual,strategy,art_needed,evidence
+modal panel/card,"MainMenu panels, Game shell panels, wardrobe card, level cards",Unity built-in UISprite tinted #262633,9-sliced sprite,ART-007,STATIC-INSPECTED scaffold tints + RUNTIME-OBSERVED flat rects
+primary/secondary button,"menu stack, panel buttons, result buttons",built-in UISprite tinted #333340,9-sliced pill + Unity tint states (no per-state bitmaps),ART-008,same
+backdrop dim,all modals,black 85% built-in sprite,procedural Unity Image (keep),none,scaffold code; correct as-is
+mobile move/jump controls,MobileControlsCanvas,"ui_btn_left/right/jump.png ornate orbs 1254px",raster PNG (exists; re-export smaller),TECHNICAL_REEXPORT only,FILE-MEASURED 1254x1254 displayed ~100-160px
+skill button bg,Btn_Skill1-3,ui_btn_bg.png,raster PNG (exists),none,ok
+skill icons,Skill2Icon/Skill3Icon,ui_btn_bg.png reused (generic),raster PNG icons,ART-011/ART-012,DEPENDENCY-VERIFIED
+pause button,MobileControlsCanvas/PauseButton,dark rect + TMP "II",kit button + optional icon,covered by ART-008,RUNTIME-OBSERVED
+hearts,LivesIconContainer,ui_icon_life_01.png,raster PNG (exists),none,RUNTIME-OBSERVED
+memory swatches,SequencePanel,ui_icon_memory_base_01.png tinted,raster + runtime tint (keep),none,correct pattern
+cooldown overlay+label,skill buttons,tinted fill + TMP,procedural + TMP (keep),none,P24 zero-alloc formatter
+focus/selection ring,shell navigation,Unity selectable transitions,Unity procedural (keep),none,P20/P21 tested
+sliders/toggles,Settings,Unity default sprites tinted,kit-tint pass optional (POST_LAUNCH),none required,functional; low visibility
+title,MainMenu TitleText,TMP LiberationSans,wordmark Image,ART-010,RUNTIME-OBSERVED
+timer/lives/level text,HUD,TMP,TMP (keep; never bake text),none,correct
+level card star/rank text,LevelSelectCard,TMP,TMP (keep),none,correct
+wardrobe thumbnails,rows + preview,outfit idle sprites,existing sprites (keep),none,RUNTIME-OBSERVED good

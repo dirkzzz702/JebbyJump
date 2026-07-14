@@ -1,0 +1,14 @@
+{
+ "manifest": "D:\\Workspace\\JebbyJump\\ProductionArtAudit\\zip_blueprint\\zip_manifest.json",
+ "dir": "D:\\Workspace\\JebbyJump\\ProductionArtAudit\\tools\\fixtures\\invalid",
+ "assets_checked": 1,
+ "required": 1,
+ "errors": [
+  "forbidden file type in package: StoreAssets/Icons/bad_extra.meta",
+  "StoreAssets/Icons/jebby_jump_icon_512.png: size 300x300 != required 512x512",
+  "StoreAssets/Icons/jebby_jump_icon_512.png: alpha channel required but missing",
+  "unexpected file not in manifest: StoreAssets/Icons/bad_extra.meta"
+ ],
+ "warnings": [],
+ "result": "FAIL"
+}
