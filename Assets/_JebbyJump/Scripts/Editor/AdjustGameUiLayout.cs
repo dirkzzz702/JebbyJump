@@ -41,6 +41,16 @@ namespace JebbyJump.EditorTools
             // overflow into the row below, re-introducing an overlap.
             groups += SetResultTextsNoWrap(scene);
 
+            // The Retry / Next Level / Main Menu row renders with the button edges (and
+            // "Next Level"/"Main Menu" labels) touching -> re-space horizontally.
+            groups += RespaceResultButtonRow(scene);
+
+            // The button RECTS have 20u gaps, but the labels use TMP Overflow and spill
+            // wider than their 180u buttons ("Next Level"/"Main Menu" glyphs ran together
+            // in the rendered panel). Make labels fit: single-line + auto-size shrink.
+            groups += FitPanelButtonLabels(scene, "LevelCompletePanel");
+            groups += FitPanelButtonLabels(scene, "GameOverPanel");
+
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
             Debug.Log($"[FixUiOverlaps] adjusted {groups} group(s); saved {ScenePath}");
@@ -150,6 +160,82 @@ namespace JebbyJump.EditorTools
                 var tmp = t != null ? t.GetComponent<TMP_Text>() : null;
                 if (tmp == null || !tmp.enableWordWrapping) continue;
                 tmp.enableWordWrapping = false;
+                changed++;
+            }
+            return changed > 0 ? 1 : 0;
+        }
+
+        // Evenly re-spaces the LevelComplete action-button row (Retry / Next Level /
+        // Main Menu) around the card centre with a fixed gap. The rendered row had the
+        // button edges touching (labels visually running together) — below the audit's
+        // 16u^2 graze threshold, hence unflagged. Idempotent: skips when every adjacent
+        // gap is already >= 8. Sets ONLY anchoredPosition.x.
+        private static int RespaceResultButtonRow(UnityEngine.SceneManagement.Scene scene)
+        {
+            var panel = FindByName(scene, "LevelCompletePanel");
+            if (panel == null) return 0;
+            bool was = panel.activeSelf;
+            panel.SetActive(true);
+            Canvas.ForceUpdateCanvases();
+            var anchor = FindInChildren(panel.transform, "TimeText");
+            var card = anchor != null ? anchor.parent as RectTransform : null;
+            if (card == null) { panel.SetActive(was); return 0; }
+            LayoutRebuilder.ForceRebuildLayoutImmediate(card);
+
+            var row = new List<RectTransform>();
+            foreach (var name in new[] { "RetryButton", "NextLevelButton", "MainMenuButton" })
+            {
+                var t = FindInChildren(card, name) as RectTransform;
+                if (t != null) row.Add(t);
+            }
+            if (row.Count < 2) { panel.SetActive(was); return 0; }
+            row.Sort((a, b) => a.anchoredPosition.x.CompareTo(b.anchoredPosition.x));
+
+            bool cramped = false;
+            for (int i = 1; i < row.Count; i++)
+            {
+                float prevRight = row[i - 1].anchoredPosition.x + row[i - 1].rect.width / 2f;
+                float left = row[i].anchoredPosition.x - row[i].rect.width / 2f;
+                if (left - prevRight < 8f) { cramped = true; break; }
+            }
+            if (!cramped) { panel.SetActive(was); return 0; }
+
+            const float gap = 24f;
+            float total = (row.Count - 1) * gap;
+            foreach (var t in row) total += t.rect.width;
+            float x = -total / 2f;
+            foreach (var t in row)
+            {
+                var p = t.anchoredPosition;
+                t.anchoredPosition = new Vector2(x + t.rect.width / 2f, p.y);
+                x += t.rect.width + gap;
+            }
+            panel.SetActive(was);
+            return 1;
+        }
+
+        private static readonly string[] ResultActionButtons =
+            { "RetryButton", "NextLevelButton", "MainMenuButton" };
+
+        // Makes the action-button labels fit their buttons: wrapping off (single line)
+        // + TMP auto-size shrink (max = current size so short labels look unchanged).
+        // Without this, TMP's default Overflow renders long labels wider than the
+        // button rect and into the neighbouring button. Idempotent (skips labels
+        // already auto-sizing).
+        private static int FitPanelButtonLabels(UnityEngine.SceneManagement.Scene scene, string panelName)
+        {
+            var panel = FindByName(scene, panelName);
+            if (panel == null) return 0;
+            int changed = 0;
+            foreach (var name in ResultActionButtons)
+            {
+                var t = FindInChildren(panel.transform, name);
+                var tmp = t != null ? t.GetComponentInChildren<TMP_Text>(true) : null;
+                if (tmp == null || tmp.enableAutoSizing) continue;
+                tmp.enableWordWrapping = false;
+                tmp.enableAutoSizing = true;
+                tmp.fontSizeMax = tmp.fontSize;
+                tmp.fontSizeMin = Mathf.Min(16f, tmp.fontSize);
                 changed++;
             }
             return changed > 0 ? 1 : 0;

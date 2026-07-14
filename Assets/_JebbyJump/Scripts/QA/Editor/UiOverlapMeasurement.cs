@@ -8,23 +8,29 @@ using UnityEngine.UI;
 
 namespace JebbyJump.EditorTools
 {
-    // READ-ONLY overlap measurement core for Game.unity (no scene save, no file I/O).
-    // Opens the scene, measures the gameplay HUD + each modal panel in canvas-reference
-    // space, and returns the number of overlapping text/interactive element pairs plus a
+    // READ-ONLY overlap measurement core (no scene save, no file I/O). Opens a scene,
+    // measures each always-active group and each modal panel in canvas-reference space,
+    // and returns the number of overlapping text/interactive element pairs plus a
     // human-readable report. Panels are activated + layout-rebuilt one at a time (in
     // isolation) so their real laid-out positions are measured; their active state is
-    // restored afterward and the scene is NOT saved. Reused by the menu audit tool
-    // (UiOverlapAuditTool) and the EditMode regression test so the two never disagree.
+    // restored afterward and the scene is NOT saved. Reused by the menu audit tools
+    // (UiOverlapAuditTool) and the EditMode regression tests so the two never disagree.
     public static class UiOverlapMeasurement
     {
-        public const string ScenePath = "Assets/_JebbyJump/Scenes/Game.unity";
+        public const string GameScenePath = "Assets/_JebbyJump/Scenes/Game.unity";
+        public const string MainMenuScenePath = "Assets/_JebbyJump/Scenes/MainMenu.unity";
+
+        // Kept for the original Game-scene API.
+        public const string ScenePath = GameScenePath;
+
+        // ---- Game.unity model ----------------------------------------------------
 
         // Groups measured in isolation. "GameplayHUD" = the always-active HUD + controls.
-        private static readonly string[] ModalPanels =
+        private static readonly string[] GameModalPanels =
             { "LevelCompletePanel", "GameOverPanel", "PausePanel", "SettingsPanel" };
 
         // Names whose subtree starts a DIFFERENT group (don't recurse across these).
-        private static readonly HashSet<string> GroupBoundaries = new HashSet<string>
+        private static readonly HashSet<string> GameGroupBoundaries = new HashSet<string>
         {
             "LevelCompletePanel", "GameOverPanel", "PausePanel", "PauseMenu",
             "SettingsPanel", "FeedbackRoot", "TutorialHintRoot",
@@ -34,32 +40,100 @@ namespace JebbyJump.EditorTools
         // and returns the total overlapping-pair count (report text via out param).
         public static int CountTextOverlaps(out string report)
         {
-            string prev = EditorSceneManager.GetActiveScene().path;
-            EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
-            var scene = EditorSceneManager.GetActiveScene();
-
-            int total = MeasureAllGroups(scene, out report);
-
-            if (!string.IsNullOrEmpty(prev) && prev != ScenePath)
-                EditorSceneManager.OpenScene(prev, OpenSceneMode.Single);
-
-            return total;
+            return MeasureScene(GameScenePath,
+                new[] { new[] { "HUDCanvas", "MobileControlsCanvas" } },
+                new[] { "GameplayHUD" },
+                GameModalPanels, GameGroupBoundaries, out report);
         }
 
-        private static int MeasureAllGroups(UnityEngine.SceneManagement.Scene scene, out string report)
+        // ---- MainMenu.unity model ------------------------------------------------
+
+        private static readonly string[] MenuModalPanels =
+            { "LevelSelectPanel", "SettingsPanel", "WardrobePanel" };
+
+        private static readonly HashSet<string> MenuGroupBoundaries = new HashSet<string>
         {
+            "LevelSelectPanel", "SettingsPanel", "WardrobePanel", "UnlockCeremonyOverlay",
+        };
+
+        // Opens MainMenu.unity and measures the always-active menu group (title + button
+        // stack) and each panel in isolation. Menu-stack-vs-open-panel intersection is
+        // intentionally NOT a violation: panels are modal covers that render above the
+        // stack (see MenuStackRendersBelowPanels for that guarantee).
+        public static int CountMainMenuTextOverlaps(out string report)
+        {
+            return MeasureScene(MainMenuScenePath,
+                new[] { new[] { "MainMenuCanvas" } },
+                new[] { "MenuShell" },
+                MenuModalPanels, MenuGroupBoundaries, out report);
+        }
+
+        // True when the always-active MenuSafeArea button stack is an EARLIER sibling
+        // than every modal panel under MainMenuCanvas, so an open panel (full-screen
+        // raycast-blocking backdrop) renders above the stack and blocks its buttons.
+        public static bool MenuStackRendersBelowPanels(out string detail)
+        {
+            string prev = EditorSceneManager.GetActiveScene().path;
+            EditorSceneManager.OpenScene(MainMenuScenePath, OpenSceneMode.Single);
+            var scene = EditorSceneManager.GetActiveScene();
+
+            bool ok = false;
             var sb = new StringBuilder();
-            sb.AppendLine("[UiOverlapAudit] Game.unity — overlapping text/interactive pairs (canvas-ref units).");
+            var stack = FindByName(scene, "MenuSafeArea");
+            if (stack == null)
+            {
+                sb.Append("MenuSafeArea not found");
+            }
+            else
+            {
+                int stackIdx = stack.transform.GetSiblingIndex();
+                ok = true;
+                foreach (var panelName in MenuModalPanels)
+                {
+                    var panel = FindByName(scene, panelName);
+                    if (panel == null || panel.transform.parent != stack.transform.parent)
+                        continue;
+                    int idx = panel.transform.GetSiblingIndex();
+                    sb.Append($"{panelName}={idx} ");
+                    if (idx < stackIdx) ok = false;
+                }
+                sb.Append($"MenuSafeArea={stackIdx}");
+            }
+            detail = sb.ToString();
+
+            if (!string.IsNullOrEmpty(prev) && prev != MainMenuScenePath)
+                EditorSceneManager.OpenScene(prev, OpenSceneMode.Single);
+            return ok;
+        }
+
+        // ---- shared measurement --------------------------------------------------
+
+        private static int MeasureScene(string scenePath, string[][] alwaysGroupRoots,
+            string[] alwaysGroupNames, string[] modalPanels,
+            HashSet<string> groupBoundaries, out string report)
+        {
+            string prev = EditorSceneManager.GetActiveScene().path;
+            EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
+            var scene = EditorSceneManager.GetActiveScene();
+
+            var sb = new StringBuilder();
+            sb.AppendLine($"[UiOverlapAudit] {System.IO.Path.GetFileName(scenePath)} — overlapping text/interactive pairs (canvas-ref units).");
             int total = 0;
 
-            // --- GameplayHUD: HUDCanvas text/controls + MobileControlsCanvas controls ---
-            var hud = new List<Elem>();
-            CollectByCanvas(scene, "HUDCanvas", hud);
-            CollectByCanvas(scene, "MobileControlsCanvas", hud);
-            total += ReportGroup(sb, "GameplayHUD", hud);
+            for (int g = 0; g < alwaysGroupRoots.Length; g++)
+            {
+                var list = new List<Elem>();
+                foreach (var rootName in alwaysGroupRoots[g])
+                {
+                    var rootGo = FindByName(scene, rootName);
+                    if (rootGo != null)
+                        CollectDescendants(rootGo.transform, list, groupBoundaries);
+                }
+                total += ReportGroup(sb, alwaysGroupNames[g], list);
+            }
 
             // --- each modal panel, activated in isolation so layout is real ---
-            foreach (var panelName in ModalPanels)
+            foreach (var panelName in modalPanels)
             {
                 var root = FindByName(scene, panelName);
                 if (root == null) continue;
@@ -70,7 +144,7 @@ namespace JebbyJump.EditorTools
                 if (prt != null) LayoutRebuilder.ForceRebuildLayoutImmediate(prt);
 
                 var list = new List<Elem>();
-                CollectDescendants(root.transform, list, includeRootChildrenOnly: false, stopAtBoundaries: true);
+                CollectDescendants(root.transform, list, groupBoundaries);
                 total += ReportGroup(sb, panelName + (wasActive ? "" : " (activated for audit)"), list);
 
                 root.SetActive(wasActive);
@@ -78,6 +152,10 @@ namespace JebbyJump.EditorTools
 
             sb.AppendLine($"\n[UiOverlapAudit] TOTAL overlapping pairs: {total}");
             report = sb.ToString();
+
+            if (!string.IsNullOrEmpty(prev) && prev != scenePath)
+                EditorSceneManager.OpenScene(prev, OpenSceneMode.Single);
+
             return total;
         }
 
@@ -113,20 +191,14 @@ namespace JebbyJump.EditorTools
             return count;
         }
 
-        private static void CollectByCanvas(UnityEngine.SceneManagement.Scene scene, string canvasName, List<Elem> outList)
-        {
-            var canvasGo = FindByName(scene, canvasName);
-            if (canvasGo != null) CollectDescendants(canvasGo.transform, outList, false, true);
-        }
-
-        private static void CollectDescendants(Transform t, List<Elem> outList, bool includeRootChildrenOnly, bool stopAtBoundaries)
+        private static void CollectDescendants(Transform t, List<Elem> outList, HashSet<string> boundaries)
         {
             for (int i = 0; i < t.childCount; i++)
             {
                 var child = t.GetChild(i);
-                if (stopAtBoundaries && GroupBoundaries.Contains(child.name)) continue; // different group
+                if (boundaries.Contains(child.name)) continue; // different group
                 AddIfElement(child, outList);
-                CollectDescendants(child, outList, includeRootChildrenOnly, stopAtBoundaries);
+                CollectDescendants(child, outList, boundaries);
             }
         }
 

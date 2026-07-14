@@ -17,5 +17,23 @@ namespace JebbyJump.Tests.EditMode
             int overlaps = UiOverlapMeasurement.CountTextOverlaps(out string report);
             Assert.AreEqual(0, overlaps, report);
         }
+
+        [Test]
+        public void MainMenu_Scene_HasNoTextOverlaps()
+        {
+            int overlaps = UiOverlapMeasurement.CountMainMenuTextOverlaps(out string report);
+            Assert.AreEqual(0, overlaps, report);
+        }
+
+        // The always-active menu button stack must be an earlier sibling than every
+        // modal panel, so an opened panel's full-screen backdrop renders above the
+        // stack and pointer-blocks it (the P33 modality fix; rendered evidence showed
+        // the stack drawing over Level Select / Settings / Wardrobe content).
+        [Test]
+        public void MainMenu_MenuStack_RendersBelowModalPanels()
+        {
+            bool ok = UiOverlapMeasurement.MenuStackRendersBelowPanels(out string detail);
+            Assert.IsTrue(ok, "MenuSafeArea must precede all panels in sibling order: " + detail);
+        }
     }
 }
