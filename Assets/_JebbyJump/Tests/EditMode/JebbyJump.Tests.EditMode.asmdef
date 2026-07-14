@@ -7,6 +7,7 @@
         "JebbyJump.Release.Editor",
         "JebbyJump.Performance.Editor",
         "JebbyJump.Balance.Editor",
+        "JebbyJump.QA.Editor",
         "JebbyJump.Core.Runtime"
     ],
     "includePlatforms": [

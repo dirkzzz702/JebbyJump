@@ -8,9 +8,11 @@ using UnityEngine.UI;
 namespace JebbyJump.EditorTools
 {
     // One-time, idempotent UI-only layout fix for the overlaps found by UiOverlapAuditTool.
-    // Re-spaces the LevelComplete + Pause vertical groups and lifts the staggered Skill3
-    // button clear of Skill1. Sets ONLY RectTransform anchoredPosition/sizeDelta — no
-    // gameplay, script, prefab, or logic change. Re-running is a no-op once spacing holds.
+    // Re-spaces the LevelComplete + Pause vertical groups, lifts the staggered Skill3 button
+    // clear of Skill1, and disables word-wrap on the LevelComplete stat texts so a long
+    // dynamic value can't wrap to a 2nd line and re-overlap. Touches ONLY RectTransform
+    // anchoredPosition/sizeDelta and TMP_Text.enableWordWrapping — no gameplay, script,
+    // prefab, or logic change. Re-running is a no-op once spacing/wrap settings hold.
     public static class AdjustGameUiLayout
     {
         private const string ScenePath = "Assets/_JebbyJump/Scenes/Game.unity";
@@ -33,6 +35,11 @@ namespace JebbyJump.EditorTools
 
             // Skill3 sits diagonally over Skill1 -> raise it clear (pure vertical move).
             groups += NudgeSkill3(scene);
+
+            // LevelComplete stat texts carry variable-length suffixes ("(New!)", "(New Star
+            // Best!)"). Disable word-wrap so a long value can't wrap to a 2nd line and
+            // overflow into the row below, re-introducing an overlap.
+            groups += SetResultTextsNoWrap(scene);
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
@@ -121,6 +128,31 @@ namespace JebbyJump.EditorTools
             float h = 0f;
             foreach (var it in row) h = Mathf.Max(h, it.H);
             return h;
+        }
+
+        // The four LevelComplete result stat texts whose runtime strings vary in length.
+        private static readonly string[] ResultStatTexts =
+            { "TimeText", "BestTimeText", "RankText", "StarsText" };
+
+        // Disables word-wrap on the LevelComplete stat texts. Their runtime strings have
+        // variable-length suffixes ("Best: 00:12.34  (New!)", "Stars: 3/3  (New Star
+        // Best!)"); with wrapping on, a long value wraps to a 2nd line and overflows its
+        // box into the row below. Single-line keeps each within its row. Idempotent (skips
+        // texts already single-line). Matches WardrobePanelController's enableWordWrapping use.
+        private static int SetResultTextsNoWrap(UnityEngine.SceneManagement.Scene scene)
+        {
+            var panel = FindByName(scene, "LevelCompletePanel");
+            if (panel == null) return 0;
+            int changed = 0;
+            foreach (var name in ResultStatTexts)
+            {
+                var t = FindInChildren(panel.transform, name);
+                var tmp = t != null ? t.GetComponent<TMP_Text>() : null;
+                if (tmp == null || !tmp.enableWordWrapping) continue;
+                tmp.enableWordWrapping = false;
+                changed++;
+            }
+            return changed > 0 ? 1 : 0;
         }
 
         private static int NudgeSkill3(UnityEngine.SceneManagement.Scene scene)
