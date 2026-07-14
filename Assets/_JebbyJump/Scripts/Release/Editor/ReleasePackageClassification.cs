@@ -35,6 +35,7 @@ namespace JebbyJump.Release
 
         private static readonly Dictionary<string, Info> Map = new Dictionary<string, Info>
         {
+            { "com.besty.unity-skills", new Info(ReleasePackageCategory.EditorOnly, "UnitySkills AI editor automation bridge; not compiled into the player") },
             { "com.coplaydev.coplay", new Info(ReleasePackageCategory.EditorOnly, "AI editor plugin; not compiled into the player") },
             { "com.unity.2d.animation", new Info(ReleasePackageCategory.ApprovedRuntime, "2D sprite animation pipeline") },
             { "com.unity.2d.aseprite", new Info(ReleasePackageCategory.EditorOnly, "Aseprite importer (asset import only)") },
