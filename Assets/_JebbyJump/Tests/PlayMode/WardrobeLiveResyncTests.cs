@@ -214,7 +214,7 @@ namespace JebbyJump.Tests
         }
 
         [Test]
-        public void AllSevenOverrides_ApplySequentially()
+        public void AllVariantOverrides_ApplySequentially()
         {
             foreach (var o in WardrobeCatalog.Outfits)
             {

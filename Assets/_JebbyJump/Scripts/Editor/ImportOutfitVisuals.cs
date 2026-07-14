@@ -39,7 +39,10 @@ public static class ImportOutfitVisuals
         ("SunshineKnight", "sunshine_knight"),
         ("CrimsonHero", "crimson_hero"),
         ("AquaKnight", "aqua_knight"),
-        ("RookiePage", "rookie_page"),
+        // RookiePage is NOT imported as an outfit: its sprite set is the
+        // default look (classic_color_knight points at it - SetDefaultLook),
+        // and rookie_page is no longer a catalog id. Re-add here only if a
+        // distinct Rookie Page variant returns to the catalog.
         ("PastelPrince", "pastel_prince"),
     };
 

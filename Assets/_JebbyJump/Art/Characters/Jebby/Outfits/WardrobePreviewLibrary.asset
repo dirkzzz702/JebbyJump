@@ -14,14 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: JebbyJump.Wardrobe.Visual::JebbyJump.Wardrobe.Visual.WardrobePreviewLibrary
   _entries:
   - OutfitId: classic_color_knight
-    Idle: {fileID: 21300000, guid: 590ce5d81259ad64192ac24c18bba3dc, type: 3}
-    Run: {fileID: 21300000, guid: 97b8783188b5f3846ae592f2c9bc3628, type: 3}
-    Jump: {fileID: 21300000, guid: 6343697099ed7cf42856ad8409db4be6, type: 3}
-    Fall: {fileID: 21300000, guid: 1782410e500b6c94faea8e9b695ab56a, type: 3}
-    Land: {fileID: 21300000, guid: 3a41cce222e047b4ab7debf311c17ec3, type: 3}
-    Hurt: {fileID: 21300000, guid: 570eb0139acb8b94088b7f014513d6a2, type: 3}
-    Victory: {fileID: 21300000, guid: 791f40912fe397d4eb4920d9ab7825ff, type: 3}
-  - OutfitId: rookie_page
     Idle: {fileID: 21300000, guid: 021b7c4c8d74aab4db579d6636d3088c, type: 3}
     Run: {fileID: 21300000, guid: 07a68b3ede6b2cb46ae407bcdb238fda, type: 3}
     Jump: {fileID: 21300000, guid: 4f324b55d19566d4ea6cdfa74ed38712, type: 3}

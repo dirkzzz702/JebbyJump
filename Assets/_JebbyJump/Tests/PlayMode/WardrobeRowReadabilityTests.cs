@@ -44,20 +44,20 @@ namespace JebbyJump.Tests
         [Test]
         public void EquippedAndNew_AreDistinctSignals()
         {
-            // forest equipped (8 Stars) + acknowledged; rookie unlocked + new.
+            // forest equipped (12 Stars) + acknowledged; crimson unlocked + new.
             var rows = WardrobeRowModelBuilder.Build(
-                "forest_cavalier", 8, null, id => id == "forest_cavalier");
-            WardrobeOutfitRowModel forest = default, rookie = default;
+                "forest_cavalier", 12, null, id => id == "forest_cavalier");
+            WardrobeOutfitRowModel forest = default, crimson = default;
             foreach (var r in rows)
             {
                 if (r.OutfitId == "forest_cavalier") forest = r;
-                if (r.OutfitId == "rookie_page") rookie = r;
+                if (r.OutfitId == "crimson_hero") crimson = r;
             }
             Assert.IsTrue(forest.IsEquipped);
             Assert.AreEqual("Equipped", forest.StateText);
             Assert.IsFalse(forest.IsNew, "acknowledged equipped row is not New");
-            Assert.IsTrue(rookie.IsNew, "unlocked unacknowledged row is New");
-            Assert.IsFalse(rookie.IsEquipped);
+            Assert.IsTrue(crimson.IsNew, "unlocked unacknowledged row is New");
+            Assert.IsFalse(crimson.IsEquipped);
         }
 
         [Test]

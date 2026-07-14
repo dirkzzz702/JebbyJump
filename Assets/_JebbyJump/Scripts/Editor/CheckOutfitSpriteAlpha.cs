@@ -10,12 +10,11 @@ using UnityEngine;
 // Never modifies importers or assets - it only logs PASS/FAIL per check.
 //
 // Menu: validates the selected texture assets; with nothing selected it
-// falls back to the 7 default Jebby state sprites (which the contract was
-// recorded from). RunOnDefaultJebbySprites() is the batchmode entry.
+// falls back to the default-look source sprites (the variant set the default
+// outfit points at - see SetDefaultLook; the standalone default sprite set
+// was removed). RunOnDefaultJebbySprites() is the batchmode entry.
 public static class CheckOutfitSpriteAlpha
 {
-    private const string JebbySpriteFolder =
-        "Assets/_JebbyJump/Art/Sprites/Characters/Jebby/";
 
     private static readonly string[] States =
         { "idle", "run", "jump", "fall", "land", "hurt", "victory" };
@@ -35,19 +34,20 @@ public static class CheckOutfitSpriteAlpha
         if (paths.Count == 0)
         {
             Debug.Log("[OutfitQA] No textures selected - checking the 7 "
-                + "default Jebby sprites instead.");
+                + "default-look source sprites instead.");
             RunOnDefaultJebbySprites();
             return;
         }
         Check(paths);
     }
 
-    // Batchmode entry: checks the 7 default Jebby state sprites.
+    // Batchmode entry: checks the 7 default-look source sprites (the variant
+    // set the default outfit points at).
     public static void RunOnDefaultJebbySprites()
     {
         var paths = new List<string>();
         foreach (var state in States)
-            paths.Add(JebbySpriteFolder + "spr_jebby_" + state + "_01.png");
+            paths.Add(JebbyJump.EditorTools.SetDefaultLook.VariantSpritePath(state));
         Check(paths);
     }
 

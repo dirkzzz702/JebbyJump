@@ -283,12 +283,16 @@ namespace JebbyJump.Tests
         private static string IdlePath(string outfitId)
             => PosePath(outfitId, WardrobePreviewPose.Idle);
 
+        // The default outfit has no art of its own - it points at this
+        // variant's sprite set (kept in sync with SetDefaultLook.VariantId;
+        // the test asmdef cannot reference the editor assembly).
+        private const string DefaultLookSourceId = "rookie_page";
+
         private static string PosePath(string outfitId, WardrobePreviewPose pose)
         {
             string state = pose.ToString().ToLowerInvariant();
             if (outfitId == WardrobeCatalog.DefaultOutfitId)
-                return "Assets/_JebbyJump/Art/Sprites/Characters/Jebby/spr_jebby_"
-                    + state + "_01.png";
+                outfitId = DefaultLookSourceId;
             return OutfitsRoot + ToPascal(outfitId) + "/Sprites/spr_jebby_"
                 + outfitId + "_" + state + "_01.png";
         }

@@ -75,9 +75,6 @@ namespace JebbyJump.Tests
 
         // ---- Threshold boundaries (below / exact / above) ----
 
-        [TestCase("rookie_page", 3, false)]
-        [TestCase("rookie_page", 4, true)]
-        [TestCase("rookie_page", 5, true)]
         [TestCase("forest_cavalier", 7, false)]
         [TestCase("forest_cavalier", 8, true)]
         [TestCase("forest_cavalier", 9, true)]

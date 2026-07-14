@@ -91,16 +91,18 @@ namespace JebbyJump.Tests
         }
 
         [Test]
-        public void FourStarsReturnsRookieOnly()
+        public void FourStarsReturnsNothing_FirstUnlockIsEight()
         {
-            CollectionAssert.AreEqual(new[] { "rookie_page" }, Ids(4, _ => false));
+            // rookie_page was folded into the default look; forest_cavalier
+            // (8 Stars) is now the first unlockable.
+            CollectionAssert.IsEmpty(Ids(4, _ => false));
         }
 
         [Test]
         public void FifteenStarsReturnsEligibleInCatalogOrder()
         {
             CollectionAssert.AreEqual(
-                new[] { "rookie_page", "forest_cavalier", "crimson_hero", "sunshine_knight" },
+                new[] { "forest_cavalier", "crimson_hero", "sunshine_knight" },
                 Ids(15, _ => false));
         }
 
@@ -108,7 +110,7 @@ namespace JebbyJump.Tests
         public void ExcludesAcknowledged()
         {
             CollectionAssert.AreEqual(
-                new[] { "rookie_page", "crimson_hero", "sunshine_knight" },
+                new[] { "crimson_hero", "sunshine_knight" },
                 Ids(15, id => id == "forest_cavalier"));
         }
 

@@ -179,6 +179,19 @@ P20 — Accessibility + Mobile (Landscape) Wardrobe UI Hardening : complete (aut
 P21 — Wider Shell Accessibility + Mobile Navigation Hardening : complete (automated structural layer; extends P20 to Main Menu / Level Select / Settings / Pause / Result / Game Over; new JebbyJump.Shell.Runtime pure helpers (ShellLayoutMetrics single-sources the 90 touch metric, ShellFocusResolver, GridNavigationBuilder true-grid, Shell stack/grid bounds policies per-surface) + ShellFocusUtil + ShellScaffold; deterministic keyboard/gamepad nav + initial focus + real modal traps (pointer backdrop + focus-island re-assert) + focus restore; true Level Select grid nav with focusable no-op locked cards + scroll-to-focus; >=90 hit areas (settings toggle/slider hit-area enlarged without oversizing visuals, slider Left/Right preserved); dedicated GameShellCanvas (shell panels moved off gameplay HUD/MobileControls canvases) - 800x600 SequenceCanvas (memory gameplay) left untouched; result/game-over made modal cards; reuses settings_changed; no gameplay HUD/mobile-control/migration/economy/art changes; manual/device QA DEFERRED/NOT VERIFIED)
 ```
 
+Post-review UI/content updates (after the live UnitySkills review): **P33** repaired the
+Main Menu shell (title/button-stack overlaps fixed; the always-active button stack moved
+below the modal panels so an open panel covers and pointer-blocks it; result/game-over
+button labels now single-line auto-size) and added scene-level overlap regression tests
+for Game.unity + MainMenu.unity. The **wardrobe catalog went 8 → 7**: the separate
+`rookie_page` entry was folded into the default because its prototype art WAS the default
+look (pixel-identical). The default outfit keeps the stable id `classic_color_knight`
+(save keys unchanged) but is now displayed as **"Rookie Page"** and owns NO art: the base
+Jebby clips, prefab initial sprite, and preview entries all point at the RookiePage
+variant set (retarget any time with `Jebby Jump/Wardrobe/Set Default Look`); the old
+standalone default sprite folder (`Art/Sprites/Characters`) was deleted. First unlock is
+now `forest_cavalier` (8 Stars); all thresholds remain PLACEHOLDERS.
+
 P32 (production upload-key signing + Play internal-testing upload) ran **PREPARATION ONLY /
 BLOCKED** — no upload-key signing performed, no Play Console action, no upload. The gate
 confirmed all external prerequisites still missing (no upload keystore, no Console account, no

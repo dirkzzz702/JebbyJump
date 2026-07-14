@@ -85,7 +85,7 @@ namespace JebbyJump.Tests
         public void Resolver_P13AdditionsResolveToThemselves_NoStaticOverride()
         {
             foreach (var id in new[]
-                { "crimson_hero", "rookie_page", "pastel_prince" })
+                { "crimson_hero", "pastel_prince" })
             {
                 var def = OutfitVisualCatalog.GetVisualForOutfit(id);
                 Assert.AreEqual(id, def.OutfitId);

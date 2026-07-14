@@ -69,8 +69,8 @@ namespace JebbyJump.Tests
                     o.Id + " has no library entry / null controller");
                 Assert.IsNotNull(ctrl, o.Id);
             }
-            Assert.AreEqual(7, nonDefault);
-            Assert.AreEqual(7, lib.Count, "unexpected extra library entries");
+            Assert.AreEqual(6, nonDefault);
+            Assert.AreEqual(6, lib.Count, "unexpected extra library entries");
         }
 
         // The default outfit deliberately has NO library entry: applying it

@@ -13,8 +13,6 @@ public static class BuildWardrobePreviewLibrary
 {
     private const string LibraryPath =
         "Assets/_JebbyJump/Art/Characters/Jebby/Outfits/WardrobePreviewLibrary.asset";
-    private const string DefaultSpriteFolder =
-        "Assets/_JebbyJump/Art/Sprites/Characters/Jebby/";
     private const string OutfitsRoot =
         "Assets/_JebbyJump/Art/Characters/Jebby/Outfits/";
 
@@ -65,8 +63,10 @@ public static class BuildWardrobePreviewLibrary
 
     private static string SpritePath(string outfitId, string state)
     {
+        // The default outfit has no art of its own - it points at a variant's
+        // sprite set (see SetDefaultLook).
         if (outfitId == WardrobeCatalog.DefaultOutfitId)
-            return DefaultSpriteFolder + "spr_jebby_" + state + "_01.png";
+            return JebbyJump.EditorTools.SetDefaultLook.VariantSpritePath(state);
         return OutfitsRoot + ToPascal(outfitId) + "/Sprites/spr_jebby_"
             + outfitId + "_" + state + "_01.png";
     }

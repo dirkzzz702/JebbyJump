@@ -23,7 +23,5 @@ MonoBehaviour:
     ControllerOverride: {fileID: 22100000, guid: c7f185ce6e3d085429d70544e8cc79ac, type: 2}
   - OutfitId: aqua_knight
     ControllerOverride: {fileID: 22100000, guid: b0779e6386c472a4188ebe3297b38147, type: 2}
-  - OutfitId: rookie_page
-    ControllerOverride: {fileID: 22100000, guid: 7b6a8aad3a5c80349943825b26128855, type: 2}
   - OutfitId: pastel_prince
     ControllerOverride: {fileID: 22100000, guid: 549ad62b7985a6441965d8097145eba7, type: 2}

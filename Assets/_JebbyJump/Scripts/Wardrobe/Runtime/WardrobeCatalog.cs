@@ -2,35 +2,34 @@ using System.Collections.Generic;
 
 namespace JebbyJump.Wardrobe
 {
-    // The fixed runtime outfit catalog: the P8/P9 initial five plus the
-    // three remaining 8-design-board outfits approved in P13 (art import).
-    // Ids are stable snake_case wire keys. Star thresholds are PLACEHOLDERS
-    // (pending P4B + level count + balance review) and are stored here as
-    // data only - not tuned. Outfits are cosmetic-only with no gameplay
-    // effect; Jebby remains one playable character.
+    // The fixed runtime outfit catalog: 7 outfits total - the default plus
+    // six unlockable variants. Ids are stable snake_case wire keys. Star
+    // thresholds are PLACEHOLDERS (pending P4B + level count + balance
+    // review) and are stored here as data only - not tuned. Outfits are
+    // cosmetic-only with no gameplay effect; Jebby remains one playable
+    // character.
     //
-    // "Classic Color Knight" maps to the Art Bible / GDD "Classic Cavalier"
-    // default identity.
+    // The default outfit keeps the stable id "classic_color_knight" (save
+    // keys / normalization depend on it) but has NO art of its own: the base
+    // JebbyAnimator clips, the Jebby prefab's initial sprite, and the preview
+    // library's default entry all point at a VARIANT's asset set (currently
+    // RookiePage - hence the display name). Retarget the default look with
+    // "Jebby Jump/Wardrobe/Set Default Look"; the former separate rookie_page
+    // catalog entry was folded into the default because its art WAS the
+    // default look.
     public static class WardrobeCatalog
     {
         public const string DefaultOutfitId = "classic_color_knight";
 
-        // Ordered by ascending Star threshold (panel row order). The three
-        // P13 additions (rookie_page, crimson_hero, pastel_prince - approved
-        // from the 8-design board) interleave without touching the original
-        // five ids/thresholds. All thresholds remain PLACEHOLDERS.
+        // Ordered by ascending Star threshold (panel row order). All
+        // thresholds remain PLACEHOLDERS.
         private static readonly CosmeticItemDefinition[] _outfits =
         {
             new CosmeticItemDefinition(
-                "classic_color_knight", "Classic Color Knight",
+                "classic_color_knight", "Rookie Page",
                 CosmeticCategory.Outfit,
-                "Default Jebby the Color Knight.",
+                "Default Jebby - cheerful starter theme.",
                 0, true),
-            new CosmeticItemDefinition(
-                "rookie_page", "Rookie Page",
-                CosmeticCategory.Outfit,
-                "Cheerful starter theme.",
-                4, false),   // PLACEHOLDER threshold
             new CosmeticItemDefinition(
                 "forest_cavalier", "Forest Cavalier",
                 CosmeticCategory.Outfit,
