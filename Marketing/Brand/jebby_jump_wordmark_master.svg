@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="800" viewBox="0 0 2400 800">
+  <defs>
+    <linearGradient id="ivoryTopLight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFDF7"/>
+      <stop offset="48%" stop-color="#FFF4DE"/>
+      <stop offset="100%" stop-color="#F1DFC0"/>
+    </linearGradient>
+    <linearGradient id="goldOutline" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F2D376"/>
+      <stop offset="55%" stop-color="#D7AA42"/>
+      <stop offset="100%" stop-color="#B67A22"/>
+    </linearGradient>
+  </defs>
+  <!-- Original hand-authored path lettering. No font or raster image is embedded. -->
+  <g transform="translate(66 0) scale(0.80 1)">
+    <g fill="none" stroke="url(#goldOutline)" stroke-width="132" stroke-linecap="round" stroke-linejoin="round">
+      <!-- J -->
+      <path d="M 182 190 C 235 146 330 143 392 180 L 392 392 C 392 535 318 611 214 585 C 143 567 112 510 128 444"/>
+      <!-- e: open counter and explicit horizontal crossbar -->
+      <path d="M 658 520 C 620 566 548 582 493 543 C 438 504 440 429 492 390 C 544 351 623 365 664 412" transform="rotate(-4 590 480)"/>
+      <path d="M 510 458 L 650 458" transform="rotate(-4 590 480)"/>
+      <!-- b b y -->
+      <path d="M 758 190 L 758 568 M 758 411 C 801 357 893 357 931 416 C 970 477 928 565 841 571 C 797 574 771 554 758 526" transform="rotate(-7 840 420)"/>
+      <path d="M 1020 190 L 1020 568 M 1020 411 C 1063 357 1155 357 1193 416 C 1232 477 1190 565 1103 571 C 1059 574 1033 554 1020 526" transform="rotate(-7 1102 420)"/>
+      <path d="M 1286 386 C 1306 468 1336 523 1388 523 C 1441 523 1470 468 1492 386 M 1492 386 C 1478 532 1474 622 1408 671 C 1363 704 1305 701 1265 668" transform="rotate(-3 1390 500)"/>
+      <!-- clear word space, then J u m p with even internal spacing -->
+      <path d="M 1800 190 C 1853 146 1948 143 2010 180 L 2010 392 C 2010 535 1936 611 1832 585 C 1761 567 1730 510 1746 444" transform="rotate(2 1905 420)"/>
+      <path d="M 2090 386 L 2090 493 C 2090 563 2138 586 2187 565 C 2220 551 2234 520 2234 480 L 2234 386 M 2234 386 L 2234 560" transform="rotate(5 2162 474)"/>
+      <path d="M 2310 562 L 2310 405 C 2310 345 2425 345 2425 425 L 2425 562 M 2425 425 C 2425 345 2540 345 2540 425 L 2540 562" transform="rotate(7 2425 455)"/>
+      <path d="M 2615 670 L 2615 405 M 2615 414 C 2657 360 2744 359 2780 418 C 2817 478 2777 562 2696 570 C 2656 574 2628 555 2615 528" transform="rotate(5 2698 500)"/>
+    </g>
+    <g fill="none" stroke="url(#ivoryTopLight)" stroke-width="88" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M 182 190 C 235 146 330 143 392 180 L 392 392 C 392 535 318 611 214 585 C 143 567 112 510 128 444"/>
+      <path d="M 658 520 C 620 566 548 582 493 543 C 438 504 440 429 492 390 C 544 351 623 365 664 412" transform="rotate(-4 590 480)"/>
+      <path d="M 510 458 L 650 458" transform="rotate(-4 590 480)"/>
+      <path d="M 758 190 L 758 568 M 758 411 C 801 357 893 357 931 416 C 970 477 928 565 841 571 C 797 574 771 554 758 526" transform="rotate(-7 840 420)"/>
+      <path d="M 1020 190 L 1020 568 M 1020 411 C 1063 357 1155 357 1193 416 C 1232 477 1190 565 1103 571 C 1059 574 1033 554 1020 526" transform="rotate(-7 1102 420)"/>
+      <path d="M 1286 386 C 1306 468 1336 523 1388 523 C 1441 523 1470 468 1492 386 M 1492 386 C 1478 532 1474 622 1408 671 C 1363 704 1305 701 1265 668" transform="rotate(-3 1390 500)"/>
+      <path d="M 1800 190 C 1853 146 1948 143 2010 180 L 2010 392 C 2010 535 1936 611 1832 585 C 1761 567 1730 510 1746 444" transform="rotate(2 1905 420)"/>
+      <path d="M 2090 386 L 2090 493 C 2090 563 2138 586 2187 565 C 2220 551 2234 520 2234 480 L 2234 386 M 2234 386 L 2234 560" transform="rotate(5 2162 474)"/>
+      <path d="M 2310 562 L 2310 405 C 2310 345 2425 345 2425 425 L 2425 562 M 2425 425 C 2425 345 2540 345 2540 425 L 2540 562" transform="rotate(7 2425 455)"/>
+      <path d="M 2615 670 L 2615 405 M 2615 414 C 2657 360 2744 359 2780 418 C 2817 478 2777 562 2696 570 C 2656 574 2628 555 2615 528" transform="rotate(5 2698 500)"/>
+    </g>
+  </g>
+  <!-- Exactly one rainbow-gem accent on the second J. -->
+  <g id="single-rainbow-gem" transform="translate(1572 116)">
+    <path d="M 0 28 L 28 0 L 56 28 L 28 56 Z" fill="#E0C16A" stroke="#B67A22" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M 28 7 L 49 28 L 28 28 Z" fill="#EF5A4F"/>
+    <path d="M 49 28 L 28 49 L 28 28 Z" fill="#F2C84B"/>
+    <path d="M 28 49 L 7 28 L 28 28 Z" fill="#49B96F"/>
+    <path d="M 7 28 L 28 7 L 28 28 Z" fill="#4F87D8"/>
+    <path d="M 28 7 L 28 28 L 7 28 Z" fill="#8A5CC7" fill-opacity="0.55"/>
+    <path d="M 17 17 L 27 10 L 24 22 Z" fill="#FFFFFF" fill-opacity="0.82"/>
+  </g>
+</svg>
