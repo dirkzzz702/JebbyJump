@@ -425,7 +425,7 @@
   "max_texture_size": "",
   "platform_overrides": "",
   "atlas_group": "",
-  "world_size": "~37.6 x 0.16 world units today (BLOCKED - DESIGN DECISION: keep thin strip vs taller grassy ledge; affects height)",
+  "world_size": "~37.6 world units wide; DECIDED (D1, 2026-07-16): taller cloud-meadow ledge, ~0.6 world-unit visible ground (512x128 art, drawMode Tiled)",
   "sorting_layer": "",
   "order_in_layer": "",
   "canvas_path": "",
@@ -460,8 +460,8 @@
   "acceptance_criteria": "tiles seamlessly on X; reads as ground vs sky; doesn't fight platform colours",
   "licence_requirement": "provenance record",
   "source_file_requirement": "master kept",
-  "confidence": "medium",
-  "blocker": "height/style needs 1 design decision (thin strip vs ledge)",
+  "confidence": "high",
+  "blocker": "",
   "notes": ""
  },
  {

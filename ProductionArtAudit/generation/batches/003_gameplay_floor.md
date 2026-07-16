@@ -12,7 +12,7 @@ assets below, then validate, ZIP, and STOP.
 Generation without a listed reference is FORBIDDEN — ask for the upload.
 
 ## Batch notes / consistency
-Single asset. Confirm design decision D1 (strip vs ledge) from decisions/OPEN_DECISIONS.md before generating; if unresolved, STOP and ask.
+Single asset. Design decision D1 is RESOLVED: taller cloud-meadow LEDGE (512x128, drawMode Tiled). Generate to the brief as written - no open decision.
 
 ## Output paths (exact; repo-root relative)
 - `Assets/_JebbyJump/Art/Sprites/Platforms/spr_floor_strip_01.png`

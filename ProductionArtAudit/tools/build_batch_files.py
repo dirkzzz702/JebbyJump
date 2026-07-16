@@ -17,8 +17,8 @@ BATCHES = [
  "HUMAN BRAND/LEGAL REVIEW REQUIRED before any store use — deliver as CANDIDATE."),
 ("003_gameplay_floor", ["ART-005"],
  ["bg_sky_layer_01.png","Game__PlayingHUD__1686x948__none__level1-timer-running.png"],
- "Single asset. Confirm design decision D1 (strip vs ledge) from decisions/OPEN_DECISIONS.md "
- "before generating; if unresolved, STOP and ask.",
+ "Single asset. Design decision D1 is RESOLVED: taller cloud-meadow LEDGE (512x128, drawMode "
+ "Tiled). Generate to the brief as written - no open decision.",
  "Tile-seam validator PASS (left/right column mean diff < 2/255)."),
 ("004_menu_background", ["ART-006"],
  ["bg_sky_layer_01.png","jebby_color_knight_character_sheet_v01.png","Game__PlayingHUD__1686x948__none__level1-timer-running.png"],

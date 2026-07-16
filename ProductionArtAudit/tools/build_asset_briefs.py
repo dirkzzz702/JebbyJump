@@ -126,9 +126,8 @@ B = {
    "overlap tests rerun."),
  accept=["512x128; tiles seamlessly on X", "reads as ground; platforms still pop",
    "collider alignment unchanged (visual top within 4px of collider top)"],
- blockers=("DESIGN DECISION (small): thin strip (current 0.16u visual) vs taller ledge "
-   "(~0.6u). Spec above assumes taller ledge with drawMode Tiled; if thin strip is chosen, "
-   "runtime height becomes 32px and the Floor keeps y-scale.")),
+ blockers=("RESOLVED (D1, 2026-07-16): taller cloud-meadow LEDGE. The spec above is final - "
+   "512x128 art, drawMode Tiled, ~0.6 world-unit visible ground. No open decision remains.")),
 "ART-006": dict(
  purpose="Main-menu background (first screen players see; currently a flat navy clear colour).",
  refs=["Art/Sprites/Backgrounds/bg_sky_layer_01.png (REQUIRED upload - same world)",

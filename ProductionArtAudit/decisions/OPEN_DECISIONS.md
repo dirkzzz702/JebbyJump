@@ -2,7 +2,7 @@
 
 | ID | Decision | Options | Default proposal | Depends |
 |---|---|---|---|---|
-| D1 | Floor treatment | (a) keep thin strip look, new art 512×32; (b) taller cloud-meadow ledge 512×128, drawMode Tiled | (b) — richer ground read, spec written for it | ART-005 |
+| ~~D1~~ RESOLVED 2026-07-16 | Floor treatment | (a) thin strip; (b) taller cloud-meadow ledge 512×128, drawMode Tiled | **DECIDED: (b) taller ledge** (product owner) | ART-005 unblocked |
 | D2 | UI corner-radius system | (a) 48px@256 soft; (b) 32px sharper; (c) full pill everywhere | (a) panels + true-pill buttons (briefs carry candidates) | ART-007/008 |
 | D3 | Licence/provenance register | create `Docs/Release/Jebby_Jump_Art_Provenance_Register_v0.1.md` recording source/generator/rights for every shipped asset (incl. the 49 outfit sprites + 11 UI/world sprites + reference boards) | do it before public release; internal testing OK meanwhile | commercial acceptance |
 | D4 | Cactus anticipation | (a) none (ship as-is); (b) pre-contact warn swap (needs small code) | (a) for internal testing; revisit with playtest data | ART-017 |

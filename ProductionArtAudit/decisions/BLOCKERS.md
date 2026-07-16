@@ -2,7 +2,7 @@
 
 | ID | Blocked item | Status | Needed from |
 |---|---|---|---|
-| BLK-1 | ART-005 floor visual height (thin strip 32px vs taller ledge ~60px world 0.6u) | BLOCKED — DESIGN DECISION REQUIRED (D1) | product owner |
+| ~~BLK-1~~ | ART-005 floor visual height | **RESOLVED 2026-07-16 (D1): taller ledge, 512×128, drawMode Tiled, ~0.6u ground** | — |
 | BLK-2 | UI corner-radius system (affects ART-007/008 border px) | BLOCKED — DESIGN DECISION REQUIRED (D2); candidate values (96px@512 panel, pill=half-height) are documented and usable for a first pass | product owner |
 | BLK-3 | ART-013 shield world diameter | BLOCKED — LIVE MEASURE at wiring time (effect object inactive in edit mode; scale set by skill code) | integration session |
 | BLK-4 | ART-017 anticipation behaviour (art depends on gameplay design) | BLOCKED — DESIGN DECISION REQUIRED (D4) | product owner |

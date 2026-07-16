@@ -3,7 +3,7 @@ ART-001,StoreAssets/Icons/jebby_jump_icon_512.png,jebby_jump_icon_512.png,
 ART-002,Assets/_JebbyJump/Art/Icons/ic_launcher_foreground_432.png,ic_launcher_foreground_432.png,
 ART-003,Assets/_JebbyJump/Art/Icons/ic_launcher_background_432.png,ic_launcher_background_432.png,
 ART-004,StoreAssets/Feature/jebby_jump_feature_1024x500.png,jebby_jump_feature_1024x500.png,
-ART-005,Assets/_JebbyJump/Art/Sprites/Platforms/spr_floor_strip_01.png,spr_floor_strip_01.png,height/style needs 1 design decision (thin strip vs ledge)
+ART-005,Assets/_JebbyJump/Art/Sprites/Platforms/spr_floor_strip_01.png,spr_floor_strip_01.png,
 ART-006,Assets/_JebbyJump/Art/Sprites/Backgrounds/bg_menu_01.png,bg_menu_01.png,
 ART-007,Assets/_JebbyJump/Art/Sprites/UI/ui_panel_soft_9s.png,ui_panel_soft_9s.png,corner-radius system = OPEN_SCOPE_DECISION
 ART-008,Assets/_JebbyJump/Art/Sprites/UI/ui_btn_pill_9s.png,ui_btn_pill_9s.png,

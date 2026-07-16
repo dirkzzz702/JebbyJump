@@ -79,7 +79,7 @@ manifest = {
       "existing_guid": "",
       "sha256_expected": None,
       "requires_unity_wiring": str(f.get("requires_unity_wiring","")).lower() == "yes",
-      "blocked_on_decision": bool(f.get("blocker")) and f["asset_id"] in ("ART-005","ART-007","ART-008","ART-010","ART-017"),
+      "blocked_on_decision": bool(f.get("blocker")) and f["asset_id"] in ("ART-007","ART-008","ART-010","ART-017"),
       "acceptance_profile": f["asset_id"],
     } for f in FILES
   ],

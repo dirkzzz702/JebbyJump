@@ -86,7 +86,7 @@
    "existing_guid": "",
    "sha256_expected": null,
    "requires_unity_wiring": true,
-   "blocked_on_decision": true,
+   "blocked_on_decision": false,
    "acceptance_profile": "ART-005"
   },
   {
