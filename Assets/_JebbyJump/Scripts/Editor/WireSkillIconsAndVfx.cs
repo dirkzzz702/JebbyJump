@@ -16,6 +16,7 @@ namespace JebbyJump.EditorTools
     {
         private const string ScenePath = "Assets/_JebbyJump/Scenes/Game.unity";
         private const string PotionPath = "Assets/_JebbyJump/Art/Sprites/UI/ui_icon_skill_potion_01.png";
+        private const string ShieldIconPath = "Assets/_JebbyJump/Art/Sprites/UI/ui_icon_skill_shield_01.png";
         private const string ShieldFxPath = "Assets/_JebbyJump/Art/Sprites/VFX/fx_bubble_shield_01.png";
         private const string RingFxPath = "Assets/_JebbyJump/Art/Sprites/VFX/fx_color_echo_ring_01.png";
 
@@ -36,16 +37,11 @@ namespace JebbyJump.EditorTools
             var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             int changes = 0;
 
-            // Skill 3 icon (Health Potion). Skill 2 keeps the generic circle
-            // until the revised shield icon lands.
-            var skill3 = Find(scene, "Skill3Icon");
-            var img = skill3 != null ? skill3.GetComponent<Image>() : null;
-            if (img != null && img.sprite != potion)
-            {
-                img.sprite = potion;
-                img.color = Color.white;
-                changes++;
-            }
+            // Skill 3 icon (Health Potion) + Skill 2 icon (Bubble Shield revA).
+            changes += AssignIcon(scene, "Skill3Icon", potion);
+            var shieldIcon = AssetDatabase.LoadAssetAtPath<Sprite>(ShieldIconPath);
+            if (shieldIcon != null)
+                changes += AssignIcon(scene, "Skill2Icon", shieldIcon);
 
             // The effects have NO world visuals of their own (verified: pure
             // logic + text feedback). Shield: add a bubble child under the
@@ -61,6 +57,17 @@ namespace JebbyJump.EditorTools
                 EditorSceneManager.SaveScene(scene);
             }
             Debug.Log("[WireSkillVfx] " + changes + " change(s); saved " + ScenePath);
+        }
+
+        private static int AssignIcon(UnityEngine.SceneManagement.Scene scene,
+            string iconName, Sprite sprite)
+        {
+            var go = Find(scene, iconName);
+            var img = go != null ? go.GetComponent<Image>() : null;
+            if (img == null || img.sprite == sprite) return 0;
+            img.sprite = sprite;
+            img.color = Color.white;
+            return 1;
         }
 
         // Creates/updates an inactive "ShieldBubbleVisual" child under the
