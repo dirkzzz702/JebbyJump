@@ -58,6 +58,11 @@ namespace JebbyJump.EditorTools
             groups += FitPanelButtonLabels(scene, "LevelCompletePanel");
             groups += FitPanelButtonLabels(scene, "GameOverPanel");
 
+            // Pause glyph was hairline "||" at 32pt regular in a 96u button
+            // (verified 2026-07-17) - underweight next to the ornate arrow
+            // icons. Bold 52pt + spacing reads as two solid pause bars.
+            groups += StrengthenPauseGlyph(scene);
+
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
             Debug.Log($"[FixUiOverlaps] adjusted {groups} group(s); saved {ScenePath}");
@@ -246,6 +251,25 @@ namespace JebbyJump.EditorTools
                 changed++;
             }
             return changed > 0 ? 1 : 0;
+        }
+
+        // Makes the pause "||" read as two solid bars: bold, 52pt (~54% of the
+        // 96u button), slight character spacing between the pipes. Keeps the
+        // "||" string (reliable LiberationSans coverage; block glyphs risk
+        // missing-glyph boxes). Idempotent.
+        private static int StrengthenPauseGlyph(UnityEngine.SceneManagement.Scene scene)
+        {
+            var btn = FindByName(scene, "PauseButton");
+            var label = btn != null ? FindInChildren(btn.transform, "Label") : null;
+            var tmp = label != null ? label.GetComponent<TMP_Text>() : null;
+            if (tmp == null) return 0;
+            bool changed = false;
+            if (!Mathf.Approximately(tmp.fontSize, 52f)) { tmp.fontSize = 52f; changed = true; }
+            if ((tmp.fontStyle & FontStyles.Bold) == 0)
+            { tmp.fontStyle |= FontStyles.Bold; changed = true; }
+            if (!Mathf.Approximately(tmp.characterSpacing, 6f))
+            { tmp.characterSpacing = 6f; changed = true; }
+            return changed ? 1 : 0;
         }
 
         // Pins anchoredPosition to exactly (x, y) (idempotent).
