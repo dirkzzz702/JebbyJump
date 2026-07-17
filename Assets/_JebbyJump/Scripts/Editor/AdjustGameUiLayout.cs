@@ -269,6 +269,20 @@ namespace JebbyJump.EditorTools
             { tmp.fontStyle |= FontStyles.Bold; changed = true; }
             if (!Mathf.Approximately(tmp.characterSpacing, 6f))
             { tmp.characterSpacing = 6f; changed = true; }
+
+            // Vertical optical centring (FILE-MEASURED 2026-07-17): the
+            // LiberationSans pipe's ink centre sits 46.5/520 em below the
+            // metric centre TMP's Middle alignment uses -> 4.65u low at 52pt.
+            // Raise the full-stretch label rect by that amount.
+            const float inkCompY = 4.65f;
+            var rt = tmp.rectTransform;
+            if (!Mathf.Approximately(rt.offsetMin.y, inkCompY)
+                || !Mathf.Approximately(rt.offsetMax.y, inkCompY))
+            {
+                rt.offsetMin = new Vector2(rt.offsetMin.x, inkCompY);
+                rt.offsetMax = new Vector2(rt.offsetMax.x, inkCompY);
+                changed = true;
+            }
             return changed ? 1 : 0;
         }
 
