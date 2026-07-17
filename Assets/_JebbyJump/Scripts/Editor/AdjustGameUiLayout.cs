@@ -33,8 +33,15 @@ namespace JebbyJump.EditorTools
             groups += RespacePanel(scene, "PausePanel", "Title",
                 gap: 22f, pad: 0f, centreOnCard: false);
 
-            // Skill3 sits diagonally over Skill1 -> raise it clear (pure vertical move).
-            groups += NudgeSkill3(scene);
+            // Approved 2026-07-17: the three skill buttons sit on a uniform
+            // 160u arc around Btn_Jump (-130,140) at 90/135/180 degrees.
+            // Verified issue: radii were 135/138/210 (Skill3 the old "nudge"
+            // outlier) with a 7.7u Skill1-Skill2 edge gap. The arc gives
+            // ~22.5u adjacent gaps + 40u clearance off the jump button.
+            // (Supersedes the P33 NudgeSkill3 vertical lift.)
+            groups += PinPos(scene, "Btn_Skill3", -130f, 300f); // 90 deg (top)
+            groups += PinPos(scene, "Btn_Skill1", -243f, 253f); // 135 deg
+            groups += PinPos(scene, "Btn_Skill2", -290f, 140f); // 180 deg (left)
 
             // LevelComplete stat texts carry variable-length suffixes ("(New!)", "(New Star
             // Best!)"). Disable word-wrap so a long value can't wrap to a 2nd line and
@@ -241,14 +248,16 @@ namespace JebbyJump.EditorTools
             return changed > 0 ? 1 : 0;
         }
 
-        private static int NudgeSkill3(UnityEngine.SceneManagement.Scene scene)
+        // Pins anchoredPosition to exactly (x, y) (idempotent).
+        private static int PinPos(UnityEngine.SceneManagement.Scene scene,
+            string name, float x, float y)
         {
-            var go = FindByName(scene, "Btn_Skill3");
+            var go = FindByName(scene, name);
             var rt = go != null ? go.transform as RectTransform : null;
             if (rt == null) return 0;
             var p = rt.anchoredPosition;
-            // Skill1 top is ~290 (centre 240, h100). Raise Skill3 to centre 350 -> bottom 300.
-            if (p.y < 340f) rt.anchoredPosition = new Vector2(p.x, 350f);
+            if (Mathf.Approximately(p.x, x) && Mathf.Approximately(p.y, y)) return 0;
+            rt.anchoredPosition = new Vector2(x, y);
             return 1;
         }
 
