@@ -23,11 +23,14 @@ namespace JebbyJump.EditorTools
             // (y 180, spans 135..225) -> lift the title clear of the stack.
             changes += SetY(scene, "TitleText", minOkY: 300f, targetY: 380f);
 
-            // The stack steps 100 units (180/80/-20) but Wardrobe was inserted at -100
-            // (spans -145..-55): 10u into Settings and 70/90 under Quit (-120).
-            // Restore the 100-step: Wardrobe -120, Quit -220.
-            changes += SetY(scene, "WardrobeButton", minOkY: -119f, targetY: -120f, mustBeAbove: true);
+            // Keep Quit clear of the stack (original P33 fix).
             changes += SetY(scene, "QuitButton", minOkY: -219f, targetY: -220f, mustBeAbove: true);
+
+            // Approved menu order (2026-07-17): Continue, Level Select, Wardrobe,
+            // Settings, Quit -> Wardrobe and Settings swap slots (-20 / -120).
+            // (Supersedes the P33 step that parked Wardrobe at -120.)
+            changes += PinY(scene, "WardrobeButton", -20f);
+            changes += PinY(scene, "SettingsButton", -120f);
 
             // MenuSafeArea (the always-active button stack) is the LAST sibling, so it
             // renders + raycasts above every opened panel's full-screen backdrop.
@@ -37,6 +40,18 @@ namespace JebbyJump.EditorTools
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
             Debug.Log($"[FixMainMenuLayout] applied {changes} change(s); saved {ScenePath}");
+        }
+
+        // Pins anchoredPosition.y to exactly targetY (idempotent).
+        private static int PinY(UnityEngine.SceneManagement.Scene scene, string name, float targetY)
+        {
+            var go = FindByName(scene, name);
+            var rt = go != null ? go.transform as RectTransform : null;
+            if (rt == null) return 0;
+            var p = rt.anchoredPosition;
+            if (Mathf.Approximately(p.y, targetY)) return 0;
+            rt.anchoredPosition = new Vector2(p.x, targetY);
+            return 1;
         }
 
         // Sets anchoredPosition.y to targetY when the current value is on the wrong

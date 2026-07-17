@@ -19,6 +19,15 @@ namespace JebbyJump.EditorTools
         private const string VisualName = "FloorVisual";
         private const float LedgeWorldHeight = 1.28f; // 128px @ PPU 100
 
+        // Visual grounding (FILE-MEASURED, 2026-07-17): the ledge art's drawn
+        // surface line sits ~23px below the sprite's top edge (transparent
+        // wavy lip above it), and Jebby's sprites carry 106px of transparent
+        // canvas below the feet (x0.13 scale = 0.14u). Raising the visual by
+        // both (plus a 0.02u tuck so feet sit IN the grass) aligns the drawn
+        // grass with Jebby's visible feet. Collider stays untouched.
+        private const float SurfaceInsetWorld = 0.23f; // art lip above surface
+        private const float FeetTuckWorld = 0.16f;     // jebby feet padding + tuck
+
         [MenuItem("Jebby Jump/Release/Wire Floor Ledge")]
         public static void Run()
         {
@@ -67,7 +76,8 @@ namespace JebbyJump.EditorTools
             var ls = floor.transform.lossyScale;
             go.transform.localScale = new Vector3(
                 ls.x != 0f ? 1f / ls.x : 1f, ls.y != 0f ? 1f / ls.y : 1f, 1f);
-            go.transform.position = new Vector3(centerX, topY, floor.transform.position.z);
+            go.transform.position = new Vector3(centerX,
+                topY + SurfaceInsetWorld + FeetTuckWorld, floor.transform.position.z);
 
             var sr = go.GetComponent<SpriteRenderer>();
             if (sr == null) sr = go.AddComponent<SpriteRenderer>();

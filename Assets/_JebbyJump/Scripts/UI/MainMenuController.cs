@@ -78,10 +78,12 @@ namespace JebbyJump.UI
         // this focus on open/close, so closing one returns here.
         private void Start()
         {
+            // Order matches the visual stack (approved 2026-07-17):
+            // Continue, Level Select, Wardrobe, Settings, Quit.
             var items = new List<Selectable>
             {
-                _continueButton, _startButton, _settingsButton,
-                _wardrobeButton, _quitButton,
+                _continueButton, _startButton, _wardrobeButton,
+                _settingsButton, _quitButton,
             };
             ShellFocusUtil.BuildVerticalNavigation(items);
 
