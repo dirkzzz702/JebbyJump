@@ -456,7 +456,9 @@ namespace JebbyJump.UI
             var label = labelGo.AddComponent<TextMeshProUGUI>();
             label.fontSize = 26;
             label.alignment = TextAlignmentOptions.Left;
-            label.color = Color.white;
+            // Warm off-white per the 2026-07-18 typography system (matches
+            // the scene-side SoftBody colour; badge below is already gold).
+            label.color = new Color(0.95f, 0.93f, 0.88f);
             label.raycastTarget = false;
             label.enableWordWrapping = false;
             label.overflowMode = TextOverflowModes.Ellipsis;
