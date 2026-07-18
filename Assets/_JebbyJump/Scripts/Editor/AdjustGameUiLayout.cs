@@ -58,6 +58,13 @@ namespace JebbyJump.EditorTools
             groups += FitPanelButtonLabels(scene, "LevelCompletePanel");
             groups += FitPanelButtonLabels(scene, "GameOverPanel");
 
+            // Result-panel type hierarchy (playtest 2026-07-18). Font-size
+            // changes alter row heights, so the LevelComplete vertical respace
+            // runs AGAIN after styling for one-run convergence.
+            groups += StyleResultPanel(scene);
+            groups += RespacePanel(scene, "LevelCompletePanel", "TimeText",
+                gap: 16f, pad: 26f, centreOnCard: true);
+
             // Pause glyph was hairline "||" at 32pt regular in a 96u button
             // (verified 2026-07-17) - underweight next to the ornate arrow
             // icons. Bold 52pt + spacing reads as two solid pause bars.
@@ -230,10 +237,9 @@ namespace JebbyJump.EditorTools
             { "RetryButton", "NextLevelButton", "MainMenuButton" };
 
         // Makes the action-button labels fit their buttons: wrapping off (single line)
-        // + TMP auto-size shrink (max = current size so short labels look unchanged).
-        // Without this, TMP's default Overflow renders long labels wider than the
-        // button rect and into the neighbouring button. Idempotent (skips labels
-        // already auto-sizing).
+        // + TMP auto-size shrink + horizontal margins so the text stays inside the
+        // 9-slice pill BODY (playtest 2026-07-18: labels visually spilled onto the
+        // pills' rounded ends/rims and the neighbouring button). Idempotent.
         private static int FitPanelButtonLabels(UnityEngine.SceneManagement.Scene scene, string panelName)
         {
             var panel = FindByName(scene, panelName);
@@ -243,14 +249,64 @@ namespace JebbyJump.EditorTools
             {
                 var t = FindInChildren(panel.transform, name);
                 var tmp = t != null ? t.GetComponentInChildren<TMP_Text>(true) : null;
-                if (tmp == null || tmp.enableAutoSizing) continue;
-                tmp.enableWordWrapping = false;
-                tmp.enableAutoSizing = true;
-                tmp.fontSizeMax = tmp.fontSize;
-                tmp.fontSizeMin = Mathf.Min(16f, tmp.fontSize);
-                changed++;
+                if (tmp == null) continue;
+                bool dirty = false;
+                if (!tmp.enableAutoSizing)
+                {
+                    tmp.enableWordWrapping = false;
+                    tmp.enableAutoSizing = true;
+                    tmp.fontSizeMax = tmp.fontSize;
+                    tmp.fontSizeMin = Mathf.Min(16f, tmp.fontSize);
+                    dirty = true;
+                }
+                // Inset past the pill's rounded ends (~45px at rendered size).
+                var m = tmp.margin;
+                if (!Mathf.Approximately(m.x, 24f) || !Mathf.Approximately(m.z, 24f))
+                {
+                    tmp.margin = new Vector4(24f, m.y, 24f, m.w);
+                    dirty = true;
+                }
+                if (dirty) changed++;
             }
             return changed > 0 ? 1 : 0;
+        }
+
+        // Playtest 2026-07-18 "make the result panel more engaging": clear type
+        // hierarchy - big warm-gold title, hero-sized Rank, secondary Best,
+        // golden Stars line. Colours are static-safe (HUDController only sets
+        // the Rank colour + text strings). Idempotent.
+        private static int StyleResultPanel(UnityEngine.SceneManagement.Scene scene)
+        {
+            int changed = 0;
+            changed += StyleText(scene, "LevelCompletePanel", "TitleText", 50f,
+                bold: true, new Color(0.98f, 0.84f, 0.35f));
+            changed += StyleText(scene, "LevelCompletePanel", "TimeText", 34f,
+                bold: false, Color.white);
+            changed += StyleText(scene, "LevelCompletePanel", "BestTimeText", 24f,
+                bold: false, new Color(0.75f, 0.75f, 0.82f));
+            changed += StyleText(scene, "LevelCompletePanel", "RankText", 42f,
+                bold: true, null);   // colour owned by HUDController (per rank)
+            changed += StyleText(scene, "LevelCompletePanel", "StarsText", 32f,
+                bold: false, new Color(1f, 0.87f, 0.45f));
+            changed += StyleText(scene, "GameOverPanel", "TitleText", 46f,
+                bold: true, new Color(0.95f, 0.55f, 0.45f));
+            return changed > 0 ? 1 : 0;
+        }
+
+        private static int StyleText(UnityEngine.SceneManagement.Scene scene,
+            string panelName, string textName, float size, bool bold, Color? colour)
+        {
+            var panel = FindByName(scene, panelName);
+            var t = panel != null ? FindInChildren(panel.transform, textName) : null;
+            var tmp = t != null ? t.GetComponent<TMP_Text>() : null;
+            if (tmp == null) return 0;
+            bool dirty = false;
+            if (!Mathf.Approximately(tmp.fontSize, size)) { tmp.fontSize = size; dirty = true; }
+            if (bold && (tmp.fontStyle & FontStyles.Bold) == 0)
+            { tmp.fontStyle |= FontStyles.Bold; dirty = true; }
+            if (colour.HasValue && tmp.color != colour.Value)
+            { tmp.color = colour.Value; dirty = true; }
+            return dirty ? 1 : 0;
         }
 
         // Makes the pause "||" read as two solid bars: bold, 52pt (~54% of the

@@ -103,12 +103,15 @@ namespace JebbyJump.Level
 
             var cactusBox = cactusGO.GetComponent<BoxCollider2D>();
             float cactusHalfWidth  = cactusBox != null ? cactusGO.transform.localScale.x * cactusBox.size.x / 2f : 0.4f;
-            float cactusHalfHeight = cactusBox != null ? cactusGO.transform.localScale.y * cactusBox.size.y / 2f : 0.6f;
             const float edgeInset = 0.05f;
+            // The cactus sprite pivot sits at its visible INK BASE (custom
+            // pivot; see FixCactusGrounding) - place the pivot on the platform
+            // top with a tiny sink so the base visually meets the surface.
+            const float baseSink = 0.02f;
 
             cactusGO.transform.position = new Vector3(
                 platformRightEdge - cactusHalfWidth - edgeInset,
-                platformTopEdge + cactusHalfHeight,
+                platformTopEdge - baseSink,
                 0f
             );
 
