@@ -236,10 +236,10 @@ namespace JebbyJump.EditorTools
         private static readonly string[] ResultActionButtons =
             { "RetryButton", "NextLevelButton", "MainMenuButton" };
 
-        // Makes the action-button labels fit their buttons: wrapping off (single line)
-        // + TMP auto-size shrink + horizontal margins so the text stays inside the
-        // 9-slice pill BODY (playtest 2026-07-18: labels visually spilled onto the
-        // pills' rounded ends/rims and the neighbouring button). Idempotent.
+        // Keeps the action-button labels on a single line with end margins so
+        // the text stays inside the 9-slice pill BODY (playtest 2026-07-18).
+        // SIZING is owned by StyleTypography.ButtonLabels (uniform per sibling
+        // group) - do not enable per-label auto-size here. Idempotent.
         private static int FitPanelButtonLabels(UnityEngine.SceneManagement.Scene scene, string panelName)
         {
             var panel = FindByName(scene, panelName);
@@ -251,19 +251,14 @@ namespace JebbyJump.EditorTools
                 var tmp = t != null ? t.GetComponentInChildren<TMP_Text>(true) : null;
                 if (tmp == null) continue;
                 bool dirty = false;
-                if (!tmp.enableAutoSizing)
-                {
-                    tmp.enableWordWrapping = false;
-                    tmp.enableAutoSizing = true;
-                    tmp.fontSizeMax = tmp.fontSize;
-                    tmp.fontSizeMin = Mathf.Min(16f, tmp.fontSize);
-                    dirty = true;
-                }
+                if (tmp.enableWordWrapping)
+                { tmp.enableWordWrapping = false; dirty = true; }
                 // Inset past the pill's rounded ends (~45px at rendered size).
                 var m = tmp.margin;
-                if (!Mathf.Approximately(m.x, 24f) || !Mathf.Approximately(m.z, 24f))
+                if (m.x < 24f || m.z < 24f)
                 {
-                    tmp.margin = new Vector4(24f, m.y, 24f, m.w);
+                    tmp.margin = new Vector4(Mathf.Max(m.x, 24f), m.y,
+                        Mathf.Max(m.z, 24f), m.w);
                     dirty = true;
                 }
                 if (dirty) changed++;

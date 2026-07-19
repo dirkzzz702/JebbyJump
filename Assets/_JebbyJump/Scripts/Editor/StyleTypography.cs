@@ -50,7 +50,7 @@ namespace JebbyJump.EditorTools
             n += Style(game, "FeedbackRoot", "FeedbackText", 40f, true, Cream);
             n += Style(game, "HUDCanvas", "LiveTimerText", 0f, true, LabelCream);
             n += SoftLabels(game, "SettingsPanel");
-            n += ButtonLabels(game);
+            n += ButtonLabels(game, pill);
             if (n > 0) EditorSceneManager.SaveScene(game);
             total += n;
             Debug.Log("[StyleTypography] Game.unity: " + n + " change group(s)");
@@ -69,7 +69,7 @@ namespace JebbyJump.EditorTools
             n += Style(menu, "WardrobePanel", "StateLabel", 0f, true, Gold);
             n += SoftLabels(menu, "SettingsPanel");
             n += TitleBand(menu);
-            n += ButtonLabels(menu);
+            n += ButtonLabels(menu, pill);
             if (n > 0) EditorSceneManager.SaveScene(menu);
             total += n;
             Debug.Log("[StyleTypography] MainMenu.unity: " + n + " change group(s)");
@@ -125,9 +125,17 @@ namespace JebbyJump.EditorTools
         }
 
         // Every Button's TMP label: bold cream with slight letter spacing.
-        private static int ButtonLabels(UnityEngine.SceneManagement.Scene s)
+        // Pill-chromed buttons additionally get the FIT treatment - playtest
+        // 2026-07-18 found per-label TMP auto-size rendering sibling labels
+        // at visibly different sizes ("Level Select" 38 vs "Quit" 44), so
+        // sizing is UNIFORM per sibling group instead: vertical stacks widen
+        // to fit the longest label at full size, horizontal rows shrink the
+        // shared size until the longest label fits.
+        private static int ButtonLabels(UnityEngine.SceneManagement.Scene s, Sprite pill)
         {
             int changed = 0;
+            var groups = new System.Collections.Generic.Dictionary<Transform,
+                System.Collections.Generic.List<TMP_Text>>();
             foreach (var root in s.GetRootGameObjects())
                 foreach (var btn in root.GetComponentsInChildren<Button>(true))
                 {
@@ -141,9 +149,134 @@ namespace JebbyJump.EditorTools
                     { tmp.color = LabelCream; dirty = true; }
                     if (tmp.characterSpacing < 2f)
                     { tmp.characterSpacing = 2f; dirty = true; }
+                    if (tmp.enableWordWrapping)
+                    { tmp.enableWordWrapping = false; dirty = true; }
+                    if (tmp.enableAutoSizing)
+                    { tmp.enableAutoSizing = false; dirty = true; }
                     if (dirty) changed++;
+
+                    // Fit treatment only for kit-pill buttons (ornate art
+                    // controls like jump/skills keep their own layout).
+                    // Glyph icon buttons (pause "||") stay square - never
+                    // widen or margin them for their 1-2 character label.
+                    var img = btn.GetComponent<Image>();
+                    if (img == null || pill == null || img.sprite != pill) continue;
+                    if (tmp.text != null && tmp.text.Replace(" ", "").Length <= 2) continue;
+                    if (tmp.font == null) continue;   // never-awoken TMP: unmeasurable
+                    var parent = btn.transform.parent;
+                    if (!groups.TryGetValue(parent, out var list))
+                        groups[parent] = list =
+                            new System.Collections.Generic.List<TMP_Text>();
+                    list.Add(tmp);
                 }
+            foreach (var g in groups.Values)
+                changed += FitGroup(g);
             return changed > 0 ? 1 : 0;
+        }
+
+        private const float LabelMargin = 26f;   // clears the pill's rounded ends
+        private const float StackWidthCap = 420f;
+
+        private static int FitGroup(System.Collections.Generic.List<TMP_Text> group)
+        {
+            int changed = 0;
+            // End margins inside the pill's rounded ends (wrap/auto-size are
+            // already normalised off for every button label).
+            foreach (var tmp in group)
+            {
+                var m = tmp.margin;
+                if (m.x < LabelMargin || m.z < LabelMargin)
+                {
+                    tmp.margin = new Vector4(Mathf.Max(m.x, LabelMargin), m.y,
+                        Mathf.Max(m.z, LabelMargin), m.w);
+                    changed++;
+                }
+            }
+
+            // Measure each label at its BASE size (fontSizeMax remembers the
+            // design size from before auto-size). Measure AT base - TMP
+            // layout does not scale perfectly linearly, so measuring at the
+            // current (possibly shrunk) size drifts run to run.
+            int count = group.Count;
+            var baseSize = new float[count];
+            var origSize = new float[count];
+            var prefAtBase = new float[count];
+            for (int i = 0; i < count; i++)
+            {
+                var tmp = group[i];
+                origSize[i] = tmp.fontSize;
+                baseSize[i] = tmp.fontSizeMax > 0f ? tmp.fontSizeMax : tmp.fontSize;
+                if (!Mathf.Approximately(tmp.fontSize, baseSize[i]))
+                    tmp.fontSize = baseSize[i];
+                try
+                {
+                    prefAtBase[i] = tmp.GetPreferredValues(
+                        tmp.text, Mathf.Infinity, Mathf.Infinity).x;
+                }
+                catch (System.Exception e)
+                {
+                    // TMP can NRE measuring a never-rendered label (material
+                    // not initialised); it then exerts no width constraint.
+                    prefAtBase[i] = 0f;
+                    Debug.LogWarning("[StyleTypography] measure failed for '"
+                        + tmp.transform.parent.name + "/" + tmp.name + "': "
+                        + e.GetType().Name);
+                }
+            }
+
+            // Vertical stack (or single button) = same x for all members.
+            bool stack = true;
+            float x0 = ((RectTransform)group[0].GetComponentInParent<Button>(true)
+                .transform).anchoredPosition.x;
+            for (int i = 1; i < count && stack; i++)
+                if (Mathf.Abs(((RectTransform)group[i]
+                        .GetComponentInParent<Button>(true).transform)
+                        .anchoredPosition.x - x0) > 1f)
+                    stack = false;
+
+            if (stack)
+            {
+                float needed = 0f;
+                for (int i = 0; i < count; i++)
+                    needed = Mathf.Max(needed, prefAtBase[i]
+                        + group[i].margin.x + group[i].margin.z + 8f);
+                needed = Mathf.Ceil(needed / 20f) * 20f;
+                if (needed <= StackWidthCap)
+                {
+                    for (int i = 0; i < count; i++)
+                    {
+                        var rt = (RectTransform)group[i]
+                            .GetComponentInParent<Button>(true).transform;
+                        if (rt.sizeDelta.x < needed - 0.5f)
+                        { rt.sizeDelta = new Vector2(needed, rt.sizeDelta.y); changed++; }
+                        // fontSize already == base from the measure step.
+                        if (!Mathf.Approximately(origSize[i], baseSize[i])) changed++;
+                    }
+                    return changed;
+                }
+            }
+
+            // Horizontal row (or over-cap stack): shrink the whole group by
+            // the same ratio so relative sizes stay equal.
+            float ratio = 1f;
+            for (int i = 0; i < count; i++)
+            {
+                var rt = (RectTransform)group[i]
+                    .GetComponentInParent<Button>(true).transform;
+                float avail = rt.sizeDelta.x - group[i].margin.x
+                    - group[i].margin.z - 4f;
+                if (prefAtBase[i] > avail && prefAtBase[i] > 0f)
+                    ratio = Mathf.Min(ratio, avail / prefAtBase[i]);
+            }
+            for (int i = 0; i < count; i++)
+            {
+                float target = Mathf.Max(24f,
+                    Mathf.Floor(baseSize[i] * ratio * 2f) / 2f);
+                if (!Mathf.Approximately(group[i].fontSize, target))
+                    group[i].fontSize = target;
+                if (!Mathf.Approximately(origSize[i], target)) changed++;
+            }
+            return changed;
         }
 
         // Settings row labels (Music/SFX/Mute/...): warm off-white.
