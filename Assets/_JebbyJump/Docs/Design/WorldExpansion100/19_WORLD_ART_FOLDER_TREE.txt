@@ -1,0 +1,84 @@
+Assets/_JebbyJump/Art/Worlds/
+├── W01_CloudMeadow/   # Cloud Meadow
+│   ├── Backgrounds/
+│   ├── Floor/
+│   ├── Platforms/
+│   ├── Obstacles/
+│   ├── Decorations/
+│   ├── VFX/
+│   ├── UI/
+├── W02_EnchantedForest/   # Enchanted Forest
+│   ├── Backgrounds/
+│   ├── Floor/
+│   ├── Platforms/
+│   ├── Obstacles/
+│   ├── Decorations/
+│   ├── VFX/
+│   ├── UI/
+├── W03_CrystalCaves/   # Crystal Caves
+│   ├── Backgrounds/
+│   ├── Floor/
+│   ├── Platforms/
+│   ├── Obstacles/
+│   ├── Decorations/
+│   ├── VFX/
+│   ├── UI/
+├── W04_SunshineDesert/   # Sunshine Desert
+│   ├── Backgrounds/
+│   ├── Floor/
+│   ├── Platforms/
+│   ├── Obstacles/
+│   ├── Decorations/
+│   ├── VFX/
+│   ├── UI/
+├── W05_OceanSky/   # Ocean Sky
+│   ├── Backgrounds/
+│   ├── Floor/
+│   ├── Platforms/
+│   ├── Obstacles/
+│   ├── Decorations/
+│   ├── VFX/
+│   ├── UI/
+├── W06_CandyCloudKingdom/   # Candy Cloud Kingdom
+│   ├── Backgrounds/
+│   ├── Floor/
+│   ├── Platforms/
+│   ├── Obstacles/
+│   ├── Decorations/
+│   ├── VFX/
+│   ├── UI/
+├── W07_ClockworkHeights/   # Clockwork Heights
+│   ├── Backgrounds/
+│   ├── Floor/
+│   ├── Platforms/
+│   ├── Obstacles/
+│   ├── Decorations/
+│   ├── VFX/
+│   ├── UI/
+├── W08_MoonlitDreamscape/   # Moonlit Dreamscape
+│   ├── Backgrounds/
+│   ├── Floor/
+│   ├── Platforms/
+│   ├── Obstacles/
+│   ├── Decorations/
+│   ├── VFX/
+│   ├── UI/
+├── W09_StormfireVolcano/   # Stormfire Volcano
+│   ├── Backgrounds/
+│   ├── Floor/
+│   ├── Platforms/
+│   ├── Obstacles/
+│   ├── Decorations/
+│   ├── VFX/
+│   ├── UI/
+├── W10_RainbowTowerCastle/   # Rainbow Tower Castle
+│   ├── Backgrounds/
+│   ├── Floor/
+│   ├── Platforms/
+│   ├── Obstacles/
+│   ├── Decorations/
+│   ├── VFX/
+│   ├── UI/
+
+# Naming: <category>_<worldslug>_<variant>.png ; platforms plat_<worldslug>_<color>_01.png
+# 6 locked colours: red blue green yellow purple orange
