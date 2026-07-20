@@ -5,7 +5,7 @@
 ```text
 Mobile-first
 Desktop second
-50 levels
+100 levels (10 themed worlds x 10)
 Level-based map first
 Endless later
 Rewarded ads + Rainbow Gems + cosmetics
@@ -77,8 +77,8 @@ not random scene pickups by default
 Production v1:
 
 ```text
-50 levels
-3 worlds
+100 levels
+10 themed worlds
 ```
 
 ## Updated Production Phase Order
@@ -100,9 +100,13 @@ Fix current UI/presentation issues:
 
 Replace score with timer/best time/rank.
 
-### P3 — 50-Level Data Foundation
+### P3 — 100-Level / 10-World Data Foundation
 
 WorldConfig, LevelSetConfig, LevelConfig expansion, rank thresholds per level.
+
+Superseded in detail by
+`Assets/_JebbyJump/Docs/Design/WorldExpansion100/29_IMPLEMENTATION_ROADMAP.md`
+(phases P34A-P34U).
 
 ### P4 — Mobile-first UI Shell
 
@@ -138,7 +142,7 @@ Limited test, analytics, tuning.
 
 ### P12 — Production Launch v1
 
-50 levels, monetization, wardrobe, services, mobile polish.
+100 levels, monetization, wardrobe, services, mobile polish.
 
 ## Current Production Phase Status
 

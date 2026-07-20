@@ -137,16 +137,28 @@ Mobile is primary.
 
 Production launch target:
 ```text
-50 levels
-3 worlds
+100 levels
+10 themed worlds (10 levels each)
 ```
 
-Suggested split:
+World roster (level 10 of each world is a finale):
 ```text
-World 1 — Rainbow Garden: 15 levels
-World 2 — Cloud Valley: 15 levels
-World 3 — Cactus Desert: 20 levels
+World 01 — Cloud Meadow:          levels 001-010
+World 02 — Enchanted Forest:      levels 011-020
+World 03 — Crystal Caves:         levels 021-030
+World 04 — Sunshine Desert:       levels 031-040
+World 05 — Ocean Sky:             levels 041-050
+World 06 — Candy Cloud Kingdom:   levels 051-060
+World 07 — Clockwork Heights:     levels 061-070
+World 08 — Moonlit Dreamscape:    levels 071-080
+World 09 — Stormfire Volcano:     levels 081-090
+World 10 — Rainbow Tower Castle:  levels 091-100
 ```
+
+Authoritative design source:
+`Assets/_JebbyJump/Docs/Design/WorldExpansion100/`
+(per-level values in `13_100_LEVEL_MASTER_TABLE.csv`).
+Existing Levels 1-10 are preserved unchanged as World 1.
 
 Difficulty can increase through:
 - longer sequences
@@ -286,6 +298,6 @@ Style:
 
 1. Current screen production polish.
 2. Replace score with time ranking.
-3. Build scalable 50-level structure.
+3. Build scalable 100-level / 10-world structure (see WorldExpansion100).
 4. Build production mobile UI shell.
 5. Expand skill/economy/wardrobe/backend in planned phases.

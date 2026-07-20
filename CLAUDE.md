@@ -9,7 +9,7 @@ Direction:
 ```text
 Mobile-first
 Desktop-supported
-50-level launch target
+100-level launch target (10 themed worlds x 10 levels)
 Time ranking instead of score
 Equipped skills
 Cosmetic wardrobe
@@ -127,7 +127,9 @@ Do not add vendor SDKs without explicit approval.
 
 1. Polish current game screen/UI to production quality.
 2. Replace score with time ranking.
-3. Build scalable 50-level structure.
+3. Build scalable 100-level / 10-world structure.
+   Plan of record: `Assets/_JebbyJump/Docs/Design/WorldExpansion100/`
+   (phases P34A-P34U). Per-world art/level batches remain individually gated.
 4. Build production mobile UI shell.
 5. Add skill/economy/wardrobe/backend in planned phases.
 

@@ -210,7 +210,7 @@ Recommended timer rule:
 Timer starts when Playing phase begins after the memory sequence.
 ```
 
-### P3 — 50-Level Data Foundation
+### P3 — 100-Level / 10-World Data Foundation
 
 Add:
 
@@ -356,8 +356,8 @@ difficulty tuning
 Launch target:
 
 ```text
-50 levels
-3 worlds
+100 levels
+10 themed worlds
 time ranking
 rewarded ads
 Rainbow Gems

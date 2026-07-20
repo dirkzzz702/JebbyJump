@@ -1,6 +1,11 @@
 # 03 — GDD / Roadmap / CLAUDE Patch Proposal
 
-**Not applied.** This documents exactly how the canon docs should later change from
+> **STATUS: APPLIED in P34A** (commit follows this doc's §1–§5, excluding the archived
+> `_v1.0` snapshot — see §5 decision). Verified by re-running the stale scan in §7:
+> no `50-level` / `3 worlds` text remains in CLAUDE.md, the GDD, the Roadmap, or the living
+> Production Plan. Test canon (§6) is deferred to **P34E** as planned.
+
+This documents exactly how the canon docs should later change from
 *50 levels / 3 worlds* → *100 levels / 10 worlds*. Apply only in phase **P34A** after the
 roster is approved (Approval Gate). Each entry: file · line(s) · current · proposed.
 
@@ -56,8 +61,12 @@ Recommend adding a pointer: "Level/world scope is superseded by
 | 271 | `- 50 levels` | `- 100 levels` |
 | 272 | `- 3 worlds` | `- 10 themed worlds` |
 
-*(This v1.0 file may be a historical snapshot; confirm whether it should be patched or left as
-an archived record. `PROPOSED` — verify at P34A.)*
+**DECISION (P34A): LEFT UNPATCHED — treated as a frozen historical snapshot.** The `_v1.0`
+suffix marks a versioned record of what the plan said at v1.0; rewriting it would falsify
+history, and the living `Jebby_Jump_Full_Production_Plan.md` carries the current canon. The
+three stale lines above are therefore expected to persist in this file only.
+*Reverse this decision if the team prefers versioned docs to be kept current — it is a one-line
+patch per row.*
 
 ## 6. Test canon — `Tests/EditMode/LevelBalanceAssetTests.cs`
 
