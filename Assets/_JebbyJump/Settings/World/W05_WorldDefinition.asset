@@ -17,3 +17,6 @@ MonoBehaviour:
   _displayName: Ocean Sky
   _firstGlobalLevelId: 41
   _lastGlobalLevelId: 50
+  _visuals:
+    _background: {fileID: 2490880225257214419, guid: 86b0e1a61a1d9ce4d875af67e75a2d34, type: 3}
+    _floor: {fileID: 2927744842824531033, guid: 33dccb0e01873d148a498165c4c35283, type: 3}
