@@ -126,19 +126,15 @@ public static class CreateOrSyncWorldCatalog
         return changed;
     }
 
-    // World 1 uses the shipped art. World 2 now uses its REAL Enchanted Forest
-    // family (batch W02 rev0 + revA, accepted 12/12) - this replaced the
-    // temporary prototype-sky placeholder from the P34C vertical slice.
-    // Worlds 3-10 stay empty on purpose and fall back to World 1 at runtime
-    // until their art batches land (P34K-P34R).
+    // World 1 uses the original shipped art. Worlds 2+ follow the batch
+    // convention Art/Worlds/{Wid}_{Slug}/{Backgrounds,Floor}/... and auto-wire
+    // as each art batch lands - a world whose files are absent stays unassigned
+    // and falls back to World 1 at runtime. So W02/W03/W04 wire now; W05-W10
+    // wire automatically when their batches integrate.
     private const string W01Background =
         "Assets/_JebbyJump/Art/Sprites/Backgrounds/bg_menu_01.png";
     private const string W01Floor =
         "Assets/_JebbyJump/Art/Sprites/Platforms/spr_floor_strip_01.png";
-    private const string W02Background =
-        "Assets/_JebbyJump/Art/Worlds/W02_EnchantedForest/Backgrounds/bg_enchantedforest_01.png";
-    private const string W02Floor =
-        "Assets/_JebbyJump/Art/Worlds/W02_EnchantedForest/Floor/floor_enchantedforest_01.png";
 
     private static bool AssignWorldVisuals(SerializedObject so, int worldNumber)
     {
@@ -147,27 +143,31 @@ public static class CreateOrSyncWorldCatalog
         {
             dirty |= SetSprite(so, "_visuals._background", W01Background);
             dirty |= SetSprite(so, "_visuals._floor", W01Floor);
+            return dirty;
         }
-        else if (worldNumber == 2)
-        {
-            dirty |= SetSprite(so, "_visuals._background", W02Background);
-            dirty |= SetSprite(so, "_visuals._floor", W02Floor);
-        }
-        // Worlds 3-10: intentionally unassigned (runtime falls back to World 1).
+
+        string wid = WorldMapping.WorldIdForNumber(worldNumber);
+        string slug = DisplayNames[worldNumber - 1].Replace(" ", "");
+        string low = slug.ToLowerInvariant();
+        string dir = "Assets/_JebbyJump/Art/Worlds/" + wid + "_" + slug;
+        string bg = dir + "/Backgrounds/bg_" + low + "_01.png";
+        string floor = dir + "/Floor/floor_" + low + "_01.png";
+
+        // Only assign when the file actually exists (LoadAssetAtPath returns
+        // null otherwise, and SetSprite no-ops), so unlanded worlds fall back.
+        dirty |= SetSprite(so, "_visuals._background", bg);
+        dirty |= SetSprite(so, "_visuals._floor", floor);
         return dirty;
     }
 
+    // Missing sprite is silent: unlanded worlds (art not yet integrated) are
+    // expected to have no file, and stay unassigned for the runtime fallback.
     private static bool SetSprite(SerializedObject so, string path, string assetPath)
     {
         var p = so.FindProperty(path);
         if (p == null) return false;
         var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
-        if (sprite == null)
-        {
-            Debug.LogWarning("[WorldCatalog] Sprite not found: " + assetPath);
-            return false;
-        }
-        if (p.objectReferenceValue == sprite) return false;
+        if (sprite == null || p.objectReferenceValue == sprite) return false;
         p.objectReferenceValue = sprite;
         return true;
     }

@@ -17,3 +17,6 @@ MonoBehaviour:
   _displayName: Sunshine Desert
   _firstGlobalLevelId: 31
   _lastGlobalLevelId: 40
+  _visuals:
+    _background: {fileID: 966992767271000754, guid: f10593ce77776bb478a2f4246cfc0fd9, type: 3}
+    _floor: {fileID: -6856769482484278032, guid: 3f0cace1002b9524c87a471245454f24, type: 3}

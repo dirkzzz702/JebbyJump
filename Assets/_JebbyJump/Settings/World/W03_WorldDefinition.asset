@@ -17,3 +17,6 @@ MonoBehaviour:
   _displayName: Crystal Caves
   _firstGlobalLevelId: 21
   _lastGlobalLevelId: 30
+  _visuals:
+    _background: {fileID: 6665435741399627401, guid: 5be9a6e7b4b322a4a917cbabfdcc78ed, type: 3}
+    _floor: {fileID: 2526104234279649164, guid: 63717fb59ccbfbd4688fb32881e73071, type: 3}
