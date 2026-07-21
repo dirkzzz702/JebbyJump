@@ -17,3 +17,6 @@ MonoBehaviour:
   _displayName: Enchanted Forest
   _firstGlobalLevelId: 11
   _lastGlobalLevelId: 20
+  _visuals:
+    _background: {fileID: 21300000, guid: 8e74099a6ed4dd54ea1531ddc90a3a58, type: 3}
+    _floor: {fileID: 0}

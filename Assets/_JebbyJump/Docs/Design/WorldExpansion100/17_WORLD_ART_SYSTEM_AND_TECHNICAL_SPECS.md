@@ -22,7 +22,7 @@ kind and copy its contract. Reference anchors (REPO-VERIFIED accepted art):
 | Background | 2400×1080 | 100 | Single | opaque | 0.5,0.5 | Bilinear | Clamp | off | 2048* |
 | Tower landmark | 900×1400 | 100 | Single | transparent | 0.5,0.0 | Bilinear | Clamp | off | 2048 |
 | Floor | 512×128 | 100 | Single | opaque | 0.5,0.5 | Bilinear | Clamp | off | 512 |
-| Platform ×6 | 256×96 | 100 | Single(9-slice) | transparent | 0.5,0.5 | Bilinear | Clamp | off | 256 |
+| Platform base ×1 | 256×96 | 100 | Single(9-slice) | transparent | 0.5,0.5 | Bilinear | Clamp | off | 256 |
 | Hazard | 1254² | 100 | Single | transparent | ink-base | Bilinear | Clamp | off | 2048 |
 | Decoration | 1024² | 100 | Single | transparent | 0.5,0.5 | Bilinear | Clamp | off | 1024 |
 | UI (thumb/badge/gem/cosmetic) | 512²/192²/256²/512² | 100 | Single | transparent | 0.5,0.5 | Bilinear | Clamp | off | matches |
@@ -35,6 +35,15 @@ kind and copy its contract. Reference anchors (REPO-VERIFIED accepted art):
 
 - Per-world env atlas (`<wid>_env`) and per-world UI atlas (`<wid>_ui`) so worlds load/unload as a
   unit. Confirm SpriteAtlas usage matches the repo's current atlas policy at P34H.
+
+## Platform base is TINTED — authoring rule (`REPO-VERIFIED`, P34C)
+
+Each world ships **one** platform sprite, not six. `Platform.ApplyVisualColor()` multiplies it by
+the locked semantic colour, so the base must be **near-greyscale / no inherent hue**, mid-value
+(avoid pure black or white), carrying only material detail. It must remain readable and
+distinguishable under all six tints at ~70 px:
+`#E63838 #3878E6 #38BF59 #FAD12E #9938E6 #F28C26`.
+A strongly hued base (e.g. a green forest plank) multiplies to mud under red/purple tints.
 
 ## Invariants art must not break
 

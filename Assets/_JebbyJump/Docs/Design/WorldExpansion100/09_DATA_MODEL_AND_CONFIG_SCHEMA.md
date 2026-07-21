@@ -22,16 +22,28 @@ _finaleTreatment    Sprite/prefab ref
 ## WorldVisualSet
 
 ```
-_background         Sprite
-_landmarkTower      Sprite (distant Rainbow Tower stage art)
-_floor              Sprite
-_platformVisuals    PlatformColorVisual[6]   (one per locked PlatformColor)
-_decoration         Sprite[]  (non-colliding)
-_ambientVfx         Sprite/particle texture (optional)
+_background         Sprite   (P34C - implemented)
+_floor              Sprite   (P34C - implemented)
+_landmarkTower      Sprite   (distant Rainbow Tower stage art)   [later phase]
+_platformBase       Sprite   (ONE neutral base, tinted at runtime) [P34H/P34J]
+_decoration         Sprite[] (non-colliding)                      [later phase]
+_ambientVfx         Sprite/particle texture (optional)            [later phase]
 ```
 
-`PlatformColorVisual` = `{ PlatformColor color; Sprite sprite; Material optional }`. The applier
-maps by `color` — the six locked colours must all be present (validator, doc 24).
+### Platform art: ONE neutral base per world, not six — `REPO-VERIFIED` (P34C)
+
+`Platform.ApplyVisualColor()` sets `sr.color = PlatformColorPalette.GetColor(_color)`, i.e. the
+locked semantic colour is applied as a **tint over a shared sprite**. Therefore a world needs a
+single **near-greyscale, mid-value themed base** sprite; the six colours come from the tint and
+their hue identity is **mathematically exact** (the palette is the single source of the hue).
+
+This supersedes the earlier `PlatformColorVisual[6]` proposal: six pre-coloured sprites would
+fight the tint (requiring `sr.color = white` and a gameplay-code change) and would risk per-world
+colour drift away from the locked hex values.
+
+Consequence: platform art drops from **60 → 10** assets (doc 18 regenerated accordingly).
+Fields are added in P34H/P34J together with the real art that proves them; `WorldVisualSet`
+deliberately ships in P34C with only the fields the applier consumes.
 
 ## WorldCatalog (ScriptableObject)
 

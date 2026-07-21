@@ -17,3 +17,6 @@ MonoBehaviour:
   _displayName: Cloud Meadow
   _firstGlobalLevelId: 1
   _lastGlobalLevelId: 10
+  _visuals:
+    _background: {fileID: 21300000, guid: 8b84bbff11a58bc4bb822aaa950ec571, type: 3}
+    _floor: {fileID: 21300000, guid: c6e926186f3efae4e89d8a35272e2114, type: 3}

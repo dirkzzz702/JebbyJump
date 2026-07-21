@@ -74,6 +74,7 @@ public static class CreateOrSyncWorldCatalog
             dirty |= SetString(so, "_displayName", DisplayNames[i]);
             dirty |= SetInt(so, "_firstGlobalLevelId", first);
             dirty |= SetInt(so, "_lastGlobalLevelId", last);
+            dirty |= AssignPlaceholderVisuals(so, worldNumber);
             if (dirty)
             {
                 so.ApplyModifiedPropertiesWithoutUndo();
@@ -123,6 +124,49 @@ public static class CreateOrSyncWorldCatalog
             changed++;
         }
         return changed;
+    }
+
+    // P34C vertical slice: only World 1 has real shipped art. World 2 borrows
+    // the (now orphaned) prototype sky purely so world switching is provable
+    // with two genuinely different sprites - it is replaced by the real
+    // Enchanted Forest art in P34J. Worlds 3-10 stay empty on purpose and
+    // fall back to World 1 at runtime.
+    private const string W01Background =
+        "Assets/_JebbyJump/Art/Sprites/Backgrounds/bg_menu_01.png";
+    private const string W01Floor =
+        "Assets/_JebbyJump/Art/Sprites/Platforms/spr_floor_strip_01.png";
+    private const string W02BackgroundPlaceholder =
+        "Assets/_JebbyJump/Art/Sprites/Backgrounds/bg_sky_layer_01.png";
+
+    private static bool AssignPlaceholderVisuals(SerializedObject so, int worldNumber)
+    {
+        bool dirty = false;
+        if (worldNumber == 1)
+        {
+            dirty |= SetSprite(so, "_visuals._background", W01Background);
+            dirty |= SetSprite(so, "_visuals._floor", W01Floor);
+        }
+        else if (worldNumber == 2)
+        {
+            dirty |= SetSprite(so, "_visuals._background", W02BackgroundPlaceholder);
+        }
+        // Worlds 3-10: intentionally unassigned (runtime falls back to World 1).
+        return dirty;
+    }
+
+    private static bool SetSprite(SerializedObject so, string path, string assetPath)
+    {
+        var p = so.FindProperty(path);
+        if (p == null) return false;
+        var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
+        if (sprite == null)
+        {
+            Debug.LogWarning("[WorldCatalog] Sprite not found: " + assetPath);
+            return false;
+        }
+        if (p.objectReferenceValue == sprite) return false;
+        p.objectReferenceValue = sprite;
+        return true;
     }
 
     private static bool SetString(SerializedObject so, string field, string value)
