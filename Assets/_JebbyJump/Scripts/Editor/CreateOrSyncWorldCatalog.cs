@@ -74,7 +74,7 @@ public static class CreateOrSyncWorldCatalog
             dirty |= SetString(so, "_displayName", DisplayNames[i]);
             dirty |= SetInt(so, "_firstGlobalLevelId", first);
             dirty |= SetInt(so, "_lastGlobalLevelId", last);
-            dirty |= AssignPlaceholderVisuals(so, worldNumber);
+            dirty |= AssignWorldVisuals(so, worldNumber);
             if (dirty)
             {
                 so.ApplyModifiedPropertiesWithoutUndo();
@@ -126,19 +126,21 @@ public static class CreateOrSyncWorldCatalog
         return changed;
     }
 
-    // P34C vertical slice: only World 1 has real shipped art. World 2 borrows
-    // the (now orphaned) prototype sky purely so world switching is provable
-    // with two genuinely different sprites - it is replaced by the real
-    // Enchanted Forest art in P34J. Worlds 3-10 stay empty on purpose and
-    // fall back to World 1 at runtime.
+    // World 1 uses the shipped art. World 2 now uses its REAL Enchanted Forest
+    // family (batch W02 rev0 + revA, accepted 12/12) - this replaced the
+    // temporary prototype-sky placeholder from the P34C vertical slice.
+    // Worlds 3-10 stay empty on purpose and fall back to World 1 at runtime
+    // until their art batches land (P34K-P34R).
     private const string W01Background =
         "Assets/_JebbyJump/Art/Sprites/Backgrounds/bg_menu_01.png";
     private const string W01Floor =
         "Assets/_JebbyJump/Art/Sprites/Platforms/spr_floor_strip_01.png";
-    private const string W02BackgroundPlaceholder =
-        "Assets/_JebbyJump/Art/Sprites/Backgrounds/bg_sky_layer_01.png";
+    private const string W02Background =
+        "Assets/_JebbyJump/Art/Worlds/W02_EnchantedForest/Backgrounds/bg_enchantedforest_01.png";
+    private const string W02Floor =
+        "Assets/_JebbyJump/Art/Worlds/W02_EnchantedForest/Floor/floor_enchantedforest_01.png";
 
-    private static bool AssignPlaceholderVisuals(SerializedObject so, int worldNumber)
+    private static bool AssignWorldVisuals(SerializedObject so, int worldNumber)
     {
         bool dirty = false;
         if (worldNumber == 1)
@@ -148,7 +150,8 @@ public static class CreateOrSyncWorldCatalog
         }
         else if (worldNumber == 2)
         {
-            dirty |= SetSprite(so, "_visuals._background", W02BackgroundPlaceholder);
+            dirty |= SetSprite(so, "_visuals._background", W02Background);
+            dirty |= SetSprite(so, "_visuals._floor", W02Floor);
         }
         // Worlds 3-10: intentionally unassigned (runtime falls back to World 1).
         return dirty;
