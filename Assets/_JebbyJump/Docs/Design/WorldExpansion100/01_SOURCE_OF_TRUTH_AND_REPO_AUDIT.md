@@ -120,7 +120,7 @@ so totals are drift-free at 100.
   `LevelConfig`; row Y = `RowStartY + row * RowVerticalSpacing`; `BuildRowColors` guarantees the
   correct colour is present; `GetRowPositions` spreads across `RowHorizontalSpread` with jitter.
 - Six semantic colours live in `PlatformColor` enum + `PlatformColorPalette.cs`
-  (`#E63838/#3878E6/#38BF59/#FAD12E/#9938E6/#F28C26`). Sequence step is **`rowIndex`**, not Y —
+  (`#E63838/#3878E6/#38BF59/#F9DE2C/#9938E6/#E58A1B`). Sequence step is **`rowIndex`**, not Y —
   matches the confirmed row rule.
 - `TrySpawnCactus(distractors)` only ever targets **distractor** platforms (never the correct one):
   guarded by `_cactusSpawnChance` and `distractors.Count > 0`. → cactus-on-correct-platform is

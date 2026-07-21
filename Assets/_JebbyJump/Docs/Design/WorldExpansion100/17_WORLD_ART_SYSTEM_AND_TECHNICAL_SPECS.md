@@ -42,7 +42,7 @@ Each world ships **one** platform sprite, not six. `Platform.ApplyVisualColor()`
 the locked semantic colour, so the base must be **near-greyscale / no inherent hue**, mid-value
 (avoid pure black or white), carrying only material detail. It must remain readable and
 distinguishable under all six tints at ~70 px:
-`#E63838 #3878E6 #38BF59 #FAD12E #9938E6 #F28C26`.
+`#E63838 #3878E6 #38BF59 #F9DE2C #9938E6 #E58A1B`.
 A strongly hued base (e.g. a green forest plank) multiplies to mud under red/purple tints.
 
 ## Invariants art must not break

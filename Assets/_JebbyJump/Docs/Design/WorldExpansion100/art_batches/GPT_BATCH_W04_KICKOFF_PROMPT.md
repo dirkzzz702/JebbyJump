@@ -94,8 +94,8 @@ It must be **near-greyscale (target saturation < 0.05), mid-value (roughly 0.30-
 NO inherent hue** - only material detail (sun-baked sandstone texture, soft top-light, rounded edge).
 W02's base measured saturation 0.000 and is the reference standard.
 
-Prove it: render your base tinted to **#E63838, #3878E6, #38BF59, #FAD12E, #9938E6,
-#F28C26** and confirm all six stay bright and mutually distinguishable at ~70 px.
+Prove it: render your base tinted to **#E63838, #3878E6, #38BF59, #F9DE2C, #9938E6,
+#E58A1B** and confirm all six stay bright and mutually distinguishable at ~70 px.
 Include that six-tint strip **over your new background** in the delivery.
 
 ### Floor must be a TILEABLE GROUND STRIP (W03 lesson)

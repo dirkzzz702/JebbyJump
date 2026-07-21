@@ -15,7 +15,16 @@ Legend: `CONFIRMED` (user-approved / proven) · `REPO-VERIFIED` (inspected) ·
 | C5 | Every level completable **without skills**; skills never bypass sequence validation | CONFIRMED |
 | C6 | Max sequence length **10**; max choices per row **6**; failure = full-level restart | CONFIRMED |
 | C7 | Only approved hazard = **cactus-equivalent** (touch during Playing → lose 1 life). No new mechanics | CONFIRMED |
-| C8 | Six semantic colours retained & identity-locked (`#E63838/#3878E6/#38BF59/#FAD12E/#9938E6/#F28C26`); no 7th | CONFIRMED |
+| C8 | Six semantic colours retained & identity-locked (`#E63838/#3878E6/#38BF59/#F9DE2C/#9938E6/#E58A1B`); no 7th | CONFIRMED |
+
+> **Palette refinement (2026-07-22, user-approved).** Yellow `#FAD12E → #F9DE2C`
+> (lifted) and Orange `#F28C26 → #E58A1B` (deepened). Reason: the platform tint
+> darkens both into muddy warm tones, and the Yellow↔Orange pair was the tightest
+> (rendered CIEDE2000 ≈ 21). The refinement widens the warm-pair separation
+> without colliding Orange into Red; "identity-locked" now means locked to these
+> refined hex. No delivered art regenerates — platform bases are neutral and tint
+> at runtime (`PlatformColorPalette`). Historical `ProductionArtAudit/` marketing
+> briefs keep the pre-refinement accents (a minor cosmetic delta, not gameplay).
 | C9 | Level 10 of each world is a **finale** (special via art/composition, not new mechanic) | CONFIRMED |
 | C10 | Short self-contained story cards; recurring Rainbow Tower landmark; special World-10 ending; no lore-heavy cutscenes | CONFIRMED |
 | C11 | Cactus never spawns on the correct platform | CONFIRMED (also REPO-VERIFIED invariant) |

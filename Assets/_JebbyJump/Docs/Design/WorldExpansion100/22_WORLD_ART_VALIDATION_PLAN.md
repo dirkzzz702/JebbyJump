@@ -13,7 +13,7 @@ right at display size). Reuses `ProductionArtAudit/tools/validate_generated_art.
 ## Visual checks (PIL mocks at display size)
 
 - **Platforms:** render each of the 6 at ~70px; assert the base colour still reads as its locked
-  hue (sample centroid hue within tolerance of `#E63838/#3878E6/#38BF59/#FAD12E/#9938E6/#F28C26`);
+  hue (sample centroid hue within tolerance of `#E63838/#3878E6/#38BF59/#F9DE2C/#9938E6/#E58A1B`);
   assert the six are mutually distinguishable (pairwise hue separation).
 - **9-slice:** stretch platform/UI 9-slices; no seam artefacts at gameplay size.
 - **Background:** fills 16:9→20:9 when camera-locked 1.5×; warm/child-safe; no debug UI/text.

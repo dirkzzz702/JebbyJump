@@ -63,8 +63,8 @@ colour for each row. Art direction is **warm, soft, storybook, high-readability*
   (moss texture, bark grain, soft top-light, gentle rounded edge).
 - **Do NOT give it its own strong hue.** No green tint, no colour cast.
 - It must look correct when tinted to each of these exact colours:
-  `#E63838` red · `#3878E6` blue · `#38BF59` green · `#FAD12E` yellow ·
-  `#9938E6` purple · `#F28C26` orange.
+  `#E63838` red · `#3878E6` blue · `#38BF59` green · `#F9DE2C` yellow ·
+  `#9938E6` purple · `#E58A1B` orange.
 - Keep the silhouette simple and the value range mid (avoid pure black/white),
   so every tint stays bright and distinguishable at ~70 px on screen.
 

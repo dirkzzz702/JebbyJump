@@ -1,7 +1,7 @@
 # 04 — Ten-World Creative Bible
 
 Status: `PROPOSED` (roster CONFIRMED). Each world is a recognisable art family; the six
-semantic gameplay colours (`#E63838/#3878E6/#38BF59/#FAD12E/#9938E6/#F28C26`) keep their
+semantic gameplay colours (`#E63838/#3878E6/#38BF59/#F9DE2C/#9938E6/#E58A1B`) keep their
 identity in every world — only the *material treatment* changes. No coloured lighting may make
 two gameplay colours look alike. Difficulty maps to world number (see docs 12–14).
 
@@ -12,9 +12,9 @@ two gameplay colours look alike. Difficulty maps to world number (see docs 12–
 | Red | `#E63838` | material only (ice/leaf/lava/etc.) | Memory Cue glyph | must stay clearly red |
 | Blue | `#3878E6` | material only | Memory Cue glyph | never merge with green |
 | Green | `#38BF59` | material only | Memory Cue glyph | never merge with blue |
-| Yellow | `#FAD12E` | material only | Memory Cue glyph | never merge with orange |
+| Yellow | `#F9DE2C` | material only | Memory Cue glyph | never merge with orange |
 | Purple | `#9938E6` | material only | Memory Cue glyph | keep distinct from blue |
-| Orange | `#F28C26` | material only | Memory Cue glyph | never merge with yellow |
+| Orange | `#E58A1B` | material only | Memory Cue glyph | never merge with yellow |
 
 Prohibited everywhere: a 7th gameplay colour; hazard art that reads as a safe platform;
 coloured light that lowers colour separation; anything scary/violent (kids-first).

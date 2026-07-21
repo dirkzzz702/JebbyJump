@@ -59,8 +59,8 @@ mid-value, with NO inherent hue** — only material detail (moss texture, bark
 grain, soft top-light, rounded edge). A green forest plank multiplies to mud
 under the red and purple tints and will be rejected.
 
-Prove it: render your base tinted to **#E63838, #3878E6, #38BF59, #FAD12E,
-#9938E6, #F28C26** and confirm all six stay bright and mutually distinguishable
+Prove it: render your base tinted to **#E63838, #3878E6, #38BF59, #F9DE2C,
+#9938E6, #E58A1B** and confirm all six stay bright and mutually distinguishable
 at ~70 px. Include that six-tint strip in your delivery.
 
 ## Step 4 — validate + deliver
