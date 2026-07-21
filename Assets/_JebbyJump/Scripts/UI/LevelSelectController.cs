@@ -1,29 +1,41 @@
 using System.Collections.Generic;
 using JebbyJump.Analytics;
+using JebbyJump.Core;
 using JebbyJump.Flow;
 using JebbyJump.Level;
 using JebbyJump.Progression;
 using JebbyJump.Rewards;
 using JebbyJump.Shell;
 using JebbyJump.Wardrobe.Visual; // ScrollIntoViewCalculator (reused)
+using JebbyJump.World;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace JebbyJump.UI
 {
-    // Populates the Level Select grid from a LevelCatalog. Best time
-    // comes from BestTimeStore. Rank is computed dynamically at display
-    // time from best time + LevelConfig.RankConfig and is never stored,
-    // so future TimeRankConfig tuning cannot strand a stale stored rank.
+    // Populates the Level Select grid from a LevelCatalog. Best time comes
+    // from BestTimeStore. Rank is computed dynamically at display time from
+    // best time + LevelConfig.RankConfig and is never stored.
+    //
+    // WorldExpansion100 P34D: the grid is now WORLD-SCOPED. A world tab strip
+    // selects one of the ten worlds, and only that world's ten levels render -
+    // replacing the old flat grid of all levels, which does not scale to 100.
+    // Cards still carry the GLOBAL level index, so save keys (index-based
+    // unlock/stars, name-based best time) are unchanged.
     public class LevelSelectController : MonoBehaviour
     {
         [Header("Data")]
         [SerializeField] private LevelCatalog _catalog;
+        [SerializeField] private WorldCatalog _worldCatalog;
 
         [Header("Layout")]
         [SerializeField] private RectTransform _cardContainer;
         [SerializeField] private LevelSelectCard _cardPrefab;
+
+        [Header("World strip")]
+        [SerializeField] private Transform _worldTabContainer; // holds WorldTab children
+        [SerializeField] private TMPro.TextMeshProUGUI _worldTitle;
 
         [Header("Navigation")]
         [SerializeField] private Button _backButton;
@@ -33,18 +45,37 @@ namespace JebbyJump.UI
 
         private readonly List<LevelSelectCard> _spawned =
             new List<LevelSelectCard>();
+        private readonly List<WorldTab> _worldTabs = new List<WorldTab>();
         private GameObject _opener;          // restore focus here on Close
         private int _lastFocusedCardIndex = -1;
+        private int _currentWorld = 1;       // 1-based
 
         private void Awake()
         {
             if (_backButton != null) _backButton.onClick.AddListener(Close);
+            CollectWorldTabs();
         }
 
         private void OnDestroy()
         {
             if (_backButton != null) _backButton.onClick.RemoveListener(Close);
+            foreach (var t in _worldTabs)
+                if (t != null) t.Clicked -= OnWorldTabClicked;
             ClearCards();
+        }
+
+        private void CollectWorldTabs()
+        {
+            _worldTabs.Clear();
+            if (_worldTabContainer == null) return;
+            for (int i = 0; i < _worldTabContainer.childCount; i++)
+            {
+                var tab = _worldTabContainer.GetChild(i).GetComponent<WorldTab>();
+                if (tab == null) continue;
+                tab.Clicked -= OnWorldTabClicked;
+                tab.Clicked += OnWorldTabClicked;
+                _worldTabs.Add(tab);
+            }
         }
 
         public void Open()
@@ -53,8 +84,15 @@ namespace JebbyJump.UI
                 ? EventSystem.current.currentSelectedGameObject : null;
             AnalyticsService.Track(AnalyticsEvents.LevelSelectOpened);
             if (_panelRoot != null) _panelRoot.SetActive(true);
-            Rebuild();
-            BuildNavigationAndFocus();
+
+            // Open on the world containing the player's continue level.
+            int continueIndex = _catalog != null
+                ? LevelProgressStore.GetContinueIndex(_catalog.Count) : 0;
+            _currentWorld = WorldMapping.WorldNumberForLevelIndex(continueIndex);
+            if (_currentWorld <= 0) _currentWorld = 1;
+
+            BindWorldTabs();
+            SelectWorld(_currentWorld, focusContinueLevel: true);
         }
 
         public void Close()
@@ -63,10 +101,49 @@ namespace JebbyJump.UI
             ShellFocusUtil.Select(_opener); // restore Main Menu opener (P21)
         }
 
-        // P21: explicit grid navigation over the live cards (locked cards stay
-        // focusable; bottom row -> Back) + deterministic initial focus
-        // (current/continue level if valid, else first card, else Back).
-        private void BuildNavigationAndFocus()
+        private void OnWorldTabClicked(int worldNumber)
+            => SelectWorld(worldNumber, focusContinueLevel: false);
+
+        private void SelectWorld(int worldNumber, bool focusContinueLevel)
+        {
+            _currentWorld = Mathf.Clamp(worldNumber, 1, WorldMapping.WorldCount);
+            for (int i = 0; i < _worldTabs.Count; i++)
+                if (_worldTabs[i] != null)
+                    _worldTabs[i].SetSelected(_worldTabs[i].WorldNumber == _currentWorld);
+
+            if (_worldTitle != null)
+                _worldTitle.text = WorldTitle(_currentWorld);
+
+            AnalyticsService.Track(AnalyticsEvents.LevelSelectOpened,
+                AnalyticsParam.Of(AnalyticsParams.WorldNumber, _currentWorld));
+
+            Rebuild();
+            BuildNavigationAndFocus(focusContinueLevel);
+        }
+
+        private string WorldTitle(int worldNumber)
+        {
+            var def = _worldCatalog != null ? _worldCatalog.GetByNumber(worldNumber) : null;
+            string name = def != null && !string.IsNullOrEmpty(def.DisplayName)
+                ? def.DisplayName : "World " + worldNumber;
+            return "World " + worldNumber + " - " + name;
+        }
+
+        private void BindWorldTabs()
+        {
+            for (int i = 0; i < _worldTabs.Count; i++)
+            {
+                var tab = _worldTabs[i];
+                if (tab == null) continue;
+                int worldNumber = i + 1;
+                int firstIndex = WorldMapping.FirstLevelIndexOfWorld(worldNumber);
+                bool locked = firstIndex < 0 || !LevelProgressStore.IsUnlocked(firstIndex);
+                tab.Bind(worldNumber, worldNumber.ToString(), locked);
+            }
+        }
+
+        // Grid navigation over the live cards + the world tab row above them.
+        private void BuildNavigationAndFocus(bool focusContinueLevel)
         {
             var cards = new List<Selectable>(_spawned.Count);
             foreach (var c in _spawned)
@@ -74,16 +151,73 @@ namespace JebbyJump.UI
             ShellFocusUtil.BuildGridNavigation(
                 cards, ShellLayoutMetrics.LevelSelectColumns, _backButton);
 
+            WireWorldTabNavigation(cards);
+
             int count = _spawned.Count;
-            int preferred = _catalog != null
-                ? LevelProgressStore.GetContinueIndex(_catalog.Count) : 0;
-            int idx = ShellFocusResolver.ResolvePreferredOrFirst(count, preferred);
+            int idx = -1;
+            if (focusContinueLevel)
+            {
+                int continueIndex = _catalog != null
+                    ? LevelProgressStore.GetContinueIndex(_catalog.Count) : 0;
+                int localSlot = continueIndex - WorldFirstIndex();
+                if (localSlot >= 0 && localSlot < count) idx = localSlot;
+            }
             _lastFocusedCardIndex = -1;
             if (idx >= 0 && _spawned[idx] != null)
                 ShellFocusUtil.Select(_spawned[idx].Selectable);
+            else if (_worldTabs.Count >= _currentWorld && _worldTabs[_currentWorld - 1] != null)
+                ShellFocusUtil.Select(_worldTabs[_currentWorld - 1].Selectable);
             else
                 ShellFocusUtil.Select(_backButton);
         }
+
+        // World tabs: horizontal row; Down -> first card. Top-row cards Up ->
+        // the current world's tab. Keeps the strip reachable by keyboard/gamepad.
+        private void WireWorldTabNavigation(IList<Selectable> cards)
+        {
+            var tabSel = new List<Selectable>(_worldTabs.Count);
+            foreach (var t in _worldTabs) tabSel.Add(t != null ? t.Selectable : null);
+
+            Selectable firstCard = cards.Count > 0 ? cards[0] : _backButton;
+            for (int i = 0; i < tabSel.Count; i++)
+            {
+                if (tabSel[i] == null) continue;
+                var nav = new Navigation { mode = Navigation.Mode.Explicit };
+                nav.selectOnLeft = PrevNonNull(tabSel, i);
+                nav.selectOnRight = NextNonNull(tabSel, i);
+                nav.selectOnDown = firstCard;
+                tabSel[i].navigation = nav;
+            }
+
+            Selectable currentTab = (_currentWorld - 1) < tabSel.Count
+                ? tabSel[_currentWorld - 1] : null;
+            if (currentTab != null)
+            {
+                int columns = ShellLayoutMetrics.LevelSelectColumns;
+                for (int i = 0; i < cards.Count && i < columns; i++)
+                {
+                    if (cards[i] == null) continue;
+                    var nav = cards[i].navigation;
+                    nav.selectOnUp = currentTab;
+                    cards[i].navigation = nav;
+                }
+            }
+        }
+
+        private static Selectable PrevNonNull(IList<Selectable> list, int from)
+        {
+            for (int i = from - 1; i >= 0; i--) if (list[i] != null) return list[i];
+            return null;
+        }
+
+        private static Selectable NextNonNull(IList<Selectable> list, int from)
+        {
+            for (int i = from + 1; i < list.Count; i++) if (list[i] != null) return list[i];
+            return null;
+        }
+
+        private int WorldFirstIndex()
+            => Mathf.Max(0, WorldMapping.FirstLevelIndexOfWorld(_currentWorld));
 
         private void Update()
         {
@@ -119,6 +253,7 @@ namespace JebbyJump.UI
                     _scrollRect.verticalNormalizedPosition);
         }
 
+        // Rebuilds the grid for the CURRENT world's ten levels only.
         public void Rebuild()
         {
             ClearCards();
@@ -145,7 +280,11 @@ namespace JebbyJump.UI
                 return;
             }
 
-            for (int i = 0; i < _catalog.Count; i++)
+            int first = WorldFirstIndex();
+            int last = WorldMapping.LastLevelIndexOfWorld(_currentWorld);
+            if (last < 0) last = _catalog.Count - 1;
+
+            for (int i = first; i <= last && i < _catalog.Count; i++)
             {
                 var card = Instantiate(_cardPrefab, _cardContainer);
                 card.gameObject.name = $"LevelCard_{i + 1}";
@@ -161,21 +300,14 @@ namespace JebbyJump.UI
                     ? $"Best {FormatTime(best)}"
                     : "Best --";
 
-                // Rank is recomputed every time the panel opens.
-                // No persistent rank store; tuning the TimeRankConfig
-                // immediately reflects in the displayed rank.
                 var cfg = _catalog.Get(i);
                 TimeRank? rank = null;
                 if (hasBest && cfg != null && cfg.RankConfig != null)
-                {
                     rank = cfg.RankConfig.GetRank(best);
-                }
                 string rankText = rank.HasValue
                     ? $"Rank {rank.Value}"
                     : "Rank --";
 
-                // Read-only display of stored best stars (P7A store).
-                // Level Select never writes stars or emits analytics.
                 int stars = StarRewardStore.GetStars(i);
 
                 var state = LevelCardClassifier.Classify(unlocked, hasBest);
@@ -197,6 +329,8 @@ namespace JebbyJump.UI
             AnalyticsService.Track(AnalyticsEvents.LevelSelected,
                 AnalyticsParam.Of(AnalyticsParams.LevelIndex, levelIndex),
                 AnalyticsParam.Of(AnalyticsParams.LevelNumber, levelIndex + 1),
+                AnalyticsParam.Of(AnalyticsParams.WorldNumber,
+                    WorldMapping.WorldNumberForLevelIndex(levelIndex)),
                 AnalyticsParam.Of(AnalyticsParams.IsReplay, hasBest),
                 AnalyticsParam.Of(AnalyticsParams.HasBestTime, hasBest));
 
@@ -216,8 +350,8 @@ namespace JebbyJump.UI
             _spawned.Clear();
         }
 
-        // Mirrors HUDController.FormatTime so the two screens display
-        // best times in the same MM:SS.SS format.
+        // Mirrors HUDController.FormatTime so the two screens display best
+        // times in the same MM:SS.SS format.
         private static string FormatTime(float seconds)
         {
             if (float.IsNaN(seconds) || seconds < 0f) seconds = 0f;

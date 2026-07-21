@@ -52,6 +52,7 @@ namespace JebbyJump.Analytics
         public const string SessionId          = "session_id";
         public const string LevelIndex         = "level_index";
         public const string LevelNumber        = "level_number";
+        public const string WorldNumber        = "world_number";
         public const string TargetLevelIndex   = "target_level_index";
         public const string TargetLevelNumber  = "target_level_number";
         public const string Source             = "source";
