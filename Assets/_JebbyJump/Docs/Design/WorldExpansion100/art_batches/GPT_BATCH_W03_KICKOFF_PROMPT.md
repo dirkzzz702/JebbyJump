@@ -40,6 +40,13 @@ gameplay objects are rejected - this is a children's game.
 | mean luma (0-255) | **>= 150** |
 | edge energy (busyness) | **<= 4.5** |
 | luma stddev | **<= 40** |
+| warm-pixel share (R>=B) | **>= 45%** |
+
+### NO BAKED ANNOTATIONS (W03 lesson) - applies to every asset
+Do not burn index numbers, labels, watermarks, captions, filenames or any other
+annotation into any image - **including faint or low-contrast marks in corners**.
+W03 shipped its manifest index in the bottom-left of most assets, including the
+platform base, which would have tiled a faint digit across every level.
 
 The central horizontal band where platforms sit must be visually calm so six
 tinted platforms read instantly. Think "soft painted backdrop", not "detailed
@@ -91,6 +98,13 @@ Prove it: render your base tinted to **#E63838, #3878E6, #38BF59, #FAD12E, #9938
 #F28C26** and confirm all six stay bright and mutually distinguishable at ~70 px.
 Include that six-tint strip **over your new background** in the delivery.
 
+### Floor must be a TILEABLE GROUND STRIP (W03 lesson)
+The floor fills the full 512x128 canvas edge to edge - no void, no framing, not an
+isolated island. A **flat, straight, unbroken top surface line** runs the entire
+width (characters stand on it), with the material body below filling to the bottom
+edge. Left and right edges match so it repeats seamlessly. See the accepted
+`Art/Worlds/W02_EnchantedForest/Floor/` for the correct shape.
+
 ## Step 4 - validate + deliver
 
 **Deliver exactly ONE zip. Do NOT return loose PNG files.**
@@ -111,7 +125,8 @@ files in the package.
 
 Attach as **separate chat attachments** (not inside the zip): the validation
 report output, the six-tint platform strip rendered over your new background, and
-the measured mean-luma / edge-energy / stddev of the background.
+the measured warm-share / mean-luma / edge-energy / stddev of the background, and a
+**bottom-left corner crop of all 12 assets proving no baked annotations**.
 
 (If a later fix-pass asks for only some assets, pass `--ids` on BOTH commands with
 just those asset ids; the zip then contains only those files.)
