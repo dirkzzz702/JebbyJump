@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 351172a2cb3cba74a9c373a32a3f7caa, type: 3}
+  m_Name: Level016_TimeRankConfig
+  m_EditorClassIdentifier: Assembly-CSharp::JebbyJump.Level.TimeRankConfig
+  _sThreshold: 7.2
+  _aThreshold: 9.6
+  _bThreshold: 12

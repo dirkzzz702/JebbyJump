@@ -1,4 +1,5 @@
 using System;
+using JebbyJump.Core;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -9,7 +10,7 @@ using UnityEngine;
 
 namespace JebbyJump.Tests.EditMode
 {
-    // Real-asset invariants for the 10-level slice, read via AssetDatabase + SerializedObject
+    // Real-asset invariants for all 100 levels, read via AssetDatabase + SerializedObject
     // (no Assembly-CSharp type reference). These read-only tests double as the
     // no-hidden-tuning guard: inspecting the assets must never change them.
     public class LevelBalanceAssetTests
@@ -24,9 +25,12 @@ namespace JebbyJump.Tests.EditMode
         }
 
         [Test]
-        public void TenLevelConfigs_Exist()
+        public void AllLevelConfigs_Exist()
         {
-            Assert.AreEqual(10, LevelConfigPaths().Length);
+            // Data-driven against the canonical structure constant instead of a
+            // hardcoded count, so the 10 -> 100 expansion (WorldExpansion100
+            // P34E) cannot leave a stale literal behind.
+            Assert.AreEqual(WorldMapping.TotalLevels, LevelConfigPaths().Length);
         }
 
         [Test]

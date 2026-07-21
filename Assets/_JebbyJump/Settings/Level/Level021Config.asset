@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc77e7c5632966846b737866c3e96b5f, type: 3}
+  m_Name: Level021Config
+  m_EditorClassIdentifier: Assembly-CSharp::JebbyJump.Level.LevelConfig
+  _sequenceLength: 4
+  _memoryTimeSeconds: 5
+  _memoryPhaseJumpMultiplier: 0.35
+  _startingLives: 3
+  _availableColors: 010000000200000003000000
+  _cactusSpawnChance: 0.1
+  _platformsPerRow: 3
+  _rowVerticalSpacing: 3.4
+  _rowStartY: 3
+  _platformWidth: 3.8
+  _platformHeight: 0.5
+  _rowHorizontalSpread: 7.8
+  _rowVerticalJitter: 0
+  _rankConfig: {fileID: 11400000, guid: 2a6f0b19e9bda314e8ae6fd213e9faaf, type: 2}
