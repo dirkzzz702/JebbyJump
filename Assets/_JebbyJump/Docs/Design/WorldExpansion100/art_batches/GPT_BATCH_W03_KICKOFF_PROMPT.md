@@ -85,11 +85,29 @@ Prove it: render your base tinted to **#E63838, #3878E6, #38BF59, #FAD12E, #9938
 Include that six-tint strip **over your new background** in the delivery.
 
 ## Step 4 - validate + deliver
-- `python ProductionArtAudit/tools/validate_generated_art.py --manifest Assets/_JebbyJump/Docs/Design/WorldExpansion100/art_batches/W03_zip_manifest.json --dir <out>`
-- On PASS: `python ProductionArtAudit/tools/build_final_art_zip.py --manifest .../W03_zip_manifest.json --dir <out> --out jebby_art_W03.zip`
-- Deliver to `C:\Users\dontb\Downloads\jebby-jump\jebby_art_W03`
-- Return: ZIP + validation_report + the six-tint strip over the new background +
-  the measured mean-luma / edge-energy / stddev of the background.
+
+**Deliver exactly ONE zip. Do NOT return loose PNG files.**
+
+1. Write all 12 PNGs into a working dir `<out>`, preserving their full
+   repo-relative paths (i.e. `<out>/Assets/_JebbyJump/Art/Worlds/W03_CrystalCaves/...`).
+2. Validate:
+   `python ProductionArtAudit/tools/validate_generated_art.py --manifest Assets/_JebbyJump/Docs/Design/WorldExpansion100/art_batches/W03_zip_manifest.json --dir <out>`
+3. On PASS build the zip:
+   `python ProductionArtAudit/tools/build_final_art_zip.py --manifest Assets/_JebbyJump/Docs/Design/WorldExpansion100/art_batches/W03_zip_manifest.json --dir <out> --out jebby_art_W03.zip`
+4. Deliver the single file `jebby_art_W03.zip` to the folder
+   `Downloads/jebby-jump/jebby_art_W03` on the user's machine.
+
+**Zip contents rule:** exactly the 12 manifest PNGs at exactly their manifest
+paths - nothing else. Do NOT put `.meta`/prefab/scene/material files or your own
+README/validation/report files inside the zip; the validator rejects unexpected
+files in the package.
+
+Attach as **separate chat attachments** (not inside the zip): the validation
+report output, the six-tint platform strip rendered over your new background, and
+the measured mean-luma / edge-energy / stddev of the background.
+
+(If a later fix-pass asks for only some assets, pass `--ids` on BOTH commands with
+just those asset ids; the zip then contains only those files.)
 
 ## Non-negotiables
 Exact filenames/paths/sizes/alpha; platform base near-greyscale and tint-safe;

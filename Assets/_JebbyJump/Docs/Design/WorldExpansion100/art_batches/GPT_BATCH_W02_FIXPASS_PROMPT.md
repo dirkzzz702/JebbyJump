@@ -97,12 +97,33 @@ seamlessly left↔right.
 
 ---
 
-## Deliver
-Return **only these 4 regenerated PNGs**, exact same filenames/paths/sizes/alpha,
-plus:
-- the six-tint platform strip re-rendered over the NEW background (proving the six
-  colours still separate against it),
-- the measured mean-luma / edge-energy / stddev of the new background,
-- re-run `validate_generated_art.py` with the W02 manifest and report its real output.
+## Deliver — EXACTLY ONE ZIP (do NOT return loose PNG files)
+
+1. Write the 4 regenerated PNGs into `<out>` preserving full repo-relative paths:
+```
+<out>/Assets/_JebbyJump/Art/Worlds/W02_EnchantedForest/Backgrounds/bg_enchantedforest_01.png
+<out>/Assets/_JebbyJump/Art/Worlds/W02_EnchantedForest/Backgrounds/landmark_tower_enchantedforest_01.png
+<out>/Assets/_JebbyJump/Art/Worlds/W02_EnchantedForest/Floor/floor_enchantedforest_01.png
+<out>/Assets/_JebbyJump/Art/Worlds/W02_EnchantedForest/Obstacles/hazard_forest_thorn_bloom_01.png
+```
+2. Validate — PARTIAL delivery, so restrict to the 4 ids (without `--ids` it fails
+   on the 8 accepted assets that are absent):
+```
+python ProductionArtAudit/tools/validate_generated_art.py   --manifest Assets/_JebbyJump/Docs/Design/WorldExpansion100/art_batches/W02_zip_manifest.json   --dir <out> --ids W02-BG,W02-TOWER,W02-FLOOR,W02-HAZ
+```
+3. On PASS build the zip with the same ids:
+```
+python ProductionArtAudit/tools/build_final_art_zip.py   --manifest Assets/_JebbyJump/Docs/Design/WorldExpansion100/art_batches/W02_zip_manifest.json   --dir <out> --out jebby_art_W02_revA.zip --ids W02-BG,W02-TOWER,W02-FLOOR,W02-HAZ
+```
+4. Deliver the single file `jebby_art_W02_revA.zip` to
+   `Downloads/jebby-jump/jebby_art_W02_revA`.
+
+**Zip contents rule:** exactly those 4 PNGs at those paths — nothing else. No
+`.meta`/prefab/scene/material files, no README/validation/report files inside the
+zip (the validator rejects unexpected files).
+
+Attach as **separate chat attachments** (not inside the zip): the validation report,
+the six-tint strip over the NEW background, and the new background's measured
+mean-luma / edge-energy / stddev.
 
 Do not resend the 8 accepted assets. When delivered, STOP.
