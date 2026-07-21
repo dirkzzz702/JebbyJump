@@ -51,6 +51,13 @@ blue, teal and lilac with small flags and a bright finial (see `bg_menu_01.png`,
 right side). It is the SAME structure in all ten worlds - never a stone castle.
 W04 stage: the tower rises beyond the far dunes - small, clear, tiers hinted.
 
+**Two separate uses, do not confuse them (W02 lesson):**
+- The **background** may show the tower at this world's stage, painted into the scene.
+- The standalone `landmark_tower_*` asset must be the **tower itself only**, plus at
+  most a wisp of cloud/haze - tight to its content, on clean transparency with a soft
+  feathered edge. Do NOT deliver a large oval 'scene blob' containing trees, foliage or
+  terrain; it is a layerable element, not a second illustration.
+
 ## Step 3 - produce the 12 W04 assets
 All under `Assets/_JebbyJump/Art/Worlds/W04_SunshineDesert/`:
 
