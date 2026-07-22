@@ -17,3 +17,6 @@ MonoBehaviour:
   _displayName: Clockwork Heights
   _firstGlobalLevelId: 61
   _lastGlobalLevelId: 70
+  _visuals:
+    _background: {fileID: 719072681366853344, guid: 868e8c9632fbc464c8020c5f83724eaa, type: 3}
+    _floor: {fileID: -5884995857946620894, guid: a0257b3a212e4e2458d9670439334bd5, type: 3}
