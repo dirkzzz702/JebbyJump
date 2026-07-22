@@ -331,6 +331,28 @@ namespace JebbyJump.UI
 
             EmitCompletionAnalytics(elapsed, oldBest, best, isNewBest, computedRank);
             GrantStars(computedRank);
+            GrantWorldGem();
+        }
+
+        // Model C (P34G): first clear of a world's FINALE (its last level)
+        // grants a non-spendable World Gem trophy. Idempotent via WorldGemStore
+        // (a finale replay grants nothing). Never touches Stars/progression.
+        private void GrantWorldGem()
+        {
+            int levelIndex = _levelSession != null
+                ? _levelSession.CurrentLevelIndex : 0;
+            if (!WorldMapping.IsFinaleLevelIndex(levelIndex)) return;
+
+            int worldNumber = WorldMapping.WorldNumberForLevelIndex(levelIndex);
+            string worldId = WorldMapping.WorldIdForNumber(worldNumber);
+            if (!WorldGemStore.TryGrant(worldId)) return; // already held / invalid
+
+            AnalyticsService.Track(AnalyticsEvents.RewardGranted,
+                AnalyticsParam.Of(AnalyticsParams.RewardType, "world_gem"),
+                AnalyticsParam.Of(AnalyticsParams.WorldNumber, worldNumber),
+                AnalyticsParam.Of(AnalyticsParams.LevelIndex, levelIndex),
+                AnalyticsParam.Of(AnalyticsParams.Amount, 1),
+                AnalyticsParam.Of(AnalyticsParams.Reason, "world_finale_first_clear"));
         }
 
         // Awards mastery stars for this clear (S/A=3, B=2, C=1, completed
