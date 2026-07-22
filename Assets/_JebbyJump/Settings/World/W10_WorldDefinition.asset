@@ -17,3 +17,6 @@ MonoBehaviour:
   _displayName: Rainbow Tower Castle
   _firstGlobalLevelId: 91
   _lastGlobalLevelId: 100
+  _visuals:
+    _background: {fileID: -4745502973473729336, guid: 70945c96cbececc4395474ce7a4bedea, type: 3}
+    _floor: {fileID: 3808955598147318669, guid: 54112ca85e110124a890be08d6a93601, type: 3}
