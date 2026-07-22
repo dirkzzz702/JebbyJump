@@ -8,7 +8,8 @@
         "JebbyJump.Performance.Editor",
         "JebbyJump.Balance.Editor",
         "JebbyJump.QA.Editor",
-        "JebbyJump.Core.Runtime"
+        "JebbyJump.Core.Runtime",
+        "JebbyJump.Progression.Runtime"
     ],
     "includePlatforms": [
         "Editor"
