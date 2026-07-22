@@ -331,13 +331,18 @@ namespace JebbyJump.UI
 
             EmitCompletionAnalytics(elapsed, oldBest, best, isNewBest, computedRank);
             GrantStars(computedRank);
-            GrantWorldGem();
+            GrantWorldRewards();
         }
 
         // Model C (P34G): first clear of a world's FINALE (its last level)
-        // grants a non-spendable World Gem trophy. Idempotent via WorldGemStore
-        // (a finale replay grants nothing). Never touches Stars/progression.
-        private void GrantWorldGem()
+        // grants the non-spendable World Gem trophy AND unlocks the world's
+        // themed cosmetic. Clearing the finale is equivalent to world mastery
+        // ("all ten cleared") because unlock is sequential - you cannot reach
+        // the finale without clearing the levels before it - so keying off the
+        // finale is order-independent (no dependence on when UnlockNext runs).
+        // Both grants are idempotent (a finale replay grants nothing) and never
+        // touch Stars/progression.
+        private void GrantWorldRewards()
         {
             int levelIndex = _levelSession != null
                 ? _levelSession.CurrentLevelIndex : 0;
@@ -345,14 +350,23 @@ namespace JebbyJump.UI
 
             int worldNumber = WorldMapping.WorldNumberForLevelIndex(levelIndex);
             string worldId = WorldMapping.WorldIdForNumber(worldNumber);
-            if (!WorldGemStore.TryGrant(worldId)) return; // already held / invalid
 
-            AnalyticsService.Track(AnalyticsEvents.RewardGranted,
-                AnalyticsParam.Of(AnalyticsParams.RewardType, "world_gem"),
-                AnalyticsParam.Of(AnalyticsParams.WorldNumber, worldNumber),
-                AnalyticsParam.Of(AnalyticsParams.LevelIndex, levelIndex),
-                AnalyticsParam.Of(AnalyticsParams.Amount, 1),
-                AnalyticsParam.Of(AnalyticsParams.Reason, "world_finale_first_clear"));
+            if (WorldGemStore.TryGrant(worldId))
+                AnalyticsService.Track(AnalyticsEvents.RewardGranted,
+                    AnalyticsParam.Of(AnalyticsParams.RewardType, "world_gem"),
+                    AnalyticsParam.Of(AnalyticsParams.WorldNumber, worldNumber),
+                    AnalyticsParam.Of(AnalyticsParams.LevelIndex, levelIndex),
+                    AnalyticsParam.Of(AnalyticsParams.Amount, 1),
+                    AnalyticsParam.Of(AnalyticsParams.Reason, "world_finale_first_clear"));
+
+            string cosmeticId = WorldCosmeticCatalog.CosmeticIdForWorld(worldNumber);
+            if (WorldCosmeticStore.TryUnlock(cosmeticId))
+                AnalyticsService.Track(AnalyticsEvents.RewardGranted,
+                    AnalyticsParam.Of(AnalyticsParams.RewardType, "world_cosmetic"),
+                    AnalyticsParam.Of(AnalyticsParams.WorldNumber, worldNumber),
+                    AnalyticsParam.Of(AnalyticsParams.Value, cosmeticId),
+                    AnalyticsParam.Of(AnalyticsParams.Amount, 1),
+                    AnalyticsParam.Of(AnalyticsParams.Reason, "world_mastery"));
         }
 
         // Awards mastery stars for this clear (S/A=3, B=2, C=1, completed

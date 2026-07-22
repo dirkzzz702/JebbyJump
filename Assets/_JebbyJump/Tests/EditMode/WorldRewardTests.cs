@@ -99,5 +99,43 @@ namespace JebbyJump.Tests.EditMode
             Assert.IsFalse(WorldRewardLogic.IsWorldMastered(-1, 9, i => true));
             Assert.IsFalse(WorldRewardLogic.IsWorldMastered(10, 9, i => true)); // last<first
         }
+
+        // ---- world cosmetic catalog + store ----
+
+        [Test]
+        public void CosmeticCatalog_TenUniqueIds_MappedByWorld()
+        {
+            Assert.AreEqual(10, WorldCosmeticCatalog.Count);
+            var ids = new HashSet<string>();
+            for (int n = 1; n <= 10; n++)
+            {
+                string id = WorldCosmeticCatalog.CosmeticIdForWorld(n);
+                Assert.IsFalse(string.IsNullOrEmpty(id), "world " + n + " has no cosmetic");
+                Assert.IsTrue(ids.Add(id), "duplicate cosmetic id " + id);
+                Assert.IsFalse(string.IsNullOrEmpty(
+                    WorldCosmeticCatalog.DisplayNameForWorld(n)));
+            }
+            Assert.AreEqual(string.Empty, WorldCosmeticCatalog.CosmeticIdForWorld(0));
+            Assert.AreEqual(string.Empty, WorldCosmeticCatalog.CosmeticIdForWorld(11));
+        }
+
+        [Test]
+        public void Cosmetic_TryUnlock_SetOnce_AndTotals()
+        {
+            var ids = new List<string>(WorldCosmeticCatalog.AllIds);
+            try
+            {
+                string w7 = WorldCosmeticCatalog.CosmeticIdForWorld(7);
+                Assert.IsFalse(WorldCosmeticStore.IsUnlocked(w7));
+                Assert.IsTrue(WorldCosmeticStore.TryUnlock(w7));
+                Assert.IsFalse(WorldCosmeticStore.TryUnlock(w7), "replay unlocks nothing");
+                Assert.IsTrue(WorldCosmeticStore.IsUnlocked(w7));
+
+                WorldCosmeticStore.TryUnlock(WorldCosmeticCatalog.CosmeticIdForWorld(2));
+                Assert.AreEqual(2, WorldCosmeticStore.TotalUnlocked(ids));
+                Assert.IsFalse(WorldCosmeticStore.TryUnlock(null));
+            }
+            finally { WorldCosmeticStore.ResetAll(ids); }
+        }
     }
 }
