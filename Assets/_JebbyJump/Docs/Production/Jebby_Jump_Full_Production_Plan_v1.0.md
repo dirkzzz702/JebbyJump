@@ -21,6 +21,9 @@ A polished free-to-play mobile memory-platformer with 50 launch levels, time ran
 
 ### Monetization
 
+> Refined, research-backed plan (Crossy Road model; non-personalised ads;
+> gated P38/P39 phases): see `Jebby_Jump_Monetization_Plan_v0.1.md`.
+
 ```text
 Rewarded ads + Rainbow Gems + cosmetic monetization + optional convenience purchases
 ```
