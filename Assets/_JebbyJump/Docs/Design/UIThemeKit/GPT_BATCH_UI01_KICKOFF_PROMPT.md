@@ -99,9 +99,25 @@ All under `Assets/_JebbyJump/Art/Sprites/UI/`. All PNG, RGBA, transparent.
 | 12 | `ui_deco_gem.png` | 256x256 | the blue rainbow gem |
 | 13 | `ui_wordmark_lockup.png` | 1600x900 | full title lockup - CANDIDATE, must read "JEBBY JUMP" |
 
+## Split delivery — two requests (image-count cap)
+
+If your image limit is under 13, run this in **two requests**. Each request
+produces its own zip via `--ids` (pass the SAME id list to BOTH the validate and
+build commands). Each zip extracts to the same repo paths; integration merges them.
+
+- **Request A — Chrome (8):** `UI01-BTN-PRIMARY,UI01-BTN-SECONDARY,UI01-PANEL,UI01-ICON-CONTINUE,UI01-ICON-LEVELS,UI01-ICON-WARDROBE,UI01-ICON-SETTINGS,UI01-ICON-QUIT`
+  → deliver `jebby_art_UI01_A.zip`
+- **Request B — Decoration + hero (5):** `UI01-DECO-CLOUD,UI01-DECO-VINE,UI01-ISLAND,UI01-GEM,UI01-WORDMARK`
+  → deliver `jebby_art_UI01_B.zip`
+
+Example (Request A):
+`python ProductionArtAudit/tools/validate_generated_art.py --manifest Assets/_JebbyJump/Docs/Design/UIThemeKit/UI01_zip_manifest.json --dir <out> --ids UI01-BTN-PRIMARY,UI01-BTN-SECONDARY,UI01-PANEL,UI01-ICON-CONTINUE,UI01-ICON-LEVELS,UI01-ICON-WARDROBE,UI01-ICON-SETTINGS,UI01-ICON-QUIT`
+then the same `--ids` on `build_final_art_zip.py --out jebby_art_UI01_A.zip`.
+Drop both zips in `Downloads/jebby-jump/jebby_art_UI01`.
+
 ## Step 4 - validate + deliver
 
-**Deliver exactly ONE zip. Do NOT return loose PNG files.**
+**Deliver ONE zip per request (see split above). Do NOT return loose PNG files.**
 
 1. Write all 13 PNGs into a working dir `<out>`, preserving their full
    repo-relative paths (i.e. `<out>/Assets/_JebbyJump/Art/Sprites/UI/...`).
