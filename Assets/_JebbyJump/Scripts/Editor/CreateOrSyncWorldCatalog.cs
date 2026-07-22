@@ -126,26 +126,13 @@ public static class CreateOrSyncWorldCatalog
         return changed;
     }
 
-    // World 1 uses the original shipped art. Worlds 2+ follow the batch
-    // convention Art/Worlds/{Wid}_{Slug}/{Backgrounds,Floor}/... and auto-wire
-    // as each art batch lands - a world whose files are absent stays unassigned
-    // and falls back to World 1 at runtime. So W02/W03/W04 wire now; W05-W10
-    // wire automatically when their batches integrate.
-    private const string W01Background =
-        "Assets/_JebbyJump/Art/Sprites/Backgrounds/bg_menu_01.png";
-    private const string W01Floor =
-        "Assets/_JebbyJump/Art/Sprites/Platforms/spr_floor_strip_01.png";
-
+    // All worlds follow the batch convention
+    // Art/Worlds/{Wid}_{Slug}/{Backgrounds,Floor}/... and auto-wire as each art
+    // batch lands - a world whose files are absent stays unassigned and falls
+    // back to World 1 at runtime. (W01 used shipped art until its batch landed.)
     private static bool AssignWorldVisuals(SerializedObject so, int worldNumber)
     {
         bool dirty = false;
-        if (worldNumber == 1)
-        {
-            dirty |= SetSprite(so, "_visuals._background", W01Background);
-            dirty |= SetSprite(so, "_visuals._floor", W01Floor);
-            return dirty;
-        }
-
         string wid = WorldMapping.WorldIdForNumber(worldNumber);
         string slug = DisplayNames[worldNumber - 1].Replace(" ", "");
         string low = slug.ToLowerInvariant();
