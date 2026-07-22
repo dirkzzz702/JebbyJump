@@ -25,6 +25,7 @@ namespace JebbyJump.UI
         [SerializeField] private SettingsPanelController _settingsPanel;
         [SerializeField] private WardrobePanelController _wardrobePanel;
         [SerializeField] private LevelCatalog _catalog;
+        [SerializeField] private StoryCardPresenter _storyOverlay;
 
         private void Awake()
         {
@@ -92,6 +93,11 @@ namespace JebbyJump.UI
                 available.Add(b != null && b.interactable);
             int idx = ShellFocusResolver.FirstAvailableIndex(available);
             if (idx >= 0) ShellFocusUtil.Select(items[idx]);
+
+            // Opening story card, first launch only (P34F). Shown after focus
+            // setup; the overlay captures + restores menu focus, and no-ops if
+            // the opening card has already been seen.
+            if (_storyOverlay != null) _storyOverlay.ShowOpeningIfUnseen();
         }
 
         private void OnDestroy()

@@ -49,11 +49,12 @@ namespace JebbyJump.EditorTools
         // ---- MainMenu.unity model ------------------------------------------------
 
         private static readonly string[] MenuModalPanels =
-            { "LevelSelectPanel", "SettingsPanel", "WardrobePanel" };
+            { "LevelSelectPanel", "SettingsPanel", "WardrobePanel", "StoryOverlay" };
 
         private static readonly HashSet<string> MenuGroupBoundaries = new HashSet<string>
         {
             "LevelSelectPanel", "SettingsPanel", "WardrobePanel", "UnlockCeremonyOverlay",
+            "StoryOverlay",
         };
 
         // Opens MainMenu.unity and measures the always-active menu group (title + button
