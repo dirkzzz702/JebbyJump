@@ -17,3 +17,6 @@ MonoBehaviour:
   _displayName: Stormfire Volcano
   _firstGlobalLevelId: 81
   _lastGlobalLevelId: 90
+  _visuals:
+    _background: {fileID: -4278842780906999351, guid: 8b9f6168ff0a6ee4a8f1da5b60c1b3b5, type: 3}
+    _floor: {fileID: -2576178247203294292, guid: b853bf53d130e824bb80912f9addba71, type: 3}

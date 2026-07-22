@@ -17,3 +17,6 @@ MonoBehaviour:
   _displayName: Moonlit Dreamscape
   _firstGlobalLevelId: 71
   _lastGlobalLevelId: 80
+  _visuals:
+    _background: {fileID: -1290809775742885883, guid: 7fccd51701f10684480302cadd221108, type: 3}
+    _floor: {fileID: 3080822402579771389, guid: 910898eaffaf23747b607cc64175e43e, type: 3}
