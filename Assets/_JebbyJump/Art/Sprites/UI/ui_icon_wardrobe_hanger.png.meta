@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: f96ef068633a4974ebb112c90cdfab48
+guid: edb268f9a67574b44b4876492a99cc26
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2291757528341956478
-    second: ui_btn_jelly_9s_0
+      213: 8555982943560954485
+    second: ui_icon_wardrobe_hanger_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -52,7 +52,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
-  spriteBorder: {x: 48, y: 40, z: 48, w: 40}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ui_btn_jelly_9s_0
+      name: ui_icon_wardrobe_hanger_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 256
-        height: 96
+        x: 45
+        y: 62
+        width: 165
+        height: 138
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e77462c6455fdcf10800000000000000
-      internalID: 2291757528341956478
+      spriteID: 5727047d725fcb670800000000000000
+      internalID: 8555982943560954485
       vertices: []
       indices: 
       edges: []
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ui_btn_jelly_9s_0: 2291757528341956478
+      ui_icon_wardrobe_hanger_0: 8555982943560954485
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
