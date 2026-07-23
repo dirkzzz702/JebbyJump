@@ -30,6 +30,10 @@ namespace JebbyJump.EditorTools
         private const float FrameW = 465f;   // interactive button width
         private const float FrameH = 88f;    // interactive button height (< pitch 98)
         private const float LabelDX = 10f;   // label centred in the button (mockup avg +10)
+        private const float LabelSize = 40f; // uniform label size (one smaller than 44)
+        private const string BoldMatPath = "Assets/_JebbyJump/Art/Fonts/Fredoka SDF Bold.mat";
+
+        private static Material _boldMat;
 
         // field, plate sprite, plate display WIDTH (normalizes frame to 465 on
         // screen), visual x-offset (centres the frame), button Y (pitch 98).
@@ -53,6 +57,7 @@ namespace JebbyJump.EditorTools
             var menu = Object.FindAnyObjectByType<MainMenuController>(FindObjectsInactive.Include);
             if (menu == null) { Debug.LogError("[Plates] No MainMenuController."); return; }
             var so = new SerializedObject(menu);
+            _boldMat = GetBoldMaterial();
 
             int n = 0;
             foreach (var b in Buttons) n += Plate(so, b.field, b.plate, b.pw, b.dx, b.y);
@@ -161,6 +166,9 @@ namespace JebbyJump.EditorTools
                 lrt.anchoredPosition = new Vector2(LabelDX, 0f);
                 label.alignment = TextAlignmentOptions.Center;
                 label.enableAutoSizing = false;
+                label.fontSize = LabelSize;                       // uniform, one smaller
+                label.fontStyle |= FontStyles.Bold;
+                if (_boldMat != null) label.fontSharedMaterial = _boldMat;  // one bolder (scoped)
                 label.color = Cocoa;
                 EditorUtility.SetDirty(label);
             }
@@ -213,6 +221,21 @@ namespace JebbyJump.EditorTools
                 if (r != null) return r;
             }
             return null;
+        }
+
+        // A scoped bolder Fredoka material (Face Dilate) for the menu labels only,
+        // so other screens' text is unaffected. Created once, reused after.
+        private static Material GetBoldMaterial()
+        {
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(BoldMatPath);
+            if (mat != null) return mat;
+            var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(
+                "Assets/_JebbyJump/Art/Fonts/Fredoka SDF.asset");
+            if (font == null || font.material == null) return null;
+            mat = new Material(font.material) { name = "Fredoka SDF Bold" };
+            if (mat.HasProperty("_FaceDilate")) mat.SetFloat("_FaceDilate", 0.10f);
+            AssetDatabase.CreateAsset(mat, BoldMatPath);
+            return mat;
         }
 
         private static void EnsureImport(string file, bool readable)
