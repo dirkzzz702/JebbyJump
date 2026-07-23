@@ -7,36 +7,45 @@ using UnityEngine.UI;
 
 namespace JebbyJump.EditorTools
 {
-    // P35D — replace the Main Menu's generic frame+icon+overlay buttons with the
-    // bespoke UI02 plates (each button is one complete art piece: clean rounded
-    // frame + baked icon + clouds/vines/flowers, blank label zone). The plate is
-    // the button's own graphic; alpha hit-testing keeps only the opaque frame
-    // clickable (transparent decoration margins nestle between buttons like the
-    // mockup without stealing clicks). Places the new island base + gem, and
-    // retires the prior KitIcon children + MenuDecor overlay layers.
+    // P35D (final) — dress the Main Menu in the bespoke UI02 plates, with layout
+    // measured from the approved mockup (mockup_mainmenu.png):
+    //   * wordmark sized to the mockup (fixes the too-small render),
+    //   * button pitch = 98 (mockup gap), positions measured,
+    //   * per-plate width normalization so all buttons render identical size
+    //     (the fix-pass made heights identical; this flattens the ~6% width
+    //     residual to an exact match),
+    //   * island placed flush under Quit (no gap), gem on the island.
     //
-    // Idempotent. Fixed-size plates (the mockup is a fixed layout), so buttons are
-    // no longer width-flexible - by design.
+    // The visible plate overflows the button as a raycast-off child (decoration
+    // margins nestle between buttons like the mockup); the interactive rect stays
+    // frame-sized so buttons never overlap (overlap audit 0) and the plate is the
+    // Selectable's targetGraphic (press still tints it). Idempotent.
     public static class BuildMainMenuPlates
     {
         private const string Dir = "Assets/_JebbyJump/Art/Sprites/UI/";
         private const string MainMenuScenePath = "Assets/_JebbyJump/Scenes/MainMenu.unity";
         private static readonly Color Cocoa = new Color(0.29f, 0.19f, 0.12f);
 
-        // Plate display size (canvas 1280x384 -> same 3.333:1). The visual plate
-        // overflows the button; the interactive button stays frame-sized so it
-        // never overlaps its neighbours (decoration margins nestle harmlessly).
-        private const float PlateW = 600f, PlateH = 180f;   // visual (child)
-        private const float FrameW = 490f, FrameH = 100f;   // interactive button rect
-        // Label safe-zone centre offset from plate centre (zone x390-1120 of 1280).
-        private const float LabelDX = 54f;
+        private const float PlateH = 168f;   // visual plate height (frame renders ~90)
+        private const float FrameW = 465f;   // interactive button width
+        private const float FrameH = 88f;    // interactive button height (< pitch 98)
+        private const float LabelDX = 51f;   // label offset into the blank safe-zone
+
+        // field, plate sprite, plate display WIDTH (normalizes frame to 465 on
+        // screen), visual x-offset (centres the frame), button Y (pitch 98).
+        private static readonly (string field, string plate, float pw, float dx, float y)[] Buttons =
+        {
+            ("_continueButton", "ui_plate_continue",    550f,  0f,   73f),
+            ("_startButton",    "ui_plate_levelselect", 549f,  2f,  -25f),
+            ("_wardrobeButton", "ui_plate_wardrobe",    589f,  3f, -123f),
+            ("_settingsButton", "ui_plate_settings",    567f, -8f, -221f),
+            ("_quitButton",     "ui_plate_quit",        580f, -5f, -319f),
+        };
 
         [MenuItem("Jebby Jump/Scaffold/Build Main Menu Plates")]
         public static void Run()
         {
-            foreach (var p in new[] { "ui_plate_continue", "ui_plate_levelselect",
-                "ui_plate_wardrobe", "ui_plate_settings", "ui_plate_quit" })
-                EnsureImport(p + ".png", readable: true);
+            foreach (var b in Buttons) EnsureImport(b.plate + ".png", readable: false);
             EnsureImport("ui_menu_island.png", readable: false);
             EnsureImport("ui_menu_gem.png", readable: false);
 
@@ -46,13 +55,8 @@ namespace JebbyJump.EditorTools
             var so = new SerializedObject(menu);
 
             int n = 0;
-            n += Plate(so, "_continueButton", "ui_plate_continue");
-            n += Plate(so, "_startButton",    "ui_plate_levelselect");
-            n += Plate(so, "_wardrobeButton", "ui_plate_wardrobe");
-            n += Plate(so, "_settingsButton", "ui_plate_settings");
-            n += Plate(so, "_quitButton",     "ui_plate_quit");
+            foreach (var b in Buttons) n += Plate(so, b.field, b.plate, b.pw, b.dx, b.y);
 
-            // Retire the old overlay decor layers (plates + island/gem replace them).
             var safe = FindDeep(scene, "MenuSafeArea");
             if (safe != null)
             {
@@ -62,50 +66,57 @@ namespace JebbyJump.EditorTools
                     var old = safe.Find(name);
                     if (old != null) Object.DestroyImmediate(old.gameObject);
                 }
+                // Island flush under Quit (grass top at Quit frame bottom ~ -363).
                 MakeDecorLayer(safe, "MenuPlatesBack", asFirst: true,
-                    ("ui_menu_island", 0f, -470f, 820f));
+                    ("ui_menu_island", 0f, -433f, 800f));
                 MakeDecorLayer(safe, "MenuPlatesFront", asFirst: false,
-                    ("ui_menu_gem", 0f, -505f, 92f));
+                    ("ui_menu_gem", 0f, -500f, 92f));
             }
 
-            // Wordmark lockup as the title (keeps this the single menu builder).
+            // Wordmark sized to the mockup (asset aspect 1.78; rect 817x459 renders
+            // the letters ~736 wide, matching the mockup; centred at y=302).
             var wm = FindDeep(scene, "TitleWordmark");
             var wmImg = wm != null ? wm.GetComponent<Image>() : null;
             var lockup = AssetDatabase.LoadAssetAtPath<Sprite>(Dir + "ui_wordmark_lockup.png");
-            if (wmImg != null && lockup != null && wmImg.sprite != lockup)
+            if (wm != null && wmImg != null && lockup != null)
             {
+                var wrt = (RectTransform)wm.transform;
+                wrt.sizeDelta = new Vector2(817f, 459f);
+                wrt.anchoredPosition = new Vector2(0f, 302f);
                 wmImg.sprite = lockup; wmImg.type = Image.Type.Simple;
                 wmImg.preserveAspect = true; wmImg.color = Color.white;
+                EditorUtility.SetDirty(wmImg);
             }
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
-            Debug.Log("[Plates] Applied " + n + " plate button(s) + island/gem.");
+            Debug.Log("[Plates] Applied " + n + " uniform plate button(s) + island/gem + wordmark.");
         }
 
-        private static int Plate(SerializedObject menuSo, string field, string plateName)
+        private static int Plate(SerializedObject menuSo, string field, string plateName,
+            float plateW, float visualDX, float posY)
         {
             var btn = menuSo.FindProperty(field)?.objectReferenceValue as Button;
             if (btn == null) return 0;
             var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(Dir + plateName + ".png");
             if (sprite == null) { Debug.LogWarning("[Plates] missing " + plateName); return 0; }
 
-            // Interactive button rect = frame-sized (never overlaps neighbours).
+            // Interactive button: frame-sized, positioned by the measured pitch.
             var rt = (RectTransform)btn.transform;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
             rt.sizeDelta = new Vector2(FrameW, FrameH);
+            rt.anchoredPosition = new Vector2(0f, posY);
 
-            // The button's own graphic becomes an invisible click surface.
             var clickImg = btn.image != null ? btn.image : btn.GetComponent<Image>();
             if (clickImg != null)
             {
                 clickImg.sprite = null;
-                clickImg.color = new Color(1f, 1f, 1f, 0f); // transparent
+                clickImg.color = new Color(1f, 1f, 1f, 0f);
                 clickImg.raycastTarget = true;
             }
 
-            // The visible plate is a child that overflows the button rect (so the
-            // decoration margins nestle between buttons), raycast off. It is the
-            // Selectable's targetGraphic, so press-tint still animates it.
+            // Visible plate: overflows the button; width-normalized per plate.
             var visualTr = btn.transform.Find("PlateVisual") as RectTransform;
             if (visualTr == null)
             {
@@ -113,15 +124,15 @@ namespace JebbyJump.EditorTools
                 visualTr = (RectTransform)go.transform;
                 visualTr.SetParent(btn.transform, false);
             }
-            visualTr.SetAsFirstSibling(); // behind the label
+            visualTr.SetAsFirstSibling();
             visualTr.anchorMin = visualTr.anchorMax = new Vector2(0.5f, 0.5f);
             visualTr.pivot = new Vector2(0.5f, 0.5f);
-            visualTr.sizeDelta = new Vector2(PlateW, PlateH);
-            visualTr.anchoredPosition = Vector2.zero;
+            visualTr.sizeDelta = new Vector2(plateW, PlateH);
+            visualTr.anchoredPosition = new Vector2(visualDX, 0f);
             var plateImg = visualTr.GetComponent<Image>();
             plateImg.sprite = sprite;
             plateImg.type = Image.Type.Simple;
-            plateImg.preserveAspect = true;
+            plateImg.preserveAspect = false; // normalized W/H are intentional
             plateImg.color = Color.white;
             plateImg.raycastTarget = false;
 
@@ -137,19 +148,16 @@ namespace JebbyJump.EditorTools
 
             var shadow = btn.GetComponent<Shadow>();
             if (shadow != null) Object.DestroyImmediate(shadow);
-
-            // Icon is baked into the plate now - remove the separate KitIcon.
             var kitIcon = btn.transform.Find("KitIcon");
             if (kitIcon != null) Object.DestroyImmediate(kitIcon.gameObject);
 
-            // Label centred in the blank safe-zone (right of the baked icon).
             var label = btn.GetComponentInChildren<TMP_Text>(true);
             if (label != null)
             {
                 var lrt = label.rectTransform;
                 lrt.anchorMin = lrt.anchorMax = new Vector2(0.5f, 0.5f);
                 lrt.pivot = new Vector2(0.5f, 0.5f);
-                lrt.sizeDelta = new Vector2(340f, 96f);
+                lrt.sizeDelta = new Vector2(340f, 70f);
                 lrt.anchoredPosition = new Vector2(LabelDX, 0f);
                 label.alignment = TextAlignmentOptions.Center;
                 label.enableAutoSizing = false;
