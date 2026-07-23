@@ -24,13 +24,18 @@ Public repo `https://github.com/dirkzzz702/JebbyJump` (branch `main`). Fetch via
 - **The attached Option-B mockup = the exact target** for style, palette, and each piece.
 - `Assets/_JebbyJump/Art/Sprites/Backgrounds/bg_menu_01.png` + the menu mockup - the finalized cloud-kingdom look these must match (cream/ivory panels, warm-brown outline, honey-gold accents, cloud puffs, blue gem, rounded friendly forms).
 
-## THE ONE CHANGE — clean buttons
-In the mockup the Retry / Next Level / Main Menu buttons have flowers + leaves at
-their corners. **Remove them.** The result buttons are **clean rounded plates** -
-cream (secondary) or gold (primary), warm-brown outline, a soft top sheen, and
-NOTHING else on them (no flowers, no leaves, no clouds). Keep the tasteful cloud /
-gem / vine accents on the NON-button pieces (badges, banners, card corners) as in
-the mockup.
+## CLEAN UI — minimal decoration (IMPORTANT)
+Keep every piece CLEAN and simple:
+- **No cloud puffs anywhere.** Do NOT attach the little cloud tufts to the badges,
+  banners, hearts, or buttons.
+- **No flowers, no leaves, no vines** on any piece.
+- **Keep the blue gem (diamond)** as the SINGLE accent — on the level badge, the
+  timer banner, the hint banner, and the top of the result card. That is the only
+  decoration allowed.
+- Result buttons are plain clean rounded plates (cream or gold), warm-brown
+  outline, a soft top sheen, nothing else.
+The frames stay pretty in SHAPE (the cream plaque / ribbon / card outlines) but
+carry NO attached clutter beyond the single gem.
 
 ## Engine rules (same as the menu kit)
 - **9-slice frames** (`*_9s`): the level badge, timer banner, hint banner, result
@@ -55,18 +60,18 @@ All under `Assets/_JebbyJump/Art/Sprites/UI/`. All PNG, RGBA, transparent.
 **Request A - HUD + banners (7):**
 | File | Size | Notes |
 |---|---|---|
-| `ui_hud_heart_01.png` | 256x256 | cream/gold life heart with a small cloud puff (no leaves) |
-| `ui_hud_pause_btn.png` | 256x256 | round cream/gold button + simple pause glyph, clean |
-| `ui_hud_level_badge_9s.png` | 640x256 | ornate cream "level" plaque; gem on top + cloud tufts at corners; **blank centre** for "Level X" |
-| `ui_hud_timer_banner_9s.png` | 640x224 | cream ribbon/banner; gem + cloud tufts at corners; **blank centre** for the time |
-| `ui_hint_banner_9s.png` | 768x256 | soft cream banner; gem + cloud tufts; **blank centre** for a hint message |
+| `ui_hud_heart_01.png` | 256x256 | cream/gold life heart, CLEAN (no cloud, no leaves) |
+| `ui_hud_pause_btn.png` | 256x256 | round cream/gold button + simple pause glyph, CLEAN (no cloud) |
+| `ui_hud_level_badge_9s.png` | 640x256 | ornate cream "level" plaque; blue gem on top, CLEAN corners (no clouds); **blank centre** for "Level X" |
+| `ui_hud_timer_banner_9s.png` | 640x224 | cream ribbon/banner; blue gem only, CLEAN (no clouds); **blank centre** for the time |
+| `ui_hint_banner_9s.png` | 768x256 | soft cream banner; blue gem only, CLEAN (no clouds); **blank centre** for a hint message |
 | `ui_row_icon_time_01.png` | 128x128 | cute stopwatch icon |
 | `ui_row_icon_best_01.png` | 128x128 | cute crown icon |
 
 **Request B - result cards + pieces (7):**
 | File | Size | Notes |
 |---|---|---|
-| `ui_result_card_9s.png` | 768x768 | cream card, warm-brown outline, gem on top, cloud/vine **corner** accents; **blank interior** (used for both Level Complete and Game Over) |
+| `ui_result_card_9s.png` | 768x768 | cream card, warm-brown outline, blue gem on top, CLEAN corners (no clouds/vines); **blank interior** (used for both Level Complete and Game Over) |
 | `ui_result_btn_9s.png` | 384x160 | **clean** cream result button, blank centre - NO flowers/leaves |
 | `ui_result_btn_primary_9s.png` | 384x160 | **clean** gold result button, blank centre - NO flowers/leaves |
 | `ui_rank_medal_01.png` | 320x320 | ornate round medal with laurel + gem, **blank centre** for the rank letter |
@@ -92,8 +97,9 @@ seam-free, empty centres; and a mock of the assembled HUD + both cards with samp
 text drawn in, next to the mockup.
 
 ## Non-negotiables
-Exact filenames/paths/sizes/alpha (all RGBA transparent); **buttons clean (no
-flowers/leaves)**; 9-slice frames seam-free with blank centres; NO baked text/
-numbers; warm and child-safe; reproduce the mockup faithfully otherwise; no stray
+Exact filenames/paths/sizes/alpha (all RGBA transparent); **CLEAN — no cloud puffs,
+no flowers, no leaves, no vines on any piece; the blue gem is the ONLY accent**;
+9-slice frames seam-free with blank centres; NO baked text/numbers; warm and
+child-safe; reproduce the mockup's shapes/palette faithfully otherwise; no stray
 annotations; no .meta/prefab/scene/material files; report the validator's real
 output. When delivered, STOP.
