@@ -29,7 +29,7 @@ namespace JebbyJump.EditorTools
         private const float PlateH = 168f;   // visual plate height (frame renders ~90)
         private const float FrameW = 465f;   // interactive button width
         private const float FrameH = 88f;    // interactive button height (< pitch 98)
-        private const float LabelDX = 51f;   // label offset into the blank safe-zone
+        private const float LabelDX = 10f;   // label centred in the button (mockup avg +10)
 
         // field, plate sprite, plate display WIDTH (normalizes frame to 465 on
         // screen), visual x-offset (centres the frame), button Y (pitch 98).
