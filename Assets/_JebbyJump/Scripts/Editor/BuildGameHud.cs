@@ -152,8 +152,10 @@ namespace JebbyJump.EditorTools
             trt.SetParent(banner, false);
             trt.anchorMin = trt.anchorMax = new Vector2(0.5f, 0.5f);
             trt.pivot = new Vector2(0.5f, 0.5f);
-            trt.sizeDelta = new Vector2(tw * 0.82f, th * 0.5f);
-            trt.anchoredPosition = new Vector2(0f, -(0.42f - 0.5f) * th); // above the bottom gem
+            trt.sizeDelta = new Vector2(tw * 0.80f, th * 0.40f);
+            // Cream text panel sits at ~62% down the ribbon art (measured); centre
+            // the time there so it lands ON the panel, above the bottom gem.
+            trt.anchoredPosition = new Vector2(0f, -(0.60f - 0.5f) * th);
             tmp.color = Cocoa; tmp.enableVertexGradient = false;
             tmp.fontStyle |= FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;
@@ -222,6 +224,9 @@ namespace JebbyJump.EditorTools
             if (imp.spriteImportMode != SpriteImportMode.Single) { imp.spriteImportMode = SpriteImportMode.Single; ch = true; }
             if (!imp.alphaIsTransparency) { imp.alphaIsTransparency = true; ch = true; }
             if (ch) imp.SaveAndReimport();
+            // Force a reimport so edits to the PNG bytes (re-crops) always land, even
+            // when Refresh misses the external change and Unity serves a stale sprite.
+            AssetDatabase.ImportAsset(Dir + file, ImportAssetOptions.ForceUpdate);
         }
     }
 }
