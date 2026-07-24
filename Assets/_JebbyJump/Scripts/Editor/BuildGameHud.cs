@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using JebbyJump.UI;
 using TMPro;
 using UnityEditor;
@@ -115,13 +116,20 @@ namespace JebbyJump.EditorTools
             var textGo = FindDeep(s, "LiveTimerText");
             var tmp = textGo != null ? textGo.GetComponent<TMP_Text>() : null;
             if (tmp == null) return;
-            var parent = textGo.transform.parent;
-            var banner = parent.Find("TimerBanner") as RectTransform;
-            if (banner == null)
-            {
-                var go = new GameObject("TimerBanner", typeof(RectTransform), typeof(Image));
-                banner = (RectTransform)go.transform; banner.SetParent(parent, false);
-            }
+
+            // Idempotency: earlier runs re-parented the text under the banner, so the
+            // next run's Find() missed it and spawned ANOTHER banner (the duplicate
+            // empty ribbons + floating text bug). Re-anchor the text to a STABLE HUD
+            // parent (the level badge's parent), destroy EVERY existing TimerBanner,
+            // then build exactly one.
+            var badge = FindDeep(s, "LevelBadgeRoot");
+            var hud = badge != null ? badge.transform.parent : textGo.transform.parent;
+            textGo.transform.SetParent(hud, false);
+            foreach (var old in FindAll(s, "TimerBanner")) Object.DestroyImmediate(old);
+
+            var newGo = new GameObject("TimerBanner", typeof(RectTransform), typeof(Image));
+            var banner = (RectTransform)newGo.transform;
+            banner.SetParent(hud, false);
             // measured: timer 429x129, centre at local-x +544, y 131 from top
             banner.anchorMin = banner.anchorMax = new Vector2(1f, 1f);
             banner.pivot = new Vector2(0.5f, 0.5f);
@@ -166,6 +174,17 @@ namespace JebbyJump.EditorTools
             for (int i = 0; i < t.childCount; i++)
             { var c = t.GetChild(i); if (c.name == name) return c; var r = Find(c, name); if (r != null) return r; }
             return null;
+        }
+        private static List<GameObject> FindAll(UnityEngine.SceneManagement.Scene s, string name)
+        {
+            var res = new List<GameObject>();
+            foreach (var root in s.GetRootGameObjects()) CollectByName(root.transform, name, res);
+            return res;
+        }
+        private static void CollectByName(Transform t, string name, List<GameObject> res)
+        {
+            for (int i = 0; i < t.childCount; i++)
+            { var c = t.GetChild(i); if (c.name == name) res.Add(c.gameObject); CollectByName(c, name, res); }
         }
         private static void EnsureSprite(string file)
         {
