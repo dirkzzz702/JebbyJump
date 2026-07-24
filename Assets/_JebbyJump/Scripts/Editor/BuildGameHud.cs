@@ -27,19 +27,24 @@ namespace JebbyJump.EditorTools
             public string name, sprite, text; public Vector2 anchor, pivot, pos, size;
             public float blank, font;
         }
-        // Measured from mockup_ui.png (1672x941 -> 1920x1080). Pivot = centre;
-        // pos = element CENTRE relative to its anchor.
+        // Layout grid, NOT measured off the art board (that board was a sprite
+        // sheet, not a 1:1 screen). Each rect is sized to the art's REAL opaque
+        // aspect (badge 1.35, timer 1.62, pause 0.97, hint 1.20) so preserveAspect
+        // fills the rect exactly and the label centres on the visible art, not on
+        // an empty box. Anchor = which screen corner; pos = element CENTRE from it.
+        //   top band baseline y=-92 (pause + timer share it); badge is the centred
+        //   hero a touch lower; hint is centred mid-upper; hearts are wired below.
         private static readonly El[] Elements =
         {
             new El{ name="LevelBadgeRoot", sprite="ui_hud_level_badge_9s",
-                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-127),
-                size=new Vector2(358,218), text="LevelText", blank=0.58f, font=48 },
+                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-128),
+                size=new Vector2(284,210), text="LevelText", blank=0.60f, font=46 }, // aspect 1.35
             new El{ name="PauseButton", sprite="ui_hud_pause_btn",
-                anchor=new Vector2(1f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(-106,-111),
-                size=new Vector2(115,112), text=null, blank=0.5f, font=0 },
+                anchor=new Vector2(1f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(-85,-92),
+                size=new Vector2(93,96), text=null, blank=0.5f, font=0 },              // aspect 0.97
             new El{ name="TutorialHintRoot", sprite="ui_hint_banner_9s",
-                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-319),
-                size=new Vector2(599,184), text="TutorialHintText", blank=0.62f, font=44 },
+                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-300),
+                size=new Vector2(288,240), text="TutorialHintText", blank=0.56f, font=34 }, // aspect 1.20
         };
 
         [MenuItem("Jebby Jump/Scaffold/Build Game HUD")]
@@ -53,6 +58,7 @@ namespace JebbyJump.EditorTools
 
             foreach (var e in Elements) Place(scene, e);
             WireTimer(scene);
+            WireLives(scene);
 
             // Remove leftovers that clash with the new art:
             Hide(scene, "LevelText", "Backdrop");   // the "mask" behind the level text
@@ -130,27 +136,48 @@ namespace JebbyJump.EditorTools
             var newGo = new GameObject("TimerBanner", typeof(RectTransform), typeof(Image));
             var banner = (RectTransform)newGo.transform;
             banner.SetParent(hud, false);
-            // measured: timer 429x129, centre at local-x +544, y 131 from top
+            // Timer sits on the top-right band, just LEFT of the pause button.
+            // Rect sized to the art's real aspect (1.62) so it fills exactly.
+            const float th = 108f, tw = th * 1.62f; // 108 x 175
             banner.anchorMin = banner.anchorMax = new Vector2(1f, 1f);
             banner.pivot = new Vector2(0.5f, 0.5f);
-            banner.sizeDelta = new Vector2(429f, 129f);
-            banner.anchoredPosition = new Vector2(-416f, -131f);
+            banner.sizeDelta = new Vector2(tw, th);
+            banner.anchoredPosition = new Vector2(-240f, -92f);
             var bimg = banner.GetComponent<Image>();
             bimg.sprite = Sprite("ui_hud_timer_banner_9s");
             bimg.type = Image.Type.Simple; bimg.preserveAspect = true; bimg.raycastTarget = false;
-            // nest the timer text INSIDE the banner, centred in its blank zone
+            // nest the timer text INSIDE the banner, centred just above the gem
             var tbd = Find(textGo.transform, "Backdrop"); if (tbd != null) tbd.gameObject.SetActive(false);
             var trt = (RectTransform)textGo.transform;
             trt.SetParent(banner, false);
             trt.anchorMin = trt.anchorMax = new Vector2(0.5f, 0.5f);
             trt.pivot = new Vector2(0.5f, 0.5f);
-            trt.sizeDelta = new Vector2(300f, 70f);
-            trt.anchoredPosition = new Vector2(0f, -(0.42f - 0.5f) * 129f); // above the bottom gem
+            trt.sizeDelta = new Vector2(tw * 0.82f, th * 0.5f);
+            trt.anchoredPosition = new Vector2(0f, -(0.42f - 0.5f) * th); // above the bottom gem
             tmp.color = Cocoa; tmp.enableVertexGradient = false;
             tmp.fontStyle |= FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;
-            tmp.enableAutoSizing = true; tmp.fontSizeMax = 40f; tmp.fontSizeMin = 16f;
+            tmp.enableAutoSizing = true; tmp.fontSizeMax = 32f; tmp.fontSizeMin = 14f;
             EditorUtility.SetDirty(tmp); EditorUtility.SetDirty(bimg);
+        }
+
+        // Hearts row, top-left. Anchor the container to the corner and give it a
+        // HorizontalLayoutGroup so the runtime-spawned hearts space evenly.
+        private static void WireLives(UnityEngine.SceneManagement.Scene s)
+        {
+            var go = FindDeep(s, "LivesIconContainer");
+            if (go == null) { Debug.LogWarning("[GameHUD] missing LivesIconContainer"); return; }
+            var rt = (RectTransform)go.transform;
+            rt.anchorMin = rt.anchorMax = new Vector2(0f, 1f);
+            rt.pivot = new Vector2(0f, 1f);
+            rt.anchoredPosition = new Vector2(48f, -46f);
+            rt.sizeDelta = new Vector2(320f, 74f);
+            var lg = go.GetComponent<HorizontalLayoutGroup>() ?? go.AddComponent<HorizontalLayoutGroup>();
+            lg.spacing = 14f;
+            lg.childAlignment = TextAnchor.UpperLeft;
+            lg.childControlWidth = false; lg.childControlHeight = false;
+            lg.childForceExpandWidth = false; lg.childForceExpandHeight = false;
+            EditorUtility.SetDirty(go);
         }
 
         private static void Hide(UnityEngine.SceneManagement.Scene s, string parent, string child)

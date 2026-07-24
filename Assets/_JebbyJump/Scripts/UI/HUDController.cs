@@ -205,8 +205,10 @@ namespace JebbyJump.UI
                         $"Heart_{i}", typeof(RectTransform), typeof(Image));
                     go.transform.SetParent(_livesIconContainer, false);
                     go.GetComponent<RectTransform>().sizeDelta =
-                        new Vector2(96f, 86f);
-                    go.GetComponent<Image>().sprite = _lifeIconSprite;
+                        new Vector2(70f, 68f);
+                    var himg = go.GetComponent<Image>();
+                    himg.sprite = _lifeIconSprite;
+                    himg.preserveAspect = true;
                 }
             }
             else if (_livesText != null)
