@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using JebbyJump.Sequence;
 using JebbyJump.UI;
 using TMPro;
 using UnityEditor;
@@ -28,6 +29,7 @@ namespace JebbyJump.EditorTools
         {
             public string name, sprite, text; public Vector2 anchor, pivot, pos, size;
             public float pxc, pxw, pyc, pyh, font;
+            public bool stretch; // fill the rect (preserveAspect off) to reshape the art
         }
         // Layout grid, NOT measured off the art board (that board was a sprite
         // sheet, not a 1:1 screen). Each rect is sized to the art's REAL opaque
@@ -39,17 +41,19 @@ namespace JebbyJump.EditorTools
         private static readonly El[] Elements =
         {
             new El{ name="LevelBadgeRoot", sprite="ui_hud_level_badge_9s",
-                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-132),
-                size=new Vector2(300,227), text="LevelText",                 // aspect 1.32 (matches art)
-                pxc=0.55f, pxw=0.69f, pyc=0.61f, pyh=0.57f, font=46 },
+                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-118),
+                size=new Vector2(330,200), text="LevelText",                 // flattened to ~1.65 (mockup ~1.78)
+                pxc=0.55f, pxw=0.69f, pyc=0.61f, pyh=0.57f, font=46, stretch=true },
             new El{ name="PauseButton", sprite="ui_hud_pause_btn",
                 anchor=new Vector2(1f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(-85,-92),
                 size=new Vector2(93,96), text=null,                          // aspect 0.97
                 pxc=0.5f, pxw=0.5f, pyc=0.5f, pyh=0.5f, font=0 },
+            // Hint lives top-centre (the badge's zone, free once the badge hides),
+            // NOT over the platforms; widened a touch so the text reads bigger.
             new El{ name="TutorialHintRoot", sprite="ui_hint_banner_9s",
-                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-300),
-                size=new Vector2(288,240), text="TutorialHintText",          // aspect 1.20
-                pxc=0.50f, pxw=0.86f, pyc=0.67f, pyh=0.45f, font=32 },
+                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-150),
+                size=new Vector2(440,300), text="TutorialHintText",          // widened from 1.20 -> ~1.47
+                pxc=0.50f, pxw=0.86f, pyc=0.67f, pyh=0.45f, font=40, stretch=true },
         };
 
         [MenuItem("Jebby Jump/Scaffold/Build Game HUD")]
@@ -64,6 +68,7 @@ namespace JebbyJump.EditorTools
             foreach (var e in Elements) Place(scene, e);
             WireTimer(scene);
             WireLives(scene);
+            WireLevelIntro(scene);
 
             // Remove leftovers that clash with the new art:
             Hide(scene, "LevelText", "Backdrop");   // the "mask" behind the level text
@@ -96,7 +101,7 @@ namespace JebbyJump.EditorTools
 
             var img = go.GetComponent<Image>() ?? go.AddComponent<Image>();
             var sp = Sprite(e.sprite);
-            if (sp != null) { img.sprite = sp; img.type = Image.Type.Simple; img.preserveAspect = true; img.color = Color.white; EditorUtility.SetDirty(img); }
+            if (sp != null) { img.sprite = sp; img.type = Image.Type.Simple; img.preserveAspect = !e.stretch; img.color = Color.white; EditorUtility.SetDirty(img); }
 
             if (e.text != null)
             {
@@ -187,6 +192,19 @@ namespace JebbyJump.EditorTools
             lg.childControlWidth = false; lg.childControlHeight = false;
             lg.childForceExpandWidth = false; lg.childForceExpandHeight = false;
             EditorUtility.SetDirty(go);
+        }
+
+        // Point MemoryPhaseController at the level badge so it can flash "Level X"
+        // for a beat, then hide it before the memory swatch shows.
+        private static void WireLevelIntro(UnityEngine.SceneManagement.Scene s)
+        {
+            var mpc = Object.FindAnyObjectByType<MemoryPhaseController>(FindObjectsInactive.Include);
+            var badge = FindDeep(s, "LevelBadgeRoot");
+            if (mpc == null || badge == null) return;
+            var so = new SerializedObject(mpc);
+            var p = so.FindProperty("_levelBadgeRoot");
+            if (p != null && p.objectReferenceValue != badge)
+            { p.objectReferenceValue = badge; so.ApplyModifiedPropertiesWithoutUndo(); EditorUtility.SetDirty(mpc); }
         }
 
         private static void Hide(UnityEngine.SceneManagement.Scene s, string parent, string child)

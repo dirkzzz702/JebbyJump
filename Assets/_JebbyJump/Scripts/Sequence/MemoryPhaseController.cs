@@ -25,6 +25,10 @@ namespace JebbyJump.Sequence
         [SerializeField] private BubbleShieldEffect _bubbleShield;
         [SerializeField] private PlayerAnimator _playerAnimator;
         [SerializeField] private LevelTimer _levelTimer;
+        // "Level X" intro badge: shown alone for a beat at the start of each
+        // attempt, then hidden BEFORE the memory swatch so it never overlaps it.
+        [SerializeField] private GameObject _levelBadgeRoot;
+        [SerializeField] private float _levelIntroSeconds = 2f;
 
         public event Action LevelCompleted;
         public event Action CorrectLanding;
@@ -116,6 +120,16 @@ namespace JebbyJump.Sequence
 
             SetAllSkillsUsable(false);
             _playerController?.SetJumpMultiplier(_sequenceManager.Config.MemoryPhaseJumpMultiplier);
+
+            // Level intro: flash the "Level X" badge alone, then hide it so the
+            // memory swatch (and hint) own the top-centre zone cleanly.
+            if (_levelBadgeRoot != null)
+            {
+                _levelBadgeRoot.SetActive(true);
+                yield return new WaitForSeconds(_levelIntroSeconds);
+                _levelBadgeRoot.SetActive(false);
+            }
+
             _displayUI.Show(_sequenceManager.Sequence);
             MemoryPhaseStarted?.Invoke();
             yield return new WaitForSeconds(_sequenceManager.Config.MemoryTimeSeconds);
