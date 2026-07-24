@@ -248,6 +248,13 @@ namespace JebbyJump.EditorTools
             if (imp.textureType != TextureImporterType.Sprite) { imp.textureType = TextureImporterType.Sprite; ch = true; }
             if (imp.spriteImportMode != SpriteImportMode.Single) { imp.spriteImportMode = SpriteImportMode.Single; ch = true; }
             if (!imp.alphaIsTransparency) { imp.alphaIsTransparency = true; ch = true; }
+            // FullRect mesh: a Tight mesh hugs the opaque outline and (with the
+            // de-fringed, semi-transparent rounded edges) clips the frame's bottom
+            // into a flat cut - worse when stretched. FullRect = a plain quad.
+            var st = new TextureImporterSettings();
+            imp.ReadTextureSettings(st);
+            if (st.spriteMeshType != SpriteMeshType.FullRect)
+            { st.spriteMeshType = SpriteMeshType.FullRect; imp.SetTextureSettings(st); ch = true; }
             if (ch) imp.SaveAndReimport();
             // Force a reimport so edits to the PNG bytes (re-crops) always land, even
             // when Refresh misses the external change and Unity serves a stale sprite.
