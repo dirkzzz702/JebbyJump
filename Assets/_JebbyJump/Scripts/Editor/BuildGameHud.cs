@@ -86,6 +86,11 @@ namespace JebbyJump.EditorTools
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
+            // Force the edit-mode canvases + Game view to rebuild so the badge (and
+            // other frames) don't keep drawing a stale cached mesh after the sprite
+            // reimport / useSpriteMesh change.
+            Canvas.ForceUpdateCanvases();
+            UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
             Debug.Log("[GameHUD] wired badge/timer/pause/hearts/hint (fixed anchors, cropped art).");
         }
 
@@ -103,11 +108,12 @@ namespace JebbyJump.EditorTools
             var sp = Sprite(e.sprite);
             if (sp != null)
             {
-                img.sprite = sp; img.type = Image.Type.Simple;
+                img.sprite = null; img.sprite = sp;   // null->set forces a full mesh rebuild
+                img.type = Image.Type.Simple;
                 img.preserveAspect = !e.stretch;
                 img.useSpriteMesh = false;   // full quad, never the sprite's tight outline
                 img.color = Color.white;
-                img.SetAllDirty();           // force the CanvasRenderer mesh to rebuild
+                img.SetAllDirty();
                 EditorUtility.SetDirty(img);
             }
 
