@@ -21,11 +21,13 @@ namespace JebbyJump.EditorTools
         private static readonly Color Cocoa = new Color(0.29f, 0.19f, 0.12f);
 
         // name, sprite, anchor(x,y), pivot(x,y), anchoredPos, size, textChild,
-        // blankFraction (0..1 down = where the cream text zone centres), fontMax
+        // then the cream PANEL geometry MEASURED from the art (centre + size as
+        // fractions of the frame): pxc/pyc = panel centre, pxw/pyh = panel size,
+        // fontMax. The label is placed on the real panel, not the frame centre.
         private struct El
         {
             public string name, sprite, text; public Vector2 anchor, pivot, pos, size;
-            public float blank, font;
+            public float pxc, pxw, pyc, pyh, font;
         }
         // Layout grid, NOT measured off the art board (that board was a sprite
         // sheet, not a 1:1 screen). Each rect is sized to the art's REAL opaque
@@ -37,14 +39,17 @@ namespace JebbyJump.EditorTools
         private static readonly El[] Elements =
         {
             new El{ name="LevelBadgeRoot", sprite="ui_hud_level_badge_9s",
-                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-128),
-                size=new Vector2(284,210), text="LevelText", blank=0.60f, font=46 }, // aspect 1.35
+                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-132),
+                size=new Vector2(300,227), text="LevelText",                 // aspect 1.32 (matches art)
+                pxc=0.55f, pxw=0.69f, pyc=0.61f, pyh=0.57f, font=46 },
             new El{ name="PauseButton", sprite="ui_hud_pause_btn",
                 anchor=new Vector2(1f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(-85,-92),
-                size=new Vector2(93,96), text=null, blank=0.5f, font=0 },              // aspect 0.97
+                size=new Vector2(93,96), text=null,                          // aspect 0.97
+                pxc=0.5f, pxw=0.5f, pyc=0.5f, pyh=0.5f, font=0 },
             new El{ name="TutorialHintRoot", sprite="ui_hint_banner_9s",
                 anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-300),
-                size=new Vector2(288,240), text="TutorialHintText", blank=0.56f, font=34 }, // aspect 1.20
+                size=new Vector2(288,240), text="TutorialHintText",          // aspect 1.20
+                pxc=0.50f, pxw=0.86f, pyc=0.67f, pyh=0.45f, font=32 },
         };
 
         [MenuItem("Jebby Jump/Scaffold/Build Game HUD")]
@@ -97,23 +102,25 @@ namespace JebbyJump.EditorTools
             {
                 var t = FindDeep(s, e.text);
                 var tmp = t != null ? t.GetComponent<TMP_Text>() : null;
-                if (tmp != null) StyleLabel(tmp, e.size, e.blank, e.font);
+                if (tmp != null) StyleLabel(tmp, e.size, e.pxc, e.pxw, e.pyc, e.pyh, e.font);
             }
         }
 
-        // centre the label in the frame's blank zone (below the top gem) as a
-        // child-stretch, so it tracks the frame regardless of parenting.
-        private static void StyleLabel(TMP_Text tmp, Vector2 frame, float blankFrac, float font)
+        // Place the label ON the frame's measured cream panel (centre + size as
+        // fractions), so the text fits INSIDE the panel and never spills onto the
+        // frame's border/gem. A small margin keeps it off the panel edge.
+        private static void StyleLabel(TMP_Text tmp, Vector2 frame,
+            float pxc, float pxw, float pyc, float pyh, float font)
         {
             tmp.color = Cocoa; tmp.enableVertexGradient = false;
             tmp.fontStyle |= FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;
-            tmp.enableAutoSizing = true; tmp.fontSizeMax = font; tmp.fontSizeMin = 16f;
+            tmp.enableAutoSizing = true; tmp.fontSizeMax = font; tmp.fontSizeMin = 12f;
             var rt = tmp.rectTransform;
             rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
             rt.pivot = new Vector2(0.5f, 0.5f);
-            rt.sizeDelta = new Vector2(frame.x * 0.72f, frame.y * 0.42f);
-            rt.anchoredPosition = new Vector2(0f, -(blankFrac - 0.5f) * frame.y);
+            rt.sizeDelta = new Vector2(frame.x * pxw * 0.92f, frame.y * pyh * 0.90f);
+            rt.anchoredPosition = new Vector2((pxc - 0.5f) * frame.x, -(pyc - 0.5f) * frame.y);
             EditorUtility.SetDirty(tmp);
         }
 
@@ -137,12 +144,13 @@ namespace JebbyJump.EditorTools
             var banner = (RectTransform)newGo.transform;
             banner.SetParent(hud, false);
             // Timer sits on the top-right band, just LEFT of the pause button.
-            // Rect sized to the art's real aspect (1.62) so it fills exactly.
-            const float th = 108f, tw = th * 1.62f; // 108 x 175
+            // Rect sized to the art's real aspect (1.62); enlarged so "00:00.00"
+            // fits INSIDE the cream panel (which is only ~61% of the ribbon width).
+            const float tw = 210f, th = tw / 1.62f; // 210 x 130
             banner.anchorMin = banner.anchorMax = new Vector2(1f, 1f);
             banner.pivot = new Vector2(0.5f, 0.5f);
             banner.sizeDelta = new Vector2(tw, th);
-            banner.anchoredPosition = new Vector2(-240f, -92f);
+            banner.anchoredPosition = new Vector2(-256f, -95f);
             var bimg = banner.GetComponent<Image>();
             bimg.sprite = Sprite("ui_hud_timer_banner_9s");
             bimg.type = Image.Type.Simple; bimg.preserveAspect = true; bimg.raycastTarget = false;
@@ -152,14 +160,13 @@ namespace JebbyJump.EditorTools
             trt.SetParent(banner, false);
             trt.anchorMin = trt.anchorMax = new Vector2(0.5f, 0.5f);
             trt.pivot = new Vector2(0.5f, 0.5f);
-            trt.sizeDelta = new Vector2(tw * 0.80f, th * 0.40f);
-            // Cream text panel sits at ~62% down the ribbon art (measured); centre
-            // the time there so it lands ON the panel, above the bottom gem.
-            trt.anchoredPosition = new Vector2(0f, -(0.60f - 0.5f) * th);
+            // Measured timer panel: centre 47%x / 62%y, size 61%w x 40%h.
+            trt.sizeDelta = new Vector2(tw * 0.61f * 0.92f, th * 0.40f * 0.90f);
+            trt.anchoredPosition = new Vector2((0.47f - 0.5f) * tw, -(0.62f - 0.5f) * th);
             tmp.color = Cocoa; tmp.enableVertexGradient = false;
             tmp.fontStyle |= FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;
-            tmp.enableAutoSizing = true; tmp.fontSizeMax = 32f; tmp.fontSizeMin = 14f;
+            tmp.enableAutoSizing = true; tmp.fontSizeMax = 28f; tmp.fontSizeMin = 12f;
             EditorUtility.SetDirty(tmp); EditorUtility.SetDirty(bimg);
         }
 
