@@ -101,7 +101,15 @@ namespace JebbyJump.EditorTools
 
             var img = go.GetComponent<Image>() ?? go.AddComponent<Image>();
             var sp = Sprite(e.sprite);
-            if (sp != null) { img.sprite = sp; img.type = Image.Type.Simple; img.preserveAspect = !e.stretch; img.color = Color.white; EditorUtility.SetDirty(img); }
+            if (sp != null)
+            {
+                img.sprite = sp; img.type = Image.Type.Simple;
+                img.preserveAspect = !e.stretch;
+                img.useSpriteMesh = false;   // full quad, never the sprite's tight outline
+                img.color = Color.white;
+                img.SetAllDirty();           // force the CanvasRenderer mesh to rebuild
+                EditorUtility.SetDirty(img);
+            }
 
             if (e.text != null)
             {
