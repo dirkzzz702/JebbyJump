@@ -26,17 +26,19 @@ namespace JebbyJump.EditorTools
             public string name, sprite, text; public Vector2 anchor, pivot, pos, size;
             public float blank, font;
         }
+        // Measured from mockup_ui.png (1672x941 -> 1920x1080). Pivot = centre;
+        // pos = element CENTRE relative to its anchor.
         private static readonly El[] Elements =
         {
             new El{ name="LevelBadgeRoot", sprite="ui_hud_level_badge_9s",
-                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,1f), pos=new Vector2(0,-12),
-                size=new Vector2(268,182), text="LevelText", blank=0.60f, font=34 },
+                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-127),
+                size=new Vector2(358,218), text="LevelText", blank=0.58f, font=48 },
             new El{ name="PauseButton", sprite="ui_hud_pause_btn",
-                anchor=new Vector2(1f,1f), pivot=new Vector2(1f,1f), pos=new Vector2(-24,-18),
-                size=new Vector2(92,83), text=null, blank=0.5f, font=0 },
+                anchor=new Vector2(1f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(-106,-111),
+                size=new Vector2(115,112), text=null, blank=0.5f, font=0 },
             new El{ name="TutorialHintRoot", sprite="ui_hint_banner_9s",
-                anchor=new Vector2(0.5f,0.5f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,180),
-                size=new Vector2(380,286), text="TutorialHintText", blank=0.67f, font=34 },
+                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-319),
+                size=new Vector2(599,184), text="TutorialHintText", blank=0.62f, font=44 },
         };
 
         [MenuItem("Jebby Jump/Scaffold/Build Game HUD")]
@@ -120,10 +122,11 @@ namespace JebbyJump.EditorTools
                 var go = new GameObject("TimerBanner", typeof(RectTransform), typeof(Image));
                 banner = (RectTransform)go.transform; banner.SetParent(parent, false);
             }
+            // measured: timer 429x129, centre at local-x +544, y 131 from top
             banner.anchorMin = banner.anchorMax = new Vector2(1f, 1f);
-            banner.pivot = new Vector2(1f, 1f);
-            banner.sizeDelta = new Vector2(228f, 140f);
-            banner.anchoredPosition = new Vector2(-130f, -16f);
+            banner.pivot = new Vector2(0.5f, 0.5f);
+            banner.sizeDelta = new Vector2(429f, 129f);
+            banner.anchoredPosition = new Vector2(-416f, -131f);
             var bimg = banner.GetComponent<Image>();
             bimg.sprite = Sprite("ui_hud_timer_banner_9s");
             bimg.type = Image.Type.Simple; bimg.preserveAspect = true; bimg.raycastTarget = false;
@@ -133,12 +136,12 @@ namespace JebbyJump.EditorTools
             trt.SetParent(banner, false);
             trt.anchorMin = trt.anchorMax = new Vector2(0.5f, 0.5f);
             trt.pivot = new Vector2(0.5f, 0.5f);
-            trt.sizeDelta = new Vector2(200f, 50f);
-            trt.anchoredPosition = new Vector2(0f, -(0.63f - 0.5f) * 140f);
+            trt.sizeDelta = new Vector2(300f, 70f);
+            trt.anchoredPosition = new Vector2(0f, -(0.42f - 0.5f) * 129f); // above the bottom gem
             tmp.color = Cocoa; tmp.enableVertexGradient = false;
             tmp.fontStyle |= FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;
-            tmp.enableAutoSizing = true; tmp.fontSizeMax = 30f; tmp.fontSizeMin = 16f;
+            tmp.enableAutoSizing = true; tmp.fontSizeMax = 40f; tmp.fontSizeMin = 16f;
             EditorUtility.SetDirty(tmp); EditorUtility.SetDirty(bimg);
         }
 
