@@ -51,6 +51,10 @@ namespace JebbyJump.EditorTools
             foreach (var e in Elements) Place(scene, e);
             WireTimer(scene);
 
+            // Remove leftovers that clash with the new art:
+            Hide(scene, "LevelText", "Backdrop");   // the "mask" behind the level text
+            Hide(scene, "PauseButton", "Label");    // old "||" glyph (baked into the art now)
+
             var hud = Object.FindAnyObjectByType<HUDController>(FindObjectsInactive.Include);
             if (hud != null)
             {
@@ -93,6 +97,7 @@ namespace JebbyJump.EditorTools
         private static void StyleLabel(TMP_Text tmp, Vector2 frame, float blankFrac, float font)
         {
             tmp.color = Cocoa; tmp.enableVertexGradient = false;
+            tmp.fontStyle |= FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.enableAutoSizing = true; tmp.fontSizeMax = font; tmp.fontSizeMin = 16f;
             var rt = tmp.rectTransform;
@@ -115,7 +120,6 @@ namespace JebbyJump.EditorTools
                 var go = new GameObject("TimerBanner", typeof(RectTransform), typeof(Image));
                 banner = (RectTransform)go.transform; banner.SetParent(parent, false);
             }
-            banner.SetAsFirstSibling();
             banner.anchorMin = banner.anchorMax = new Vector2(1f, 1f);
             banner.pivot = new Vector2(1f, 1f);
             banner.sizeDelta = new Vector2(228f, 140f);
@@ -123,16 +127,27 @@ namespace JebbyJump.EditorTools
             var bimg = banner.GetComponent<Image>();
             bimg.sprite = Sprite("ui_hud_timer_banner_9s");
             bimg.type = Image.Type.Simple; bimg.preserveAspect = true; bimg.raycastTarget = false;
-            // put the timer text inside the banner's blank zone
+            // nest the timer text INSIDE the banner, centred in its blank zone
+            var tbd = Find(textGo.transform, "Backdrop"); if (tbd != null) tbd.gameObject.SetActive(false);
             var trt = (RectTransform)textGo.transform;
-            trt.anchorMin = trt.anchorMax = new Vector2(1f, 1f);
-            trt.pivot = new Vector2(1f, 1f);
-            trt.sizeDelta = new Vector2(200f, 60f);
-            trt.anchoredPosition = new Vector2(-144f, -16f - (0.63f - 0.5f) * 140f);
+            trt.SetParent(banner, false);
+            trt.anchorMin = trt.anchorMax = new Vector2(0.5f, 0.5f);
+            trt.pivot = new Vector2(0.5f, 0.5f);
+            trt.sizeDelta = new Vector2(200f, 50f);
+            trt.anchoredPosition = new Vector2(0f, -(0.63f - 0.5f) * 140f);
             tmp.color = Cocoa; tmp.enableVertexGradient = false;
+            tmp.fontStyle |= FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.enableAutoSizing = true; tmp.fontSizeMax = 30f; tmp.fontSizeMin = 16f;
             EditorUtility.SetDirty(tmp); EditorUtility.SetDirty(bimg);
+        }
+
+        private static void Hide(UnityEngine.SceneManagement.Scene s, string parent, string child)
+        {
+            var p = FindDeep(s, parent);
+            if (p == null) return;
+            var c = Find(p.transform, child);
+            if (c != null) c.gameObject.SetActive(false);
         }
 
         private static Sprite Sprite(string n) => AssetDatabase.LoadAssetAtPath<Sprite>(Dir + n + ".png");
