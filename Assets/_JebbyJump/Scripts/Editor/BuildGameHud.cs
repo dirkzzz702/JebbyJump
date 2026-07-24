@@ -7,27 +7,37 @@ using UnityEngine.UI;
 
 namespace JebbyJump.EditorTools
 {
-    // GUI01 HUD wiring: dress the in-game top HUD in the cloud-kingdom art -
-    // level badge, timer ribbon, round pause button, heart lives, and the hint
-    // banner. Frames go on as fixed-size Simple sprites (their gem sits at the
-    // centre, so 9-slice would shift it); text is recoloured cocoa and centred in
-    // each frame's blank zone. Heart art is set on HUDController._lifeIconSprite
-    // (it spawns one per life at 52x52). Tunable size/offset constants below.
-    // Idempotent; only sprites/colours/sizes + the timer banner child change.
+    // GUI01 HUD wiring (v2): cloud-kingdom art on the in-game HUD, laid out with
+    // EXPLICIT fixed anchors so nothing stretches/letterboxes. The frame art was
+    // cropped tight to its content, so sizeDelta = the visible element (aspect
+    // matched, no margin box). Text is recoloured cocoa and dropped into each
+    // frame's blank zone (below the top gem). Heart art rides on
+    // HUDController._lifeIconSprite. All positions/sizes are tunable constants.
     public static class BuildGameHud
     {
         private const string Dir = "Assets/_JebbyJump/Art/Sprites/UI/";
         private const string GameScenePath = "Assets/_JebbyJump/Scenes/Game.unity";
         private static readonly Color Cocoa = new Color(0.29f, 0.19f, 0.12f);
 
-        // display size (w,h) + label vertical offset within the frame
-        private static readonly Vector2 BadgeSize = new Vector2(320f, 128f);
-        private const float BadgeLabelDY = -6f;   // below the top gem
-        private static readonly Vector2 TimerSize = new Vector2(300f, 105f);
-        private const float TimerLabelDY = 8f;    // above the bottom gem
-        private static readonly Vector2 HintSize = new Vector2(480f, 160f);
-        private const float HintLabelDY = -8f;
-        private static readonly Vector2 PauseSize = new Vector2(96f, 96f);
+        // name, sprite, anchor(x,y), pivot(x,y), anchoredPos, size, textChild,
+        // blankFraction (0..1 down = where the cream text zone centres), fontMax
+        private struct El
+        {
+            public string name, sprite, text; public Vector2 anchor, pivot, pos, size;
+            public float blank, font;
+        }
+        private static readonly El[] Elements =
+        {
+            new El{ name="LevelBadgeRoot", sprite="ui_hud_level_badge_9s",
+                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,1f), pos=new Vector2(0,-12),
+                size=new Vector2(268,182), text="LevelText", blank=0.60f, font=34 },
+            new El{ name="PauseButton", sprite="ui_hud_pause_btn",
+                anchor=new Vector2(1f,1f), pivot=new Vector2(1f,1f), pos=new Vector2(-24,-18),
+                size=new Vector2(92,83), text=null, blank=0.5f, font=0 },
+            new El{ name="TutorialHintRoot", sprite="ui_hint_banner_9s",
+                anchor=new Vector2(0.5f,0.5f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,180),
+                size=new Vector2(380,286), text="TutorialHintText", blank=0.67f, font=34 },
+        };
 
         [MenuItem("Jebby Jump/Scaffold/Build Game HUD")]
         public static void Run()
@@ -38,21 +48,9 @@ namespace JebbyJump.EditorTools
 
             var scene = EditorSceneManager.OpenScene(GameScenePath, OpenSceneMode.Single);
 
-            // Level badge
-            FrameElement(scene, "LevelBadgeRoot", "ui_hud_level_badge_9s", BadgeSize);
-            LabelIn(scene, "LevelText", BadgeLabelDY, 30f);
-
-            // Pause button
-            FrameElement(scene, "PauseButton", "ui_hud_pause_btn", PauseSize);
-
-            // Hint banner
-            FrameElement(scene, "TutorialHintRoot", "ui_hint_banner_9s", HintSize);
-            LabelIn(scene, "TutorialHintText", HintLabelDY, 30f);
-
-            // Timer: add a banner behind the live-timer text
+            foreach (var e in Elements) Place(scene, e);
             WireTimer(scene);
 
-            // Hearts: swap the life-icon sprite on the HUD controller
             var hud = Object.FindAnyObjectByType<HUDController>(FindObjectsInactive.Include);
             if (hud != null)
             {
@@ -65,37 +63,43 @@ namespace JebbyJump.EditorTools
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
-            Debug.Log("[GameHUD] wired badge/timer/pause/hearts/hint.");
+            Debug.Log("[GameHUD] wired badge/timer/pause/hearts/hint (fixed anchors, cropped art).");
         }
 
-        private static void FrameElement(UnityEngine.SceneManagement.Scene s,
-            string name, string spriteName, Vector2 size)
+        private static void Place(UnityEngine.SceneManagement.Scene s, El e)
         {
-            var go = FindDeep(s, name);
-            if (go == null) { Debug.LogWarning("[GameHUD] missing " + name); return; }
-            var img = go.GetComponent<Image>() ?? go.AddComponent<Image>();
-            var sp = Sprite(spriteName);
-            if (sp == null) return;
-            img.sprite = sp; img.type = Image.Type.Simple; img.preserveAspect = true;
-            img.color = Color.white;
+            var go = FindDeep(s, e.name);
+            if (go == null) { Debug.LogWarning("[GameHUD] missing " + e.name); return; }
             var rt = (RectTransform)go.transform;
-            rt.sizeDelta = size;
-            EditorUtility.SetDirty(img);
+            rt.anchorMin = rt.anchorMax = e.anchor;
+            rt.pivot = e.pivot;
+            rt.sizeDelta = e.size;
+            rt.anchoredPosition = e.pos;
+
+            var img = go.GetComponent<Image>() ?? go.AddComponent<Image>();
+            var sp = Sprite(e.sprite);
+            if (sp != null) { img.sprite = sp; img.type = Image.Type.Simple; img.preserveAspect = true; img.color = Color.white; EditorUtility.SetDirty(img); }
+
+            if (e.text != null)
+            {
+                var t = FindDeep(s, e.text);
+                var tmp = t != null ? t.GetComponent<TMP_Text>() : null;
+                if (tmp != null) StyleLabel(tmp, e.size, e.blank, e.font);
+            }
         }
 
-        private static void LabelIn(UnityEngine.SceneManagement.Scene s, string name,
-            float dy, float size)
+        // centre the label in the frame's blank zone (below the top gem) as a
+        // child-stretch, so it tracks the frame regardless of parenting.
+        private static void StyleLabel(TMP_Text tmp, Vector2 frame, float blankFrac, float font)
         {
-            var go = FindDeep(s, name);
-            var tmp = go != null ? go.GetComponent<TMP_Text>() : null;
-            if (tmp == null) return;
-            tmp.color = Cocoa;
-            tmp.enableVertexGradient = false;
+            tmp.color = Cocoa; tmp.enableVertexGradient = false;
             tmp.alignment = TextAlignmentOptions.Center;
-            tmp.enableAutoSizing = true;
-            tmp.fontSizeMax = size; tmp.fontSizeMin = 16f;
+            tmp.enableAutoSizing = true; tmp.fontSizeMax = font; tmp.fontSizeMin = 16f;
             var rt = tmp.rectTransform;
-            rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, dy);
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.sizeDelta = new Vector2(frame.x * 0.72f, frame.y * 0.42f);
+            rt.anchoredPosition = new Vector2(0f, -(blankFrac - 0.5f) * frame.y);
             EditorUtility.SetDirty(tmp);
         }
 
@@ -103,57 +107,48 @@ namespace JebbyJump.EditorTools
         {
             var textGo = FindDeep(s, "LiveTimerText");
             var tmp = textGo != null ? textGo.GetComponent<TMP_Text>() : null;
-            if (tmp == null) { Debug.LogWarning("[GameHUD] no LiveTimerText"); return; }
+            if (tmp == null) return;
             var parent = textGo.transform.parent;
             var banner = parent.Find("TimerBanner") as RectTransform;
             if (banner == null)
             {
                 var go = new GameObject("TimerBanner", typeof(RectTransform), typeof(Image));
-                banner = (RectTransform)go.transform;
-                banner.SetParent(parent, false);
+                banner = (RectTransform)go.transform; banner.SetParent(parent, false);
             }
-            banner.SetAsFirstSibling(); // behind the text
-            var trt = (RectTransform)textGo.transform;
-            banner.anchorMin = trt.anchorMin; banner.anchorMax = trt.anchorMax;
-            banner.pivot = trt.pivot;
-            banner.anchoredPosition = trt.anchoredPosition;
-            banner.sizeDelta = TimerSize;
+            banner.SetAsFirstSibling();
+            banner.anchorMin = banner.anchorMax = new Vector2(1f, 1f);
+            banner.pivot = new Vector2(1f, 1f);
+            banner.sizeDelta = new Vector2(228f, 140f);
+            banner.anchoredPosition = new Vector2(-130f, -16f);
             var bimg = banner.GetComponent<Image>();
             bimg.sprite = Sprite("ui_hud_timer_banner_9s");
             bimg.type = Image.Type.Simple; bimg.preserveAspect = true; bimg.raycastTarget = false;
-            // recolour the timer text for the light banner
+            // put the timer text inside the banner's blank zone
+            var trt = (RectTransform)textGo.transform;
+            trt.anchorMin = trt.anchorMax = new Vector2(1f, 1f);
+            trt.pivot = new Vector2(1f, 1f);
+            trt.sizeDelta = new Vector2(200f, 60f);
+            trt.anchoredPosition = new Vector2(-144f, -16f - (0.63f - 0.5f) * 140f);
             tmp.color = Cocoa; tmp.enableVertexGradient = false;
             tmp.alignment = TextAlignmentOptions.Center;
-            var t = tmp.rectTransform;
-            t.anchoredPosition = new Vector2(t.anchoredPosition.x, t.anchoredPosition.y + TimerLabelDY);
+            tmp.enableAutoSizing = true; tmp.fontSizeMax = 30f; tmp.fontSizeMin = 16f;
             EditorUtility.SetDirty(tmp); EditorUtility.SetDirty(bimg);
         }
 
-        private static Sprite Sprite(string n) =>
-            AssetDatabase.LoadAssetAtPath<Sprite>(Dir + n + ".png");
+        private static Sprite Sprite(string n) => AssetDatabase.LoadAssetAtPath<Sprite>(Dir + n + ".png");
 
         private static GameObject FindDeep(UnityEngine.SceneManagement.Scene s, string name)
         {
             foreach (var root in s.GetRootGameObjects())
-            {
-                if (root.name == name) return root;
-                var t = Find(root.transform, name);
-                if (t != null) return t.gameObject;
-            }
+            { if (root.name == name) return root; var t = Find(root.transform, name); if (t != null) return t.gameObject; }
             return null;
         }
         private static Transform Find(Transform t, string name)
         {
             for (int i = 0; i < t.childCount; i++)
-            {
-                var c = t.GetChild(i);
-                if (c.name == name) return c;
-                var r = Find(c, name);
-                if (r != null) return r;
-            }
+            { var c = t.GetChild(i); if (c.name == name) return c; var r = Find(c, name); if (r != null) return r; }
             return null;
         }
-
         private static void EnsureSprite(string file)
         {
             var imp = AssetImporter.GetAtPath(Dir + file) as TextureImporter;
