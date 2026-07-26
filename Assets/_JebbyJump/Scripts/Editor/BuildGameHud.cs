@@ -42,19 +42,19 @@ namespace JebbyJump.EditorTools
         private static readonly El[] Elements =
         {
             new El{ name="LevelBadgeRoot", sprite="ui_hud_level_badge_9s",
-                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-108),
-                size=new Vector2(330,156), text="LevelText",                 // flattened further in height (art 1.66 -> rect 2.12)
-                pxc=0.50f, pxw=0.73f, pyc=0.53f, pyh=0.68f, font=46, stretch=true, bold=true },
+                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-104),
+                size=new Vector2(330,170), text="LevelText",                 // GUI02 clean slim-rim plaque, art aspect 1.94
+                pxc=0.50f, pxw=0.90f, pyc=0.56f, pyh=0.74f, font=48, stretch=true, bold=true },
             new El{ name="PauseButton", sprite="ui_hud_pause_btn",
-                anchor=new Vector2(1f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(-82,-86),
-                size=new Vector2(110,110), text=null,                        // aligned baseline with the (bigger) timer
+                anchor=new Vector2(1f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(-84,-86),
+                size=new Vector2(120,120), text=null,                        // matched height + aligned with timer
                 pxc=0.5f, pxw=0.5f, pyc=0.5f, pyh=0.5f, font=0 },
             // Hint lives top-centre (the badge's zone, free once the badge hides),
             // NOT over the platforms; widened a touch so the text reads bigger.
             new El{ name="TutorialHintRoot", sprite="ui_hint_banner_9s",
                 anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-140),
-                size=new Vector2(400,230), text="TutorialHintText",          // stray top fragment cropped; banner aspect 1.74
-                pxc=0.51f, pxw=0.91f, pyc=0.52f, pyh=0.67f, font=40, stretch=true },
+                size=new Vector2(400,217), text="TutorialHintText",          // GUI02 banner, art aspect 1.84
+                pxc=0.50f, pxw=0.90f, pyc=0.57f, pyh=0.76f, font=40, stretch=true },
         };
 
         [MenuItem("Jebby Jump/Scaffold/Build Game HUD")]
@@ -165,13 +165,13 @@ namespace JebbyJump.EditorTools
             var banner = (RectTransform)newGo.transform;
             banner.SetParent(hud, false);
             // Timer sits on the top-right band, just LEFT of the pause button,
-            // aligned on the same centre-y. Enlarged so its cream body reads at a
-            // similar size to the pause and the time is bigger. Art aspect 1.62.
-            const float th = 148f, tw = th * 1.62f; // ~240 x 148
+            // aligned on the same centre-y. The GUI02 art fills its canvas (~88%),
+            // so matching its height to the pause makes the two read as a pair.
+            const float th = 120f, tw = th * 2.31f; // ~277 x 120 (pause is 120)
             banner.anchorMin = banner.anchorMax = new Vector2(1f, 1f);
             banner.pivot = new Vector2(0.5f, 0.5f);
             banner.sizeDelta = new Vector2(tw, th);
-            banner.anchoredPosition = new Vector2(-278f, -86f);
+            banner.anchoredPosition = new Vector2(-298f, -86f);
             var bimg = banner.GetComponent<Image>();
             bimg.sprite = Sprite("ui_hud_timer_banner_9s");
             bimg.type = Image.Type.Simple; bimg.preserveAspect = true; bimg.raycastTarget = false;
@@ -181,14 +181,14 @@ namespace JebbyJump.EditorTools
             trt.SetParent(banner, false);
             trt.anchorMin = trt.anchorMax = new Vector2(0.5f, 0.5f);
             trt.pivot = new Vector2(0.5f, 0.5f);
-            // Measured timer panel: centre 47%x / 62%y, size 61%w x 40%h.
-            trt.sizeDelta = new Vector2(tw * 0.61f * 0.92f, th * 0.40f * 0.90f);
-            trt.anchoredPosition = new Vector2((0.47f - 0.5f) * tw, -(0.62f - 0.5f) * th);
+            // Measured GUI02 timer panel: centre 50%x / 58%y, size 91%w x 73%h.
+            trt.sizeDelta = new Vector2(tw * 0.91f * 0.92f, th * 0.73f * 0.90f);
+            trt.anchoredPosition = new Vector2(0f, -(0.58f - 0.5f) * th);
             tmp.color = Cocoa; tmp.enableVertexGradient = false;
             tmp.fontStyle |= FontStyles.Bold;
             var tbm = BoldMat(); if (tbm != null) tmp.fontSharedMaterial = tbm;
             tmp.alignment = TextAlignmentOptions.Center;
-            tmp.enableAutoSizing = true; tmp.fontSizeMax = 36f; tmp.fontSizeMin = 12f;
+            tmp.enableAutoSizing = true; tmp.fontSizeMax = 48f; tmp.fontSizeMin = 12f;
             EditorUtility.SetDirty(tmp); EditorUtility.SetDirty(bimg);
         }
 
