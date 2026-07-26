@@ -42,12 +42,12 @@ namespace JebbyJump.EditorTools
         private static readonly El[] Elements =
         {
             new El{ name="LevelBadgeRoot", sprite="ui_hud_level_badge_9s",
-                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-128),
-                size=new Vector2(378,210), text="LevelText",                 // mockup-match scalloped plaque, art aspect 1.80
-                pxc=0.50f, pxw=0.90f, pyc=0.51f, pyh=0.73f, font=52, stretch=true, bold=true },
+                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-116),
+                size=new Vector2(321,178), text="LevelText",                 // mockup scalloped plaque, aspect 1.80 (1 size down)
+                pxc=0.50f, pxw=0.90f, pyc=0.51f, pyh=0.73f, font=44, stretch=true, bold=true },
             new El{ name="PauseButton", sprite="ui_hud_pause_btn",
-                anchor=new Vector2(1f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(-105,-111),
-                size=new Vector2(116,116), text=null,                        // mockup position (far top-right)
+                anchor=new Vector2(1f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(-95,-100),
+                size=new Vector2(99,99), text=null,                          // far top-right (1 size down)
                 pxc=0.5f, pxw=0.5f, pyc=0.5f, pyh=0.5f, font=0 },
             // Hint lives top-centre (the badge's zone, free once the badge hides),
             // NOT over the platforms; widened a touch so the text reads bigger.
@@ -172,11 +172,11 @@ namespace JebbyJump.EditorTools
             // Timer sits on the top-right band, just LEFT of the pause button,
             // aligned on the same centre-y. The GUI02 art fills its canvas (~88%),
             // so matching its height to the pause makes the two read as a pair.
-            const float tw = 432f, th = tw / 3.12f; // ~432 x 138 wide mockup ribbon (gem below)
+            const float tw = 367f, th = tw / 3.12f; // ~367 x 118 wide mockup ribbon, 1 size down
             banner.anchorMin = banner.anchorMax = new Vector2(1f, 1f);
             banner.pivot = new Vector2(0.5f, 0.5f);
             banner.sizeDelta = new Vector2(tw, th);
-            banner.anchoredPosition = new Vector2(-417f, -132f);
+            banner.anchoredPosition = new Vector2(-350f, -120f);
             var bimg = banner.GetComponent<Image>();
             bimg.sprite = Sprite("ui_hud_timer_banner_9s");
             bimg.type = Image.Type.Simple; bimg.preserveAspect = true; bimg.raycastTarget = false;
@@ -194,7 +194,7 @@ namespace JebbyJump.EditorTools
             tmp.fontStyle |= FontStyles.Bold;
             var tbm = BoldMat(); if (tbm != null) tmp.fontSharedMaterial = tbm;
             tmp.alignment = TextAlignmentOptions.Center;
-            tmp.enableAutoSizing = true; tmp.fontSizeMax = 46f; tmp.fontSizeMin = 12f;
+            tmp.enableAutoSizing = true; tmp.fontSizeMax = 39f; tmp.fontSizeMin = 12f;
             EditorUtility.SetDirty(tmp); EditorUtility.SetDirty(bimg);
         }
 
@@ -207,10 +207,10 @@ namespace JebbyJump.EditorTools
             var rt = (RectTransform)go.transform;
             rt.anchorMin = rt.anchorMax = new Vector2(0f, 1f);
             rt.pivot = new Vector2(0f, 1f);
-            rt.anchoredPosition = new Vector2(69f, -45f);   // mockup: first heart centre ~(129,101)
-            rt.sizeDelta = new Vector2(420f, 112f);
+            rt.anchoredPosition = new Vector2(60f, -40f);   // mockup left, 1 size down
+            rt.sizeDelta = new Vector2(360f, 95f);
             var lg = go.GetComponent<HorizontalLayoutGroup>() ?? go.AddComponent<HorizontalLayoutGroup>();
-            lg.spacing = 24f;                                // 120-wide hearts, ~144 centre pitch
+            lg.spacing = 20f;                                // 102-wide hearts
             lg.childAlignment = TextAnchor.UpperLeft;
             lg.childControlWidth = false; lg.childControlHeight = false;
             lg.childForceExpandWidth = false; lg.childForceExpandHeight = false;
