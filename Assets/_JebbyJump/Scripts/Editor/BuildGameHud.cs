@@ -42,12 +42,12 @@ namespace JebbyJump.EditorTools
         private static readonly El[] Elements =
         {
             new El{ name="LevelBadgeRoot", sprite="ui_hud_level_badge_9s",
-                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-114),
-                size=new Vector2(330,168), text="LevelText",                 // ornate regen, flattened in height (art 1.66 -> rect 1.96)
+                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-108),
+                size=new Vector2(330,156), text="LevelText",                 // flattened further in height (art 1.66 -> rect 2.12)
                 pxc=0.50f, pxw=0.73f, pyc=0.53f, pyh=0.68f, font=46, stretch=true, bold=true },
             new El{ name="PauseButton", sprite="ui_hud_pause_btn",
-                anchor=new Vector2(1f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(-82,-90),
-                size=new Vector2(110,110), text=null,                        // matched to timer height + aligned baseline
+                anchor=new Vector2(1f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(-82,-86),
+                size=new Vector2(110,110), text=null,                        // aligned baseline with the (bigger) timer
                 pxc=0.5f, pxw=0.5f, pyc=0.5f, pyh=0.5f, font=0 },
             // Hint lives top-centre (the badge's zone, free once the badge hides),
             // NOT over the platforms; widened a touch so the text reads bigger.
@@ -165,13 +165,13 @@ namespace JebbyJump.EditorTools
             var banner = (RectTransform)newGo.transform;
             banner.SetParent(hud, false);
             // Timer sits on the top-right band, just LEFT of the pause button,
-            // sized + aligned to match it (same centre-y, ~similar height).
-            // Rect keeps the art's real aspect (1.62).
-            const float th = 117f, tw = th * 1.62f; // ~190 x 117 (pause is 110)
+            // aligned on the same centre-y. Enlarged so its cream body reads at a
+            // similar size to the pause and the time is bigger. Art aspect 1.62.
+            const float th = 148f, tw = th * 1.62f; // ~240 x 148
             banner.anchorMin = banner.anchorMax = new Vector2(1f, 1f);
             banner.pivot = new Vector2(0.5f, 0.5f);
             banner.sizeDelta = new Vector2(tw, th);
-            banner.anchoredPosition = new Vector2(-248f, -90f);
+            banner.anchoredPosition = new Vector2(-278f, -86f);
             var bimg = banner.GetComponent<Image>();
             bimg.sprite = Sprite("ui_hud_timer_banner_9s");
             bimg.type = Image.Type.Simple; bimg.preserveAspect = true; bimg.raycastTarget = false;
@@ -188,7 +188,7 @@ namespace JebbyJump.EditorTools
             tmp.fontStyle |= FontStyles.Bold;
             var tbm = BoldMat(); if (tbm != null) tmp.fontSharedMaterial = tbm;
             tmp.alignment = TextAlignmentOptions.Center;
-            tmp.enableAutoSizing = true; tmp.fontSizeMax = 28f; tmp.fontSizeMin = 12f;
+            tmp.enableAutoSizing = true; tmp.fontSizeMax = 36f; tmp.fontSizeMin = 12f;
             EditorUtility.SetDirty(tmp); EditorUtility.SetDirty(bimg);
         }
 
