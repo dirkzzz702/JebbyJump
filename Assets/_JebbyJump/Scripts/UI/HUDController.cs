@@ -210,7 +210,7 @@ namespace JebbyJump.UI
                         $"Heart_{i}", typeof(RectTransform), typeof(Image));
                     go.transform.SetParent(_livesIconContainer, false);
                     var hrt = go.GetComponent<RectTransform>();
-                    hrt.sizeDelta = new Vector2(102f, 95f);   // mockup heart size (1 size down)
+                    hrt.sizeDelta = new Vector2(60f, 56f);   // mockup heart size (50%)
                     var himg = go.GetComponent<Image>();
                     himg.sprite = _lifeIconSprite;   // cream frame, untinted
                     himg.preserveAspect = true;
@@ -221,8 +221,8 @@ namespace JebbyJump.UI
                         var frt = fillGo.GetComponent<RectTransform>();
                         frt.anchorMin = frt.anchorMax = new Vector2(0.5f, 0.5f);
                         frt.pivot = new Vector2(0.5f, 0.5f);
-                        frt.sizeDelta = new Vector2(102f * 0.76f, 95f * 0.76f);
-                        frt.anchoredPosition = new Vector2(0f, 95f * 0.03f); // nudge up into the heart body
+                        frt.sizeDelta = new Vector2(60f * 0.76f, 56f * 0.76f);
+                        frt.anchoredPosition = new Vector2(0f, 56f * 0.03f); // nudge up into the heart body
                         var fimg = fillGo.GetComponent<Image>();
                         fimg.sprite = _lifeFillSprite; fimg.preserveAspect = true; fimg.raycastTarget = false;
                     }
