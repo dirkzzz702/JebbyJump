@@ -196,33 +196,37 @@ namespace JebbyJump.UI
 
         private void OnLivesChanged(int lives) => RefreshLives(lives);
 
+        private int _maxLives;
+
         private void RefreshLives(int lives)
         {
             if (_livesIconContainer != null && _lifeIconSprite != null)
             {
+                // Always show MAX frames; the red fill is only present for the
+                // remaining lives, so a lost life leaves an empty cream frame.
+                _maxLives = Mathf.Max(_maxLives, lives);
                 for (int i = _livesIconContainer.childCount - 1; i >= 0; i--)
-                {
                     Destroy(_livesIconContainer.GetChild(i).gameObject);
-                }
-                for (int i = 0; i < lives; i++)
+
+                for (int i = 0; i < _maxLives; i++)
                 {
                     var go = new GameObject(
                         $"Heart_{i}", typeof(RectTransform), typeof(Image));
                     go.transform.SetParent(_livesIconContainer, false);
                     var hrt = go.GetComponent<RectTransform>();
-                    hrt.sizeDelta = new Vector2(84f, 78f);   // mockup heart size (70%)
+                    hrt.sizeDelta = new Vector2(60f, 56f);   // 50% of mockup
                     var himg = go.GetComponent<Image>();
-                    himg.sprite = _lifeIconSprite;   // cream frame, untinted
+                    himg.sprite = _lifeIconSprite;   // cream frame, always shown
                     himg.preserveAspect = true;
-                    if (_lifeFillSprite != null)
+                    if (i < lives && _lifeFillSprite != null)   // red fill only for remaining lives
                     {
                         var fillGo = new GameObject("Fill", typeof(RectTransform), typeof(Image));
                         fillGo.transform.SetParent(go.transform, false);
                         var frt = fillGo.GetComponent<RectTransform>();
                         frt.anchorMin = frt.anchorMax = new Vector2(0.5f, 0.5f);
                         frt.pivot = new Vector2(0.5f, 0.5f);
-                        frt.sizeDelta = new Vector2(84f * 0.76f, 78f * 0.76f);
-                        frt.anchoredPosition = new Vector2(0f, 78f * 0.03f); // nudge up into the heart body
+                        frt.sizeDelta = new Vector2(60f * 0.76f, 56f * 0.76f);
+                        frt.anchoredPosition = new Vector2(0f, 56f * 0.03f); // nudge up into the heart body
                         var fimg = fillGo.GetComponent<Image>();
                         fimg.sprite = _lifeFillSprite; fimg.preserveAspect = true; fimg.raycastTarget = false;
                     }

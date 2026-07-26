@@ -207,10 +207,10 @@ namespace JebbyJump.EditorTools
             var rt = (RectTransform)go.transform;
             rt.anchorMin = rt.anchorMax = new Vector2(0f, 1f);
             rt.pivot = new Vector2(0f, 1f);
-            rt.anchoredPosition = new Vector2(50f, -34f);   // mockup left (70%)
-            rt.sizeDelta = new Vector2(286f, 78f);
+            rt.anchoredPosition = new Vector2(40f, -30f);   // mockup left (hearts at 50%)
+            rt.sizeDelta = new Vector2(216f, 56f);
             var lg = go.GetComponent<HorizontalLayoutGroup>() ?? go.AddComponent<HorizontalLayoutGroup>();
-            lg.spacing = 17f;                                // 84-wide hearts
+            lg.spacing = 12f;                                // 60-wide hearts
             lg.childAlignment = TextAnchor.UpperLeft;
             lg.childControlWidth = false; lg.childControlHeight = false;
             lg.childForceExpandWidth = false; lg.childForceExpandHeight = false;
