@@ -41,9 +41,9 @@ namespace JebbyJump.EditorTools
         private static readonly El[] Elements =
         {
             new El{ name="LevelBadgeRoot", sprite="ui_hud_level_badge_9s",
-                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-118),
-                size=new Vector2(330,200), text="LevelText",                 // flattened to ~1.65 (mockup ~1.78)
-                pxc=0.55f, pxw=0.69f, pyc=0.61f, pyh=0.57f, font=46, stretch=true },
+                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-92),
+                size=new Vector2(360,132), text="LevelText",                 // regen art aspect 2.73 (full rounded bottom)
+                pxc=0.50f, pxw=0.68f, pyc=0.56f, pyh=0.58f, font=46, stretch=true },
             new El{ name="PauseButton", sprite="ui_hud_pause_btn",
                 anchor=new Vector2(1f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(-85,-92),
                 size=new Vector2(93,96), text=null,                          // aspect 0.97
@@ -51,9 +51,9 @@ namespace JebbyJump.EditorTools
             // Hint lives top-centre (the badge's zone, free once the badge hides),
             // NOT over the platforms; widened a touch so the text reads bigger.
             new El{ name="TutorialHintRoot", sprite="ui_hint_banner_9s",
-                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-150),
-                size=new Vector2(440,300), text="TutorialHintText",          // widened from 1.20 -> ~1.47
-                pxc=0.50f, pxw=0.86f, pyc=0.67f, pyh=0.45f, font=40, stretch=true },
+                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-140),
+                size=new Vector2(400,230), text="TutorialHintText",          // stray top fragment cropped; banner aspect 1.74
+                pxc=0.51f, pxw=0.91f, pyc=0.52f, pyh=0.67f, font=40, stretch=true },
         };
 
         [MenuItem("Jebby Jump/Scaffold/Build Game HUD")]
