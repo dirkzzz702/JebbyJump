@@ -134,17 +134,19 @@ namespace JebbyJump.UI
         // formatting via TimeFormat.AppendClock + TMP SetText). Same displayed text
         // as the prior FormatTime string (proven by TimeFormatTests).
         private readonly StringBuilder _timerSb = new StringBuilder(16);
+        private float _lastShownElapsed = -1f;
 
         private void Update()
         {
-            // Live HUD timer (top-right).
-            // Updates only while the run is active.
-            if (_liveTimerText != null
-                && _levelTimer != null
-                && _levelTimer.IsRunning)
+            // Live HUD timer (top-right). Sync whenever Elapsed changes - which
+            // includes ResetTimer()/StartTimer() zeroing it on a restart, so the
+            // display resets instead of holding the previous run's final time.
+            if (_liveTimerText != null && _levelTimer != null
+                && _levelTimer.Elapsed != _lastShownElapsed)
             {
+                _lastShownElapsed = _levelTimer.Elapsed;
                 _timerSb.Clear();
-                TimeFormat.AppendClock(_timerSb, _levelTimer.Elapsed);
+                TimeFormat.AppendClock(_timerSb, _lastShownElapsed);
                 _liveTimerText.SetText(_timerSb);
             }
 
@@ -209,6 +211,7 @@ namespace JebbyJump.UI
                     var himg = go.GetComponent<Image>();
                     himg.sprite = _lifeIconSprite;
                     himg.preserveAspect = true;
+                    himg.color = new Color(0.95f, 0.38f, 0.42f); // warm red tint (art is pale cream)
                 }
             }
             else if (_livesText != null)

@@ -46,8 +46,8 @@ namespace JebbyJump.EditorTools
                 size=new Vector2(272,140), text="LevelText",                 // GUI02 clean slim-rim plaque, art aspect 1.94 (scaled down)
                 pxc=0.50f, pxw=0.90f, pyc=0.56f, pyh=0.74f, font=40, stretch=true, bold=true },
             new El{ name="PauseButton", sprite="ui_hud_pause_btn",
-                anchor=new Vector2(1f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(-80,-82),
-                size=new Vector2(86,86), text=null,                          // a size smaller than the timer, same centre-y
+                anchor=new Vector2(1f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(-74,-82),
+                size=new Vector2(66,66), text=null,                          // 2 sizes under the timer, same centre-y
                 pxc=0.5f, pxw=0.5f, pyc=0.5f, pyh=0.5f, font=0 },
             // Hint lives top-centre (the badge's zone, free once the badge hides),
             // NOT over the platforms; widened a touch so the text reads bigger.
