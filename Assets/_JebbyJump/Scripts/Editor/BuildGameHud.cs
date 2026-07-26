@@ -30,6 +30,7 @@ namespace JebbyJump.EditorTools
             public string name, sprite, text; public Vector2 anchor, pivot, pos, size;
             public float pxc, pxw, pyc, pyh, font;
             public bool stretch; // fill the rect (preserveAspect off) to reshape the art
+            public bool bold;    // apply the Face-Dilate bold Fredoka material
         }
         // Layout grid, NOT measured off the art board (that board was a sprite
         // sheet, not a 1:1 screen). Each rect is sized to the art's REAL opaque
@@ -41,12 +42,12 @@ namespace JebbyJump.EditorTools
         private static readonly El[] Elements =
         {
             new El{ name="LevelBadgeRoot", sprite="ui_hud_level_badge_9s",
-                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-118),
-                size=new Vector2(330,199), text="LevelText",                 // ornate regen, aspect 1.66 (complete rounded bottom)
-                pxc=0.50f, pxw=0.73f, pyc=0.53f, pyh=0.68f, font=46, stretch=true },
+                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-114),
+                size=new Vector2(330,168), text="LevelText",                 // ornate regen, flattened in height (art 1.66 -> rect 1.96)
+                pxc=0.50f, pxw=0.73f, pyc=0.53f, pyh=0.68f, font=46, stretch=true, bold=true },
             new El{ name="PauseButton", sprite="ui_hud_pause_btn",
-                anchor=new Vector2(1f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(-85,-92),
-                size=new Vector2(93,96), text=null,                          // aspect 0.97
+                anchor=new Vector2(1f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(-82,-90),
+                size=new Vector2(110,110), text=null,                        // matched to timer height + aligned baseline
                 pxc=0.5f, pxw=0.5f, pyc=0.5f, pyh=0.5f, font=0 },
             // Hint lives top-centre (the badge's zone, free once the badge hides),
             // NOT over the platforms; widened a touch so the text reads bigger.
@@ -121,7 +122,7 @@ namespace JebbyJump.EditorTools
             {
                 var t = FindDeep(s, e.text);
                 var tmp = t != null ? t.GetComponent<TMP_Text>() : null;
-                if (tmp != null) StyleLabel(tmp, e.size, e.pxc, e.pxw, e.pyc, e.pyh, e.font);
+                if (tmp != null) StyleLabel(tmp, e.size, e.pxc, e.pxw, e.pyc, e.pyh, e.font, e.bold);
             }
         }
 
@@ -129,10 +130,11 @@ namespace JebbyJump.EditorTools
         // fractions), so the text fits INSIDE the panel and never spills onto the
         // frame's border/gem. A small margin keeps it off the panel edge.
         private static void StyleLabel(TMP_Text tmp, Vector2 frame,
-            float pxc, float pxw, float pyc, float pyh, float font)
+            float pxc, float pxw, float pyc, float pyh, float font, bool bold)
         {
             tmp.color = Cocoa; tmp.enableVertexGradient = false;
             tmp.fontStyle |= FontStyles.Bold;
+            if (bold) { var bm = BoldMat(); if (bm != null) tmp.fontSharedMaterial = bm; }
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.enableAutoSizing = true; tmp.fontSizeMax = font; tmp.fontSizeMin = 12f;
             var rt = tmp.rectTransform;
@@ -162,14 +164,14 @@ namespace JebbyJump.EditorTools
             var newGo = new GameObject("TimerBanner", typeof(RectTransform), typeof(Image));
             var banner = (RectTransform)newGo.transform;
             banner.SetParent(hud, false);
-            // Timer sits on the top-right band, just LEFT of the pause button.
-            // Rect sized to the art's real aspect (1.62); enlarged so "00:00.00"
-            // fits INSIDE the cream panel (which is only ~61% of the ribbon width).
-            const float tw = 210f, th = tw / 1.62f; // 210 x 130
+            // Timer sits on the top-right band, just LEFT of the pause button,
+            // sized + aligned to match it (same centre-y, ~similar height).
+            // Rect keeps the art's real aspect (1.62).
+            const float th = 117f, tw = th * 1.62f; // ~190 x 117 (pause is 110)
             banner.anchorMin = banner.anchorMax = new Vector2(1f, 1f);
             banner.pivot = new Vector2(0.5f, 0.5f);
             banner.sizeDelta = new Vector2(tw, th);
-            banner.anchoredPosition = new Vector2(-256f, -95f);
+            banner.anchoredPosition = new Vector2(-248f, -90f);
             var bimg = banner.GetComponent<Image>();
             bimg.sprite = Sprite("ui_hud_timer_banner_9s");
             bimg.type = Image.Type.Simple; bimg.preserveAspect = true; bimg.raycastTarget = false;
@@ -184,6 +186,7 @@ namespace JebbyJump.EditorTools
             trt.anchoredPosition = new Vector2((0.47f - 0.5f) * tw, -(0.62f - 0.5f) * th);
             tmp.color = Cocoa; tmp.enableVertexGradient = false;
             tmp.fontStyle |= FontStyles.Bold;
+            var tbm = BoldMat(); if (tbm != null) tmp.fontSharedMaterial = tbm;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.enableAutoSizing = true; tmp.fontSizeMax = 28f; tmp.fontSizeMin = 12f;
             EditorUtility.SetDirty(tmp); EditorUtility.SetDirty(bimg);
@@ -230,6 +233,17 @@ namespace JebbyJump.EditorTools
         }
 
         private static Sprite Sprite(string n) => AssetDatabase.LoadAssetAtPath<Sprite>(Dir + n + ".png");
+
+        // Scoped Face-Dilate bold Fredoka material (same one the menu labels use)
+        // for "one size bolder" HUD text. Loaded once.
+        private static Material _boldMat;
+        private static Material BoldMat()
+        {
+            if (_boldMat == null)
+                _boldMat = AssetDatabase.LoadAssetAtPath<Material>(
+                    "Assets/_JebbyJump/Art/Fonts/Fredoka SDF Bold.mat");
+            return _boldMat;
+        }
 
         private static GameObject FindDeep(UnityEngine.SceneManagement.Scene s, string name)
         {
