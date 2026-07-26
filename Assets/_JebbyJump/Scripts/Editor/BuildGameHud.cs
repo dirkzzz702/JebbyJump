@@ -61,7 +61,7 @@ namespace JebbyJump.EditorTools
         public static void Run()
         {
             foreach (var s in new[] { "ui_hud_level_badge_9s", "ui_hud_timer_banner_9s",
-                "ui_hud_pause_btn", "ui_hint_banner_9s", "ui_hud_heart_01" })
+                "ui_hud_pause_btn", "ui_hint_banner_9s", "ui_hud_heart_01", "ui_hud_heart_fill_01" })
                 EnsureSprite(s + ".png");
 
             var scene = EditorSceneManager.OpenScene(GameScenePath, OpenSceneMode.Single);
@@ -82,7 +82,12 @@ namespace JebbyJump.EditorTools
                 var p = so.FindProperty("_lifeIconSprite");
                 var heart = Sprite("ui_hud_heart_01");
                 if (p != null && heart != null && p.objectReferenceValue != heart)
-                { p.objectReferenceValue = heart; so.ApplyModifiedPropertiesWithoutUndo(); EditorUtility.SetDirty(hud); }
+                    p.objectReferenceValue = heart;
+                var pf = so.FindProperty("_lifeFillSprite");
+                var fill = Sprite("ui_hud_heart_fill_01");
+                if (pf != null && fill != null && pf.objectReferenceValue != fill)
+                    pf.objectReferenceValue = fill;
+                so.ApplyModifiedPropertiesWithoutUndo(); EditorUtility.SetDirty(hud);
             }
 
             EditorSceneManager.MarkSceneDirty(scene);

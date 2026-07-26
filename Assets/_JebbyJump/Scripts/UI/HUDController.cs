@@ -21,7 +21,8 @@ namespace JebbyJump.UI
         [SerializeField] private MemoryPhaseController _phaseController;
         [SerializeField] private TextMeshProUGUI _livesText;
         [SerializeField] private Transform _livesIconContainer;
-        [SerializeField] private Sprite _lifeIconSprite;
+        [SerializeField] private Sprite _lifeIconSprite;   // cream heart frame
+        [SerializeField] private Sprite _lifeFillSprite;   // red heart fill inside the frame
         [SerializeField] private GameObject _gameOverPanel;
         [SerializeField] private GameObject _levelCompletePanel;
         [SerializeField] private Button _gameOverRetryButton;
@@ -208,12 +209,23 @@ namespace JebbyJump.UI
                     var go = new GameObject(
                         $"Heart_{i}", typeof(RectTransform), typeof(Image));
                     go.transform.SetParent(_livesIconContainer, false);
-                    go.GetComponent<RectTransform>().sizeDelta =
-                        new Vector2(70f, 68f);
+                    var hrt = go.GetComponent<RectTransform>();
+                    hrt.sizeDelta = new Vector2(74f, 68f);
                     var himg = go.GetComponent<Image>();
-                    himg.sprite = _lifeIconSprite;
+                    himg.sprite = _lifeIconSprite;   // cream frame, untinted
                     himg.preserveAspect = true;
-                    himg.color = new Color(0.95f, 0.38f, 0.42f); // warm red tint (art is pale cream)
+                    if (_lifeFillSprite != null)
+                    {
+                        var fillGo = new GameObject("Fill", typeof(RectTransform), typeof(Image));
+                        fillGo.transform.SetParent(go.transform, false);
+                        var frt = fillGo.GetComponent<RectTransform>();
+                        frt.anchorMin = frt.anchorMax = new Vector2(0.5f, 0.5f);
+                        frt.pivot = new Vector2(0.5f, 0.5f);
+                        frt.sizeDelta = new Vector2(74f * 0.76f, 68f * 0.76f);
+                        frt.anchoredPosition = new Vector2(0f, 68f * 0.03f); // nudge up into the heart body
+                        var fimg = fillGo.GetComponent<Image>();
+                        fimg.sprite = _lifeFillSprite; fimg.preserveAspect = true; fimg.raycastTarget = false;
+                    }
                 }
             }
             else if (_livesText != null)
