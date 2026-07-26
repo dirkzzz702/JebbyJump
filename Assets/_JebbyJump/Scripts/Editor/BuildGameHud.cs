@@ -42,12 +42,12 @@ namespace JebbyJump.EditorTools
         private static readonly El[] Elements =
         {
             new El{ name="LevelBadgeRoot", sprite="ui_hud_level_badge_9s",
-                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-104),
-                size=new Vector2(330,170), text="LevelText",                 // GUI02 clean slim-rim plaque, art aspect 1.94
-                pxc=0.50f, pxw=0.90f, pyc=0.56f, pyh=0.74f, font=48, stretch=true, bold=true },
+                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-100),
+                size=new Vector2(272,140), text="LevelText",                 // GUI02 clean slim-rim plaque, art aspect 1.94 (scaled down)
+                pxc=0.50f, pxw=0.90f, pyc=0.56f, pyh=0.74f, font=40, stretch=true, bold=true },
             new El{ name="PauseButton", sprite="ui_hud_pause_btn",
-                anchor=new Vector2(1f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(-84,-86),
-                size=new Vector2(120,120), text=null,                        // matched height + aligned with timer
+                anchor=new Vector2(1f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(-80,-82),
+                size=new Vector2(86,86), text=null,                          // a size smaller than the timer, same centre-y
                 pxc=0.5f, pxw=0.5f, pyc=0.5f, pyh=0.5f, font=0 },
             // Hint lives top-centre (the badge's zone, free once the badge hides),
             // NOT over the platforms; widened a touch so the text reads bigger.
@@ -167,11 +167,11 @@ namespace JebbyJump.EditorTools
             // Timer sits on the top-right band, just LEFT of the pause button,
             // aligned on the same centre-y. The GUI02 art fills its canvas (~88%),
             // so matching its height to the pause makes the two read as a pair.
-            const float th = 120f, tw = th * 2.31f; // ~277 x 120 (pause is 120)
+            const float th = 100f, tw = th * 2.31f; // ~231 x 100 (pause is 100)
             banner.anchorMin = banner.anchorMax = new Vector2(1f, 1f);
             banner.pivot = new Vector2(0.5f, 0.5f);
             banner.sizeDelta = new Vector2(tw, th);
-            banner.anchoredPosition = new Vector2(-298f, -86f);
+            banner.anchoredPosition = new Vector2(-262f, -82f);
             var bimg = banner.GetComponent<Image>();
             bimg.sprite = Sprite("ui_hud_timer_banner_9s");
             bimg.type = Image.Type.Simple; bimg.preserveAspect = true; bimg.raycastTarget = false;
@@ -188,7 +188,7 @@ namespace JebbyJump.EditorTools
             tmp.fontStyle |= FontStyles.Bold;
             var tbm = BoldMat(); if (tbm != null) tmp.fontSharedMaterial = tbm;
             tmp.alignment = TextAlignmentOptions.Center;
-            tmp.enableAutoSizing = true; tmp.fontSizeMax = 48f; tmp.fontSizeMin = 12f;
+            tmp.enableAutoSizing = true; tmp.fontSizeMax = 40f; tmp.fontSizeMin = 12f;
             EditorUtility.SetDirty(tmp); EditorUtility.SetDirty(bimg);
         }
 
