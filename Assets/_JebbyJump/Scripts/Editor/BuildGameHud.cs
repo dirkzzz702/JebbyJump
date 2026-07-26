@@ -41,9 +41,9 @@ namespace JebbyJump.EditorTools
         private static readonly El[] Elements =
         {
             new El{ name="LevelBadgeRoot", sprite="ui_hud_level_badge_9s",
-                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-92),
-                size=new Vector2(360,132), text="LevelText",                 // regen art aspect 2.73 (full rounded bottom)
-                pxc=0.50f, pxw=0.68f, pyc=0.56f, pyh=0.58f, font=46, stretch=true },
+                anchor=new Vector2(0.5f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(0,-118),
+                size=new Vector2(330,199), text="LevelText",                 // ornate regen, aspect 1.66 (complete rounded bottom)
+                pxc=0.50f, pxw=0.73f, pyc=0.53f, pyh=0.68f, font=46, stretch=true },
             new El{ name="PauseButton", sprite="ui_hud_pause_btn",
                 anchor=new Vector2(1f,1f), pivot=new Vector2(0.5f,0.5f), pos=new Vector2(-85,-92),
                 size=new Vector2(93,96), text=null,                          // aspect 0.97
