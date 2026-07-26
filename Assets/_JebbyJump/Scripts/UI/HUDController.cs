@@ -45,18 +45,20 @@ namespace JebbyJump.UI
         // Optional top-right live timer.
         [SerializeField] private TextMeshProUGUI _liveTimerText;
 
-        // Gold.
+        // Rank colours tuned to read on the CREAM result card (the old gold/silver
+        // washed out on the light background).
+        // Deep amber-gold.
         private static readonly Color RankColorS =
-            new Color(1.00f, 0.84f, 0.10f);
-        // Silver.
+            new Color(0.86f, 0.55f, 0.05f);
+        // Steel/slate.
         private static readonly Color RankColorA =
-            new Color(0.85f, 0.85f, 0.90f);
+            new Color(0.40f, 0.50f, 0.64f);
         // Bronze.
         private static readonly Color RankColorB =
-            new Color(0.80f, 0.50f, 0.20f);
-        // Gray.
+            new Color(0.70f, 0.42f, 0.16f);
+        // Grey.
         private static readonly Color RankColorC =
-            new Color(0.60f, 0.60f, 0.60f);
+            new Color(0.42f, 0.42f, 0.42f);
 
         private void Awake()
         {
