@@ -11,13 +11,14 @@ namespace JebbyJump.Platforms
         [SerializeField] private int _rowIndex;
         [SerializeField] private float _width = 2f;
 
-        // Jebby's sprites carry transparent canvas below the opaque feet, so his
-        // visible feet sit ~0.18u above his collider bottom. The floor ledge
-        // already tucks its grass up to meet those feet; platforms did not, so
-        // Jebby appeared to float above the bar. Dropping the collider top by the
-        // same padding lands his visible feet ON the bar. Visual/cactus placement
-        // (transform.y + PlatformHeight/2) is untouched - only the collider moves.
-        private const float FootPadWorld = 0.18f;
+        // Drop the collider top so Jebby's VISIBLE feet land on the VISIBLE bar.
+        // Two parts: (a) ~0.18u because his sprites carry transparent canvas below
+        // the opaque feet (feet render 0.18u above his collider bottom), and
+        // (b) ~0.06u because spr_platform_base_01's rounded bar is inset ~16px from
+        // the top of its 128px canvas (the sprite box top is above the visible
+        // bar). Visual/cactus placement (transform.y + PlatformHeight/2) is
+        // untouched - only the collider moves.
+        private const float FootPadWorld = 0.24f;
 
         public PlatformColor Color => _color;
         public int RowIndex => _rowIndex;
