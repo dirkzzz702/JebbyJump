@@ -26,6 +26,7 @@ namespace JebbyJump.World
         [SerializeField] private LevelSessionController _levelSession;
         [SerializeField] private SpriteRenderer _background;
         [SerializeField] private SpriteRenderer _floorVisual;
+        [SerializeField] private UnityEngine.UI.Image _gameOverMascot;
 
         // 0 = nothing applied yet. Exposed for tests/diagnostics.
         public int AppliedWorldNumber { get; private set; }
@@ -121,6 +122,17 @@ namespace JebbyJump.World
                 if (floor == null && fallbackVisuals != null && fallbackVisuals.HasFloor)
                     floor = fallbackVisuals.Floor;
                 if (floor != null) _floorVisual.sprite = floor;
+            }
+
+            // Game Over mascot: same policy (unlanded worlds show World 1's cactus).
+            if (_gameOverMascot != null)
+            {
+                Sprite mascot = visuals != null && visuals.HasGameOverMascot
+                    ? visuals.GameOverMascot
+                    : null;
+                if (mascot == null && fallbackVisuals != null && fallbackVisuals.HasGameOverMascot)
+                    mascot = fallbackVisuals.GameOverMascot;
+                if (mascot != null) _gameOverMascot.sprite = mascot;
             }
 
             AppliedWorldNumber = world.WorldNumber;

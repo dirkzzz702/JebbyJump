@@ -139,11 +139,16 @@ public static class CreateOrSyncWorldCatalog
         string dir = "Assets/_JebbyJump/Art/Worlds/" + wid + "_" + slug;
         string bg = dir + "/Backgrounds/bg_" + low + "_01.png";
         string floor = dir + "/Floor/floor_" + low + "_01.png";
+        // Themed Game Over mascots live in the shared UI folder, numbered by
+        // world (W01 is the existing sad cactus). Unlanded ones fall back to W01.
+        string mascot = "Assets/_JebbyJump/Art/Sprites/UI/ui_gameover_mascot_"
+            + worldNumber.ToString("00") + ".png";
 
         // Only assign when the file actually exists (LoadAssetAtPath returns
         // null otherwise, and SetSprite no-ops), so unlanded worlds fall back.
         dirty |= SetSprite(so, "_visuals._background", bg);
         dirty |= SetSprite(so, "_visuals._floor", floor);
+        dirty |= SetSprite(so, "_visuals._gameOverMascot", mascot);
         return dirty;
     }
 

@@ -346,6 +346,24 @@ namespace JebbyJump.EditorTools
 
         private static void WireResultRefs(UnityEngine.SceneManagement.Scene s)
         {
+            // Per-world Game Over mascot: point the WorldThemeApplier at the
+            // GameOverMascot Image so it swaps the mascot per world at runtime.
+            var applier = Object.FindAnyObjectByType<JebbyJump.World.WorldThemeApplier>(FindObjectsInactive.Include);
+            var goPanel = FindDeep(s, "GameOverPanel");
+            var goCard = goPanel != null ? Find(goPanel.transform, "Card") : null;
+            var mascot = goCard != null ? Find(goCard, "GameOverMascot") : null;
+            if (applier != null && mascot != null)
+            {
+                var aso = new SerializedObject(applier);
+                var mp = aso.FindProperty("_gameOverMascot");
+                if (mp != null)
+                {
+                    mp.objectReferenceValue = mascot.GetComponent<Image>();
+                    aso.ApplyModifiedPropertiesWithoutUndo();
+                    EditorUtility.SetDirty(applier);
+                }
+            }
+
             var hud = Object.FindAnyObjectByType<JebbyJump.UI.HUDController>(FindObjectsInactive.Include);
             var lc = FindDeep(s, "LevelCompletePanel");
             if (hud == null || lc == null) return;

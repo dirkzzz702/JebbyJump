@@ -3055,6 +3055,7 @@ MonoBehaviour:
   _levelSession: {fileID: 751651265}
   _background: {fileID: 852438716}
   _floorVisual: {fileID: 302176198}
+  _gameOverMascot: {fileID: 17966108}
 --- !u!4 &458969264
 Transform:
   m_ObjectHideFlags: 0

@@ -16,13 +16,17 @@ namespace JebbyJump.World
     {
         [SerializeField] private Sprite _background;
         [SerializeField] private Sprite _floor;
+        [SerializeField] private Sprite _gameOverMascot;
 
         public Sprite Background => _background;
         public Sprite Floor => _floor;
+        // The themed "sad" mascot shown on the Game Over card for this world.
+        public Sprite GameOverMascot => _gameOverMascot;
 
-        // A world with no background of its own falls back to World 1 rather
-        // than rendering blank (see WorldThemeApplier).
+        // A world with no art of its own falls back to World 1 rather than
+        // rendering blank (see WorldThemeApplier).
         public bool HasBackground => _background != null;
         public bool HasFloor => _floor != null;
+        public bool HasGameOverMascot => _gameOverMascot != null;
     }
 }
