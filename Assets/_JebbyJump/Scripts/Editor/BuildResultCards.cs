@@ -49,8 +49,9 @@ namespace JebbyJump.EditorTools
                 // Buttons -> cream / gold pills, cocoa bold labels, tint transition.
                 foreach (var btn in card.GetComponentsInChildren<Button>(true))
                 {
-                    bool primary = btn.name.Contains("Next")
-                        || (panelName == "GameOverPanel" && btn.name.Contains("Retry"));
+                    // Only Level Complete's "Next Level" is the gold primary; the
+                    // mockup's Game Over buttons are BOTH cream.
+                    bool primary = btn.name.Contains("Next");
                     var bimg = btn.image != null ? btn.image : btn.GetComponent<Image>();
                     if (bimg != null)
                     {
