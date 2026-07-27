@@ -224,8 +224,31 @@ namespace JebbyJump.EditorTools
 
         private static void BuildGameOverExtras(Transform card)
         {
-            PlaceIcon(card, "GameOverMascot", "ui_gameover_mascot_01", new Vector2(0f, -12f), new Vector2(205f, 205f));
+            // Mockup shows the Game Over card the SAME size as Level Complete; the
+            // 400-tall card was crushing the mascot + buttons (Main Menu overflowed).
+            var crt = card as RectTransform;
+            if (crt != null) crt.sizeDelta = new Vector2(700f, 480f);
+
             SetText(card, "TitleText", "Game Over"); // mixed-case, matches mockup
+            // Pin the title near the top (its default top-half stretch anchor would
+            // drift into the enlarged mascot as the card grows).
+            var title = Find(card, "TitleText") as RectTransform;
+            if (title != null)
+            {
+                title.anchorMin = title.anchorMax = new Vector2(0.5f, 0.5f);
+                title.pivot = new Vector2(0.5f, 0.5f);
+                title.anchoredPosition = new Vector2(0f, 168f);
+                title.sizeDelta = new Vector2(600f, 80f);
+                EditorUtility.SetDirty(title);
+            }
+
+            // Big centred sad-cactus mascot (mockup fills ~half the card).
+            PlaceIcon(card, "GameOverMascot", "ui_gameover_mascot_01", new Vector2(0f, 2f), new Vector2(256f, 256f));
+
+            // Buttons: narrower Retry + wider Main Menu (fits the longer label),
+            // clearly separated with a real gap.
+            PlaceButton(card, "RetryButton", new Vector2(-186f, -188f), new Vector2(256f, 82f));
+            PlaceButton(card, "MainMenuButton", new Vector2(176f, -188f), new Vector2(300f, 82f));
         }
 
         private static void SetText(Transform card, string name, string text)
