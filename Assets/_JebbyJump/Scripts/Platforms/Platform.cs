@@ -11,6 +11,14 @@ namespace JebbyJump.Platforms
         [SerializeField] private int _rowIndex;
         [SerializeField] private float _width = 2f;
 
+        // Jebby's sprites carry transparent canvas below the opaque feet, so his
+        // visible feet sit ~0.18u above his collider bottom. The floor ledge
+        // already tucks its grass up to meet those feet; platforms did not, so
+        // Jebby appeared to float above the bar. Dropping the collider top by the
+        // same padding lands his visible feet ON the bar. Visual/cactus placement
+        // (transform.y + PlatformHeight/2) is untouched - only the collider moves.
+        private const float FootPadWorld = 0.18f;
+
         public PlatformColor Color => _color;
         public int RowIndex => _rowIndex;
 
@@ -83,7 +91,15 @@ namespace JebbyJump.Platforms
             }
             var col = GetComponent<BoxCollider2D>();
             if (col != null)
+            {
                 col.size = new Vector2(_width, col.size.y);
+                // Offset is pre-scale; convert the world foot-pad through the
+                // (spawner-set) non-uniform localScale.y so the drop is a
+                // consistent 0.18u regardless of PlatformHeight.
+                float sy = transform.localScale.y;
+                col.offset = new Vector2(
+                    col.offset.x, sy != 0f ? -FootPadWorld / sy : col.offset.y);
+            }
         }
 
         private void EnsureCueLabel()
