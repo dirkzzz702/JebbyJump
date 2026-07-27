@@ -43,6 +43,9 @@ namespace JebbyJump.UI
         // Optional per-level mastery stars on the result panel.
         // Null until scaffolded; star logic/store/analytics run regardless.
         [SerializeField] private TextMeshProUGUI _levelCompleteStarsText;
+        // Mockup result card: the rank LETTER sits on a medal; stars are 3 icons.
+        [SerializeField] private TextMeshProUGUI _rankMedalLetter;
+        [SerializeField] private UnityEngine.UI.Image[] _starIcons;
         // Optional top-right live timer.
         [SerializeField] private TextMeshProUGUI _liveTimerText;
 
@@ -302,10 +305,11 @@ namespace JebbyJump.UI
             bool isNewBest = BestTimeStore.TrySetBest(levelKey, elapsed);
             float best = BestTimeStore.GetBest(levelKey);
 
+            // The fixed "Time"/"Best" labels are static left-column text placed by
+            // BuildResultCards; these fields hold only the right-column VALUE.
             if (_levelCompleteTimeText != null)
             {
-                _levelCompleteTimeText.text =
-                    $"Time: {FormatTime(elapsed)}";
+                _levelCompleteTimeText.text = FormatTime(elapsed);
             }
 
             if (_levelCompleteBestTimeText != null)
@@ -313,16 +317,15 @@ namespace JebbyJump.UI
                 if (isNewBest)
                 {
                     _levelCompleteBestTimeText.text =
-                        $"Best: {FormatTime(best)}  (New!)";
+                        $"{FormatTime(best)}  New!";
                 }
                 else if (float.IsNaN(best))
                 {
-                    _levelCompleteBestTimeText.text = "Best: --";
+                    _levelCompleteBestTimeText.text = "--";
                 }
                 else
                 {
-                    _levelCompleteBestTimeText.text =
-                        $"Best: {FormatTime(best)}";
+                    _levelCompleteBestTimeText.text = FormatTime(best);
                 }
             }
 
@@ -339,17 +342,24 @@ namespace JebbyJump.UI
                 ? rankCfg.GetRank(elapsed)
                 : (TimeRank?)null;
 
-            if (_levelCompleteRankText != null && computedRank.HasValue)
+            if (computedRank.HasValue)
             {
                 var rank = computedRank.Value;
-                _levelCompleteRankText.text = $"Rank: {rank}";
-                _levelCompleteRankText.color = rank switch
+                var rankColor = rank switch
                 {
                     TimeRank.S => RankColorS,
                     TimeRank.A => RankColorA,
                     TimeRank.B => RankColorB,
                     _          => RankColorC
                 };
+                // Row shows just the "Rank" label (cocoa, from BuildResultCards);
+                // the letter + its colour live on the medal.
+                if (_levelCompleteRankText != null) _levelCompleteRankText.text = "Rank";
+                if (_rankMedalLetter != null)
+                {
+                    _rankMedalLetter.text = rank.ToString();
+                    _rankMedalLetter.color = rankColor;
+                }
             }
 
             EmitCompletionAnalytics(elapsed, oldBest, best, isNewBest, computedRank);
@@ -415,11 +425,13 @@ namespace JebbyJump.UI
             bool improved = storedStars > prevStars;
 
             if (_levelCompleteStarsText != null)
-            {
-                _levelCompleteStarsText.text =
-                    StarRewardFormatter.Label(starsThisClear)
-                    + (improved ? "  (New Star Best!)" : string.Empty);
-            }
+                _levelCompleteStarsText.text = "Stars";   // the 3 icons show the count
+            // Mockup: 3 star icons, filled up to starsThisClear, the rest dimmed.
+            if (_starIcons != null)
+                for (int i = 0; i < _starIcons.Length; i++)
+                    if (_starIcons[i] != null)
+                        _starIcons[i].color = i < starsThisClear
+                            ? Color.white : new Color(1f, 1f, 1f, 0.22f);
 
             // Emit only when the stored best actually increased - a replay
             // with an equal/lower rank grants nothing and emits nothing.
