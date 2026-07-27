@@ -23,6 +23,7 @@ namespace JebbyJump.EditorTools
                 "ui_row_icon_time_01", "ui_row_icon_best_01", "ui_row_icon_rank_01",
                 "ui_star_gold_01", "ui_rank_medal_01", "ui_gameover_mascot_01" })
                 EnsureSprite(s + ".png");
+            EnsureDotSprite("ui_dot_sep.png");   // dotted row separators (Tiled)
 
             var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             int nb = 0;
@@ -104,9 +105,32 @@ namespace JebbyJump.EditorTools
             AssetDatabase.ImportAsset(Dir + file, ImportAssetOptions.ForceUpdate);
         }
 
-        // ---- mockup layout: inset rows panel, 4 icon+label rows, right-column
+        // The dotted-line tile needs a Single sprite with FullRect mesh + Repeat
+        // wrap so a UI Image (Tiled) repeats it cleanly across the divider.
+        private static void EnsureDotSprite(string file)
+        {
+            var imp = AssetImporter.GetAtPath(Dir + file) as TextureImporter;
+            if (imp == null) return;
+            var s = new TextureImporterSettings();
+            imp.ReadTextureSettings(s);
+            bool ch = false;
+            if (s.textureType != TextureImporterType.Sprite) { s.textureType = TextureImporterType.Sprite; ch = true; }
+            if (s.spriteMode != (int)SpriteImportMode.Single) { s.spriteMode = (int)SpriteImportMode.Single; ch = true; }
+            if (s.spriteMeshType != SpriteMeshType.FullRect) { s.spriteMeshType = SpriteMeshType.FullRect; ch = true; }
+            if (s.wrapMode != TextureWrapMode.Repeat) { s.wrapMode = TextureWrapMode.Repeat; ch = true; }
+            if (s.filterMode != FilterMode.Point) { s.filterMode = FilterMode.Point; ch = true; }
+            if (!s.alphaIsTransparency) { s.alphaIsTransparency = true; ch = true; }
+            if (ch) { imp.SetTextureSettings(s); imp.SaveAndReimport(); }
+            AssetDatabase.ImportAsset(Dir + file, ImportAssetOptions.ForceUpdate);
+        }
+
+        // ---- mockup layout (pixel-mapped from mockup_ui.png; card = 700x480,
+        // centre origin): inset rows panel, 4 icon+label rows, right-column
         // values (Time/Best times, rank medal, 3 stars), Game Over mascot. ----
-        private static readonly float[] RowY = { 112f, 52f, -8f, -68f };
+        private static readonly float[] RowY = { 101f, 43f, -20f, -82f };
+        // Light cream letter on the blue medal (mockup shows a light "A", not a
+        // rank-tinted one that would vanish on the blue centre).
+        private static readonly Color MedalLetter = new Color(0.99f, 0.97f, 0.90f);
 
         private static void BuildLevelCompleteExtras(Transform card)
         {
@@ -120,22 +144,25 @@ namespace JebbyJump.EditorTools
 
             // inset cream panel (rounded) behind the four rows
             var panel = MakeChild(card, "RowsPanel", typeof(RectTransform), typeof(Image));
-            Center(panel, new Vector2(-48f, 22f), new Vector2(504f, 258f));
+            Center(panel, new Vector2(7f, 4f), new Vector2(592f, 263f));
             var pimg = panel.GetComponent<Image>();
             pimg.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
             pimg.type = Image.Type.Sliced; pimg.color = new Color(0.96f, 0.90f, 0.77f, 1f);
             pimg.raycastTarget = false; EditorUtility.SetDirty(pimg);
             panel.SetAsFirstSibling();
 
-            // faint dividers between the rows
-            float[] divY = { 82f, 22f, -38f };
+            // dotted dividers between rows (tiled dot sprite, stop left of the medal)
+            var dot = Sprite("ui_dot_sep");
+            float[] divY = { 72f, 11f, -51f };
             for (int i = 0; i < divY.Length; i++)
             {
                 var d = MakeChild(card, "Divider" + i, typeof(RectTransform), typeof(Image));
-                Center(d, new Vector2(-48f, divY[i]), new Vector2(446f, 2f));
+                Center(d, new Vector2(-50f, divY[i]), new Vector2(426f, 3f));
                 var dimg = d.GetComponent<Image>();
-                dimg.sprite = null; dimg.color = new Color(0.29f, 0.19f, 0.12f, 0.22f);
-                dimg.raycastTarget = false; EditorUtility.SetDirty(dimg);
+                if (dot != null) { dimg.sprite = dot; dimg.type = Image.Type.Tiled; }
+                else dimg.sprite = null;
+                dimg.color = new Color(0.42f, 0.32f, 0.22f, 0.55f);
+                dimg.raycastTarget = false; dimg.SetAllDirty(); EditorUtility.SetDirty(dimg);
             }
 
             var refTmp = Find(card, "TitleText")?.GetComponent<TMP_Text>();
@@ -144,7 +171,7 @@ namespace JebbyJump.EditorTools
             var icons = new[] { "ui_row_icon_time_01", "ui_row_icon_best_01",
                 "ui_row_icon_rank_01", "ui_star_gold_01" };
             for (int i = 0; i < 4; i++)
-                PlaceIcon(card, "RowIcon" + i, icons[i], new Vector2(-250f, RowY[i]), new Vector2(46f, 46f));
+                PlaceIcon(card, "RowIcon" + i, icons[i], new Vector2(-236f, RowY[i]), new Vector2(50f, 50f));
 
             // left labels: Time/Best are new; Rank/Stars reuse the existing texts
             MakeLabel(card, "TimeLabel", "Time", RowY[0], refTmp);
@@ -152,7 +179,7 @@ namespace JebbyJump.EditorTools
             PlaceLabel(Find(card, "RankText") as RectTransform, RowY[2]);
             PlaceLabel(Find(card, "StarsText") as RectTransform, RowY[3]);
 
-            // right values: the two time strings (right-aligned)
+            // right values: the two time strings (right-aligned, clear of the medal)
             PlaceValue(Find(card, "TimeText") as RectTransform, RowY[0]);
             PlaceValue(Find(card, "BestTimeText") as RectTransform, RowY[1]);
 
@@ -162,25 +189,43 @@ namespace JebbyJump.EditorTools
             SetText(card, "BestTimeText", "--");
             SetText(card, "RankText", "Rank");
             SetText(card, "StarsText", "Stars");
+            SetText(card, "TitleText", "Level Complete!"); // mixed-case, matches mockup
 
-            // rank medal + coloured letter (spans the Best/Rank rows, right)
-            var medal = PlaceIcon(card, "RankMedal", "ui_rank_medal_01", new Vector2(212f, 22f), new Vector2(150f, 150f));
+            // rank medal (spans the Best/Rank rows, right edge). The delivered art
+            // has a CREAM centre, so drop a blue disc in it (mockup shows a blue
+            // centre) and put the light letter on top for contrast.
+            var medal = PlaceIcon(card, "RankMedal", "ui_rank_medal_01", new Vector2(232f, 8f), new Vector2(122f, 122f));
+            var disc = MakeChild(medal, "MedalDisc", typeof(RectTransform), typeof(Image));
+            Center(disc, new Vector2(0f, 9f), new Vector2(76f, 76f));
+            var dimg2 = disc.GetComponent<Image>();
+            dimg2.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
+            dimg2.type = Image.Type.Simple; dimg2.preserveAspect = true;
+            dimg2.color = new Color(0.16f, 0.52f, 0.86f, 1f);
+            dimg2.raycastTarget = false; EditorUtility.SetDirty(dimg2);
+
             var letter = MakeChild(medal, "RankMedalLetter", typeof(RectTransform), typeof(TextMeshProUGUI));
-            Center(letter, new Vector2(0f, 6f), new Vector2(96f, 96f));
+            Center(letter, new Vector2(0f, 9f), new Vector2(70f, 70f));
             var lt = letter.GetComponent<TextMeshProUGUI>();
             lt.text = "A"; lt.alignment = TextAlignmentOptions.Center; lt.fontStyle = FontStyles.Bold;
-            lt.enableAutoSizing = true; lt.fontSizeMax = 60f; lt.fontSizeMin = 20f; lt.raycastTarget = false;
+            lt.enableAutoSizing = true; lt.fontSizeMax = 52f; lt.fontSizeMin = 18f; lt.raycastTarget = false;
             if (refTmp != null) { lt.font = refTmp.font; lt.fontSharedMaterial = refTmp.fontSharedMaterial; }
-            lt.color = Cocoa; EditorUtility.SetDirty(lt);
+            lt.color = MedalLetter; EditorUtility.SetDirty(lt);
+            letter.SetAsLastSibling(); // ensure the letter draws over the disc
 
             // three mastery stars on the Stars row (right of the label)
             for (int i = 0; i < 3; i++)
-                PlaceIcon(card, "Star" + i, "ui_star_gold_01", new Vector2(4f + i * 60f, RowY[3]), new Vector2(46f, 46f));
+                PlaceIcon(card, "Star" + i, "ui_star_gold_01", new Vector2(-6f + i * 73f, RowY[3]), new Vector2(52f, 52f));
+
+            // buttons row (pixel-mapped: Retry / Next Level / Main Menu)
+            PlaceButton(card, "RetryButton", new Vector2(-224f, -186f), new Vector2(172f, 80f));
+            PlaceButton(card, "NextLevelButton", new Vector2(6f, -186f), new Vector2(212f, 84f));
+            PlaceButton(card, "MainMenuButton", new Vector2(232f, -186f), new Vector2(200f, 80f));
         }
 
         private static void BuildGameOverExtras(Transform card)
         {
             PlaceIcon(card, "GameOverMascot", "ui_gameover_mascot_01", new Vector2(0f, -12f), new Vector2(205f, 205f));
+            SetText(card, "TitleText", "Game Over"); // mixed-case, matches mockup
         }
 
         private static void SetText(Transform card, string name, string text)
@@ -201,10 +246,10 @@ namespace JebbyJump.EditorTools
             var rt = MakeChild(card, name, typeof(RectTransform), typeof(TextMeshProUGUI));
             rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
             rt.pivot = new Vector2(0f, 0.5f);
-            rt.anchoredPosition = new Vector2(-205f, y); rt.sizeDelta = new Vector2(180f, 44f);
+            rt.anchoredPosition = new Vector2(-182f, y); rt.sizeDelta = new Vector2(182f, 46f);
             var t = rt.GetComponent<TextMeshProUGUI>();
             t.text = text; t.alignment = TextAlignmentOptions.MidlineLeft; t.fontStyle = FontStyles.Bold;
-            t.enableAutoSizing = true; t.fontSizeMax = 32f; t.fontSizeMin = 12f; t.raycastTarget = false;
+            t.enableAutoSizing = true; t.fontSizeMax = 34f; t.fontSizeMin = 12f; t.raycastTarget = false;
             if (refTmp != null) { t.font = refTmp.font; t.fontSharedMaterial = refTmp.fontSharedMaterial; }
             t.color = Cocoa; EditorUtility.SetDirty(t);
         }
@@ -214,14 +259,24 @@ namespace JebbyJump.EditorTools
             if (rt == null) return;
             rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
             rt.pivot = new Vector2(0f, 0.5f);
-            rt.anchoredPosition = new Vector2(-205f, y); rt.sizeDelta = new Vector2(180f, 44f);
+            rt.anchoredPosition = new Vector2(-182f, y); rt.sizeDelta = new Vector2(182f, 46f);
             var t = rt.GetComponent<TMP_Text>();
             if (t != null)
             {
                 t.alignment = TextAlignmentOptions.MidlineLeft; t.fontStyle |= FontStyles.Bold;
-                t.enableAutoSizing = true; t.fontSizeMax = 32f; t.fontSizeMin = 12f;
+                t.enableAutoSizing = true; t.fontSizeMax = 34f; t.fontSizeMin = 12f;
                 EditorUtility.SetDirty(t);
             }
+        }
+
+        private static void PlaceButton(Transform card, string name, Vector2 pos, Vector2 size)
+        {
+            var rt = Find(card, name) as RectTransform;
+            if (rt == null) return;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = pos; rt.sizeDelta = size;
+            EditorUtility.SetDirty(rt);
         }
 
         private static void PlaceValue(RectTransform rt, float y)
@@ -229,7 +284,7 @@ namespace JebbyJump.EditorTools
             if (rt == null) return;
             rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
             rt.pivot = new Vector2(1f, 0.5f);
-            rt.anchoredPosition = new Vector2(128f, y); rt.sizeDelta = new Vector2(150f, 44f);
+            rt.anchoredPosition = new Vector2(160f, y); rt.sizeDelta = new Vector2(150f, 46f);
             var t = rt.GetComponent<TMP_Text>();
             if (t != null)
             {

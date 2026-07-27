@@ -49,21 +49,6 @@ namespace JebbyJump.UI
         // Optional top-right live timer.
         [SerializeField] private TextMeshProUGUI _liveTimerText;
 
-        // Rank colours tuned to read on the CREAM result card (the old gold/silver
-        // washed out on the light background).
-        // Deep amber-gold.
-        private static readonly Color RankColorS =
-            new Color(0.86f, 0.55f, 0.05f);
-        // Steel/slate.
-        private static readonly Color RankColorA =
-            new Color(0.40f, 0.50f, 0.64f);
-        // Bronze.
-        private static readonly Color RankColorB =
-            new Color(0.70f, 0.42f, 0.16f);
-        // Grey.
-        private static readonly Color RankColorC =
-            new Color(0.42f, 0.42f, 0.42f);
-
         private void Awake()
         {
             if (_gameOverPanel != null)
@@ -345,21 +330,11 @@ namespace JebbyJump.UI
             if (computedRank.HasValue)
             {
                 var rank = computedRank.Value;
-                var rankColor = rank switch
-                {
-                    TimeRank.S => RankColorS,
-                    TimeRank.A => RankColorA,
-                    TimeRank.B => RankColorB,
-                    _          => RankColorC
-                };
                 // Row shows just the "Rank" label (cocoa, from BuildResultCards);
-                // the letter + its colour live on the medal.
+                // the medal shows the rank letter (its light cream colour is set
+                // by BuildResultCards for contrast on the blue medal).
                 if (_levelCompleteRankText != null) _levelCompleteRankText.text = "Rank";
-                if (_rankMedalLetter != null)
-                {
-                    _rankMedalLetter.text = rank.ToString();
-                    _rankMedalLetter.color = rankColor;
-                }
+                if (_rankMedalLetter != null) _rankMedalLetter.text = rank.ToString();
             }
 
             EmitCompletionAnalytics(elapsed, oldBest, best, isNewBest, computedRank);
