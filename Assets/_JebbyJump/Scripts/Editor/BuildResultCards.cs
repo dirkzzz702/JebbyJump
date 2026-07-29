@@ -133,9 +133,10 @@ namespace JebbyJump.EditorTools
         // centre origin): inset rows panel, 4 icon+label rows, right-column
         // values (Time/Best times, rank medal, 3 stars), Game Over mascot. ----
         private static readonly float[] RowY = { 101f, 43f, -20f, -82f };
-        // Light cream letter on the blue medal (mockup shows a light "A", not a
-        // rank-tinted one that would vanish on the blue centre).
-        private static readonly Color MedalLetter = new Color(0.99f, 0.97f, 0.90f);
+        // Warm GOLD rank letter on the medal's blue centre (matches the mockup's
+        // gold "A"). Works on both the interim blue disc and the future medal art
+        // whose own blue centre replaces that disc.
+        private static readonly Color MedalLetter = new Color(0.94f, 0.72f, 0.24f);
 
         private static void BuildLevelCompleteExtras(Transform card)
         {
@@ -196,10 +197,12 @@ namespace JebbyJump.EditorTools
             SetText(card, "StarsText", "Stars");
             SetText(card, "TitleText", "Level Complete!"); // mixed-case, matches mockup
 
-            // rank medal (spans the Best/Rank rows, right edge). The delivered art
-            // has a CREAM centre, so drop a blue disc in it (mockup shows a blue
-            // centre) and put the light letter on top for contrast.
+            // rank medal (spans the Best/Rank rows, right edge).
             var medal = PlaceIcon(card, "RankMedal", "ui_rank_medal_01", new Vector2(232f, 8f), new Vector2(122f, 122f));
+            // INTERIM: the current medal art has a CREAM centre, so we drop a blue
+            // disc in it (mockup shows a blue centre). REMOVE this MedalDisc block
+            // once the regenerated ui_rank_medal_01 (with its own blue centre)
+            // lands - the gold letter then sits directly on the art's blue centre.
             var disc = MakeChild(medal, "MedalDisc", typeof(RectTransform), typeof(Image));
             Center(disc, new Vector2(0f, 9f), new Vector2(76f, 76f));
             var dimg2 = disc.GetComponent<Image>();
