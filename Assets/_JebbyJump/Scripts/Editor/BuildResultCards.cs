@@ -197,19 +197,12 @@ namespace JebbyJump.EditorTools
             SetText(card, "StarsText", "Stars");
             SetText(card, "TitleText", "Level Complete!"); // mixed-case, matches mockup
 
-            // rank medal (spans the Best/Rank rows, right edge).
+            // rank medal (spans the Best/Rank rows, right edge). The art has its
+            // own blue centre now; the gold letter sits directly on it.
             var medal = PlaceIcon(card, "RankMedal", "ui_rank_medal_01", new Vector2(232f, 8f), new Vector2(122f, 122f));
-            // INTERIM: the current medal art has a CREAM centre, so we drop a blue
-            // disc in it (mockup shows a blue centre). REMOVE this MedalDisc block
-            // once the regenerated ui_rank_medal_01 (with its own blue centre)
-            // lands - the gold letter then sits directly on the art's blue centre.
-            var disc = MakeChild(medal, "MedalDisc", typeof(RectTransform), typeof(Image));
-            Center(disc, new Vector2(0f, 9f), new Vector2(76f, 76f));
-            var dimg2 = disc.GetComponent<Image>();
-            dimg2.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
-            dimg2.type = Image.Type.Simple; dimg2.preserveAspect = true;
-            dimg2.color = new Color(0.16f, 0.52f, 0.86f, 1f);
-            dimg2.raycastTarget = false; EditorUtility.SetDirty(dimg2);
+            // Drop the old interim blue disc a previous build may have added.
+            var staleDisc = Find(medal, "MedalDisc");
+            if (staleDisc != null) Object.DestroyImmediate(staleDisc.gameObject);
 
             var letter = MakeChild(medal, "RankMedalLetter", typeof(RectTransform), typeof(TextMeshProUGUI));
             Center(letter, new Vector2(0f, 9f), new Vector2(70f, 70f));
