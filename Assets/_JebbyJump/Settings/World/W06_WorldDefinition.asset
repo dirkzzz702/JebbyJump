@@ -20,3 +20,4 @@ MonoBehaviour:
   _visuals:
     _background: {fileID: -3317491718477254468, guid: ca69a46b827d92d409a90bf67ed2ba24, type: 3}
     _floor: {fileID: -249802500127104163, guid: 930dc091abbcdc847b05aca12d0c65c3, type: 3}
+    _gameOverMascot: {fileID: 21300000, guid: 1adea3694f1e0ed48856718db2861ddb, type: 3}

@@ -21,8 +21,12 @@ namespace JebbyJump.EditorTools
         {
             foreach (var s in new[] { "ui_result_card_9s", "ui_result_btn_9s", "ui_result_btn_primary_9s",
                 "ui_row_icon_time_01", "ui_row_icon_best_01", "ui_row_icon_rank_01",
-                "ui_star_gold_01", "ui_rank_medal_01", "ui_gameover_mascot_01" })
+                "ui_star_gold_01", "ui_rank_medal_01" })
                 EnsureSprite(s + ".png");
+            // Per-world Game Over mascots (import as Single so the catalog can load
+            // them; the project default imports fresh PNGs as Multiple).
+            for (int w = 1; w <= 10; w++)
+                EnsureSprite("ui_gameover_mascot_" + w.ToString("00") + ".png");
             EnsureDotSprite("ui_dot_sep.png");   // dotted row separators (Tiled)
 
             var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 6ae71349c7e625d4ebaa93f3a4a36796
+guid: 31ce29682b738b2428b18e3f2f152d86
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1331251852580725230
-    second: ui_gameover_mascot_01_0
+      213: -5931456936446166452
+    second: ui_gameover_mascot_04_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -48,7 +48,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
@@ -137,7 +137,29 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: ui_gameover_mascot_04_0
+      rect:
+        serializedVersion: 2
+        x: 88
+        y: 0
+        width: 498
+        height: 638
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4a799ea75b3fada0800000000000000
+      internalID: -5931456936446166452
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -152,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ui_gameover_mascot_01_0: -1331251852580725230
+      ui_gameover_mascot_04_0: -5931456936446166452
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
