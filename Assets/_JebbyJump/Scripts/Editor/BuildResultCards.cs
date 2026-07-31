@@ -225,31 +225,42 @@ namespace JebbyJump.EditorTools
 
         private static void BuildGameOverExtras(Transform card)
         {
-            // Mockup shows the Game Over card the SAME size as Level Complete; the
-            // 400-tall card was crushing the mascot + buttons (Main Menu overflowed).
+            // Mockup Game Over card is essentially SQUARE (~1.02 aspect, ~32% of
+            // screen width) - NOT the wide Level Complete shape. Match it.
             var crt = card as RectTransform;
-            if (crt != null) crt.sizeDelta = new Vector2(700f, 480f);
+            if (crt != null) crt.sizeDelta = new Vector2(622f, 610f);
+            // Slim the heavy 9-slice frame to the mockup's thin border (a larger
+            // multiplier renders the sliced caps smaller).
+            var cimg = card.GetComponent<Image>();
+            if (cimg != null) { cimg.pixelsPerUnitMultiplier = 3f; EditorUtility.SetDirty(cimg); }
 
             SetText(card, "TitleText", "Game Over"); // mixed-case, matches mockup
-            // Pin the title near the top (its default top-half stretch anchor would
-            // drift into the enlarged mascot as the card grows).
+            // Big BOLD title near the top (its default top-half stretch anchor would
+            // otherwise drift into the enlarged mascot).
             var title = Find(card, "TitleText") as RectTransform;
             if (title != null)
             {
                 title.anchorMin = title.anchorMax = new Vector2(0.5f, 0.5f);
                 title.pivot = new Vector2(0.5f, 0.5f);
-                title.anchoredPosition = new Vector2(0f, 168f);
-                title.sizeDelta = new Vector2(600f, 80f);
-                EditorUtility.SetDirty(title);
+                title.anchoredPosition = new Vector2(0f, 189f);
+                title.sizeDelta = new Vector2(360f, 84f);
+                var tt = title.GetComponent<TMP_Text>();
+                if (tt != null)
+                {
+                    tt.fontStyle |= FontStyles.Bold;
+                    tt.alignment = TextAlignmentOptions.Center;
+                    tt.enableAutoSizing = true; tt.fontSizeMax = 64f; tt.fontSizeMin = 24f;
+                    EditorUtility.SetDirty(tt);
+                }
             }
 
             // Big centred sad-cactus mascot (mockup fills ~half the card).
-            PlaceIcon(card, "GameOverMascot", "ui_gameover_mascot_01", new Vector2(0f, 2f), new Vector2(256f, 256f));
+            PlaceIcon(card, "GameOverMascot", "ui_gameover_mascot_01", new Vector2(0f, 8f), new Vector2(392f, 392f));
 
-            // Buttons: narrower Retry + wider Main Menu (fits the longer label),
-            // clearly separated with a real gap.
-            PlaceButton(card, "RetryButton", new Vector2(-186f, -188f), new Vector2(256f, 82f));
-            PlaceButton(card, "MainMenuButton", new Vector2(176f, -188f), new Vector2(300f, 82f));
+            // Buttons: Retry (left) + Main Menu (right, wider), thin-bordered cream
+            // pills near the bottom - proportioned to the mockup.
+            PlaceButton(card, "RetryButton", new Vector2(-159f, -201f), new Vector2(243f, 85f));
+            PlaceButton(card, "MainMenuButton", new Vector2(140f, -201f), new Vector2(280f, 85f));
         }
 
         private static void SetText(Transform card, string name, string text)
