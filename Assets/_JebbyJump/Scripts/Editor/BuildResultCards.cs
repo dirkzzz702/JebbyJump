@@ -140,6 +140,30 @@ namespace JebbyJump.EditorTools
 
         private static void BuildLevelCompleteExtras(Transform card)
         {
+            // The new ornate frame has a taller gem area; the 480-tall card made the
+            // gem collide with the title. Grow the card so gem + title + rows +
+            // buttons all fit, and render the frame at native scale.
+            var crt = card as RectTransform;
+            if (crt != null) crt.sizeDelta = new Vector2(700f, 560f);
+            var cimg = card.GetComponent<Image>();
+            if (cimg != null) { cimg.pixelsPerUnitMultiplier = 1f; EditorUtility.SetDirty(cimg); }
+            // Pin the title just below the gem.
+            var lcTitle = Find(card, "TitleText") as RectTransform;
+            if (lcTitle != null)
+            {
+                lcTitle.anchorMin = lcTitle.anchorMax = new Vector2(0.5f, 0.5f);
+                lcTitle.pivot = new Vector2(0.5f, 0.5f);
+                lcTitle.anchoredPosition = new Vector2(0f, 172f);
+                lcTitle.sizeDelta = new Vector2(540f, 80f);
+                var tt = lcTitle.GetComponent<TMP_Text>();
+                if (tt != null)
+                {
+                    tt.alignment = TextAlignmentOptions.Center;
+                    tt.enableAutoSizing = true; tt.fontSizeMax = 56f; tt.fontSizeMin = 24f;
+                    EditorUtility.SetDirty(tt);
+                }
+            }
+
             // clean up the first-pass row icons (renamed since) so re-runs don't dup
             foreach (var stale in new[] { "RowIcon_TimeText", "RowIcon_BestTimeText",
                 "RowIcon_RankText", "RowIcon_StarsText" })
@@ -229,10 +253,10 @@ namespace JebbyJump.EditorTools
             // screen width) - NOT the wide Level Complete shape. Match it.
             var crt = card as RectTransform;
             if (crt != null) crt.sizeDelta = new Vector2(622f, 610f);
-            // Slim the heavy 9-slice frame to the mockup's thin border (a larger
-            // multiplier renders the sliced caps smaller).
+            // New frame art already has a thin baked border, so render the 9-slice
+            // at native scale (reset any prior slimming multiplier).
             var cimg = card.GetComponent<Image>();
-            if (cimg != null) { cimg.pixelsPerUnitMultiplier = 3f; EditorUtility.SetDirty(cimg); }
+            if (cimg != null) { cimg.pixelsPerUnitMultiplier = 1f; EditorUtility.SetDirty(cimg); }
 
             SetText(card, "TitleText", "Game Over"); // mixed-case, matches mockup
             // Big BOLD title near the top (its default top-half stretch anchor would
