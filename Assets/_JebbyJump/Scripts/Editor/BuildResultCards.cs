@@ -255,9 +255,9 @@ namespace JebbyJump.EditorTools
                 PlaceIcon(card, "Star" + i, "ui_star_gold_01", new Vector2(-6f + i * 73f, RowY[3]), new Vector2(52f, 52f));
 
             // buttons row (pixel-mapped: Retry / Next Level / Main Menu)
-            PlaceButton(card, "RetryButton", new Vector2(-224f, -186f), new Vector2(172f, 80f));
-            PlaceButton(card, "NextLevelButton", new Vector2(6f, -186f), new Vector2(212f, 84f));
-            PlaceButton(card, "MainMenuButton", new Vector2(232f, -186f), new Vector2(200f, 80f));
+            PlaceButton(card, "RetryButton", new Vector2(-224f, -188f), new Vector2(178f, 92f));
+            PlaceButton(card, "NextLevelButton", new Vector2(6f, -188f), new Vector2(214f, 92f));
+            PlaceButton(card, "MainMenuButton", new Vector2(232f, -188f), new Vector2(206f, 92f));
         }
 
         private static void BuildGameOverExtras(Transform card)
@@ -295,8 +295,8 @@ namespace JebbyJump.EditorTools
 
             // Buttons: Retry (left) + Main Menu (right, wider), thin-bordered cream
             // pills near the bottom - proportioned to the mockup.
-            PlaceButton(card, "RetryButton", new Vector2(-159f, -201f), new Vector2(243f, 85f));
-            PlaceButton(card, "MainMenuButton", new Vector2(140f, -201f), new Vector2(280f, 85f));
+            PlaceButton(card, "RetryButton", new Vector2(-159f, -205f), new Vector2(243f, 96f));
+            PlaceButton(card, "MainMenuButton", new Vector2(140f, -205f), new Vector2(280f, 96f));
         }
 
         private static void SetText(Transform card, string name, string text)
