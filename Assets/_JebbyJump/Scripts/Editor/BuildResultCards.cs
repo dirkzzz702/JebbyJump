@@ -69,7 +69,12 @@ namespace JebbyJump.EditorTools
                         cb.colorMultiplier = 1f; cb.fadeDuration = 0.1f; btn.colors = cb;
                     }
                     var lbl = btn.GetComponentInChildren<TMP_Text>(true);
-                    if (lbl != null) { lbl.color = Cocoa; lbl.fontStyle |= FontStyles.Bold; EditorUtility.SetDirty(lbl); }
+                    if (lbl != null)
+                    {
+                        lbl.color = Cocoa; lbl.fontStyle |= FontStyles.Bold;
+                        lbl.margin = new Vector4(10f, 0f, 10f, 0f); // was 26 -> bold labels overflowed
+                        ApplyBold(lbl);
+                    }
                     EditorUtility.SetDirty(btn);
                     nb++;
                 }
@@ -255,9 +260,10 @@ namespace JebbyJump.EditorTools
                 PlaceIcon(card, "Star" + i, "ui_star_gold_01", new Vector2(-6f + i * 73f, RowY[3]), new Vector2(52f, 52f));
 
             // buttons row (pixel-mapped: Retry / Next Level / Main Menu)
-            PlaceButton(card, "RetryButton", new Vector2(-224f, -188f), new Vector2(178f, 92f));
-            PlaceButton(card, "NextLevelButton", new Vector2(6f, -188f), new Vector2(214f, 92f));
-            PlaceButton(card, "MainMenuButton", new Vector2(232f, -188f), new Vector2(206f, 92f));
+            // ~42u margin from the card side frames + even gaps (matches mockup).
+            PlaceButton(card, "RetryButton", new Vector2(-226f, -190f), new Vector2(168f, 92f));
+            PlaceButton(card, "NextLevelButton", new Vector2(0f, -190f), new Vector2(202f, 92f));
+            PlaceButton(card, "MainMenuButton", new Vector2(224f, -190f), new Vector2(188f, 92f));
         }
 
         private static void BuildGameOverExtras(Transform card)
@@ -295,8 +301,9 @@ namespace JebbyJump.EditorTools
 
             // Buttons: Retry (left) + Main Menu (right, wider), thin-bordered cream
             // pills near the bottom - proportioned to the mockup.
-            PlaceButton(card, "RetryButton", new Vector2(-159f, -205f), new Vector2(243f, 96f));
-            PlaceButton(card, "MainMenuButton", new Vector2(140f, -205f), new Vector2(280f, 96f));
+            // ~40u margin from the card side frames + a real gap (matches mockup).
+            PlaceButton(card, "RetryButton", new Vector2(-150f, -203f), new Vector2(238f, 96f));
+            PlaceButton(card, "MainMenuButton", new Vector2(150f, -203f), new Vector2(238f, 96f));
         }
 
         private static void SetText(Transform card, string name, string text)
