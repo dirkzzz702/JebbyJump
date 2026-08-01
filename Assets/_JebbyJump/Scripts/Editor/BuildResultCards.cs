@@ -138,6 +138,19 @@ namespace JebbyJump.EditorTools
         // whose own blue centre replaces that disc.
         private static readonly Color MedalLetter = new Color(0.94f, 0.72f, 0.24f);
 
+        // Real bold face (mockup titles/labels are heavier than TMP faux-bold).
+        private static Material _boldMat;
+        private static Material BoldMat() => _boldMat != null ? _boldMat
+            : (_boldMat = AssetDatabase.LoadAssetAtPath<Material>(
+                "Assets/_JebbyJump/Art/Fonts/Fredoka SDF Bold.mat"));
+        private static void ApplyBold(TMP_Text t)
+        {
+            if (t == null) return;
+            var m = BoldMat();
+            if (m != null) t.fontSharedMaterial = m;
+            EditorUtility.SetDirty(t);
+        }
+
         private static void BuildLevelCompleteExtras(Transform card)
         {
             // The new ornate frame has a taller gem area; the 480-tall card made the
@@ -160,7 +173,7 @@ namespace JebbyJump.EditorTools
                 {
                     tt.alignment = TextAlignmentOptions.Center;
                     tt.enableAutoSizing = true; tt.fontSizeMax = 56f; tt.fontSizeMin = 24f;
-                    EditorUtility.SetDirty(tt);
+                    ApplyBold(tt);
                 }
             }
 
@@ -201,7 +214,7 @@ namespace JebbyJump.EditorTools
             var icons = new[] { "ui_row_icon_time_01", "ui_row_icon_best_01",
                 "ui_row_icon_rank_01", "ui_star_gold_01" };
             for (int i = 0; i < 4; i++)
-                PlaceIcon(card, "RowIcon" + i, icons[i], new Vector2(-236f, RowY[i]), new Vector2(50f, 50f));
+                PlaceIcon(card, "RowIcon" + i, icons[i], new Vector2(-240f, RowY[i]), new Vector2(62f, 62f));
 
             // left labels: Time/Best are new; Rank/Stars reuse the existing texts
             MakeLabel(card, "TimeLabel", "Time", RowY[0], refTmp);
@@ -271,10 +284,9 @@ namespace JebbyJump.EditorTools
                 var tt = title.GetComponent<TMP_Text>();
                 if (tt != null)
                 {
-                    tt.fontStyle |= FontStyles.Bold;
                     tt.alignment = TextAlignmentOptions.Center;
                     tt.enableAutoSizing = true; tt.fontSizeMax = 64f; tt.fontSizeMin = 24f;
-                    EditorUtility.SetDirty(tt);
+                    ApplyBold(tt);
                 }
             }
 
@@ -307,10 +319,10 @@ namespace JebbyJump.EditorTools
             rt.pivot = new Vector2(0f, 0.5f);
             rt.anchoredPosition = new Vector2(-182f, y); rt.sizeDelta = new Vector2(182f, 46f);
             var t = rt.GetComponent<TextMeshProUGUI>();
-            t.text = text; t.alignment = TextAlignmentOptions.MidlineLeft; t.fontStyle = FontStyles.Bold;
+            t.text = text; t.alignment = TextAlignmentOptions.MidlineLeft;
             t.enableAutoSizing = true; t.fontSizeMax = 34f; t.fontSizeMin = 12f; t.raycastTarget = false;
-            if (refTmp != null) { t.font = refTmp.font; t.fontSharedMaterial = refTmp.fontSharedMaterial; }
-            t.color = Cocoa; EditorUtility.SetDirty(t);
+            if (refTmp != null) t.font = refTmp.font;
+            t.color = Cocoa; ApplyBold(t);
         }
 
         private static void PlaceLabel(RectTransform rt, float y)
@@ -322,9 +334,9 @@ namespace JebbyJump.EditorTools
             var t = rt.GetComponent<TMP_Text>();
             if (t != null)
             {
-                t.alignment = TextAlignmentOptions.MidlineLeft; t.fontStyle |= FontStyles.Bold;
+                t.alignment = TextAlignmentOptions.MidlineLeft;
                 t.enableAutoSizing = true; t.fontSizeMax = 34f; t.fontSizeMin = 12f;
-                EditorUtility.SetDirty(t);
+                ApplyBold(t);
             }
         }
 
@@ -348,8 +360,8 @@ namespace JebbyJump.EditorTools
             if (t != null)
             {
                 t.alignment = TextAlignmentOptions.MidlineRight;
-                t.enableAutoSizing = true; t.fontSizeMax = 30f; t.fontSizeMin = 12f;
-                EditorUtility.SetDirty(t);
+                t.enableAutoSizing = true; t.fontSizeMax = 33f; t.fontSizeMin = 12f;
+                ApplyBold(t);
             }
         }
 
