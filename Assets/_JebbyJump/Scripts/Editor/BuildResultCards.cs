@@ -266,9 +266,9 @@ namespace JebbyJump.EditorTools
 
             // buttons row (pixel-mapped: Retry / Next Level / Main Menu)
             // ~42u margin from the card side frames + even gaps (matches mockup).
-            PlaceButton(card, "RetryButton", new Vector2(-226f, -190f), new Vector2(168f, 92f));
-            PlaceButton(card, "NextLevelButton", new Vector2(0f, -190f), new Vector2(202f, 92f));
-            PlaceButton(card, "MainMenuButton", new Vector2(224f, -190f), new Vector2(188f, 92f));
+            PlaceButton(card, "RetryButton", new Vector2(-218f, -190f), new Vector2(180f, 92f));
+            PlaceButton(card, "NextLevelButton", new Vector2(0f, -190f), new Vector2(200f, 92f));
+            PlaceButton(card, "MainMenuButton", new Vector2(218f, -190f), new Vector2(180f, 92f));
         }
 
         private static void BuildGameOverExtras(Transform card)
