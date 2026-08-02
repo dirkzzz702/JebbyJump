@@ -71,13 +71,16 @@ namespace JebbyJump.EditorTools
                     var lbl = btn.GetComponentInChildren<TMP_Text>(true);
                     if (lbl != null)
                     {
+                        // Bake the FINAL converged label state so AdjustGameUiLayout
+                        // (margin>=24) and StyleTypography (autosize off, uniform fit)
+                        // are no-ops in any order. Font size is set uniformly per
+                        // panel by FitButtonLabels (below), on the LONGEST label.
                         lbl.color = Cocoa; lbl.fontStyle |= FontStyles.Bold;
-                        lbl.margin = new Vector4(10f, 0f, 10f, 0f);
-                        // Auto-size so bold labels never overflow the pill (the two
-                        // panels had different hardcoded sizes -> "Main Menu" spilled).
-                        lbl.enableAutoSizing = true;
-                        lbl.fontSizeMax = 32f; lbl.fontSizeMin = 18f;
-                        lbl.overflowMode = TextOverflowModes.Ellipsis;
+                        lbl.characterSpacing = Mathf.Max(lbl.characterSpacing, 2f);
+                        lbl.enableWordWrapping = false;
+                        lbl.enableAutoSizing = false;
+                        lbl.overflowMode = TextOverflowModes.Overflow;
+                        lbl.margin = new Vector4(BtnLabelMargin, 0f, BtnLabelMargin, 0f);
                         ApplyBold(lbl);
                     }
                     EditorUtility.SetDirty(btn);
@@ -147,6 +150,11 @@ namespace JebbyJump.EditorTools
         // gold "A"). Works on both the interim blue disc and the future medal art
         // whose own blue centre replaces that disc.
         private static readonly Color MedalLetter = new Color(0.94f, 0.72f, 0.24f);
+
+        // Button-label end margin (clears the pill's rounded ends). Matches
+        // StyleTypography.LabelMargin / AdjustGameUiLayout's >=24 floor so those
+        // tools don't change it -> deterministic across generators.
+        private const float BtnLabelMargin = 26f;
 
         // Real bold face (mockup titles/labels are heavier than TMP faux-bold).
         private static Material _boldMat;
@@ -270,6 +278,8 @@ namespace JebbyJump.EditorTools
             PlaceButton(card, "RetryButton", new Vector2(-222f, -192f), new Vector2(174f, 78f));
             PlaceButton(card, "NextLevelButton", new Vector2(0f, -192f), new Vector2(184f, 78f));
             PlaceButton(card, "MainMenuButton", new Vector2(222f, -192f), new Vector2(174f, 78f));
+            FitButtonLabels(card,
+                new[] { "RetryButton", "NextLevelButton", "MainMenuButton" }, 34f);
         }
 
         private static void BuildGameOverExtras(Transform card)
@@ -302,14 +312,19 @@ namespace JebbyJump.EditorTools
                 }
             }
 
-            // Big centred sad-cactus mascot (mockup fills ~half the card).
-            PlaceIcon(card, "GameOverMascot", "ui_gameover_mascot_01", new Vector2(0f, 8f), new Vector2(392f, 392f));
+            // Big centred sad-cactus mascot. Sized by the art's ALPHA bounds (the
+            // 640px canvas is ~66%W / 55%H visible cactus with heavy transparent
+            // padding + faint stray alpha): a 486u rect renders W01 at ~52%W /
+            // ~45%H of the panel, matching the mockup. Shared Image for all 10
+            // world mascots (WorldThemeApplier swaps the sprite) - verified W02/W10
+            // do not clip at this size.
+            PlaceIcon(card, "GameOverMascot", "ui_gameover_mascot_01", new Vector2(0f, -20f), new Vector2(486f, 486f));
 
-            // Buttons: Retry (left) + Main Menu (right, wider), thin-bordered cream
-            // pills near the bottom - proportioned to the mockup.
-            // ~40u margin from the card side frames + a real gap (matches mockup).
-            PlaceButton(card, "RetryButton", new Vector2(-150f, -203f), new Vector2(238f, 96f));
-            PlaceButton(card, "MainMenuButton", new Vector2(150f, -203f), new Vector2(238f, 96f));
+            // Retry + Main Menu: EQUAL RectTransform size, ~39-40% panel width each,
+            // ~6% centre gap, ~8% side clearance, ~10% bottom clearance (mockup).
+            PlaceButton(card, "RetryButton", new Vector2(-140f, -190f), new Vector2(270f, 100f));
+            PlaceButton(card, "MainMenuButton", new Vector2(140f, -190f), new Vector2(270f, 100f));
+            FitButtonLabels(card, new[] { "RetryButton", "MainMenuButton" }, 34f);
         }
 
         private static void SetText(Transform card, string name, string text)
@@ -361,6 +376,38 @@ namespace JebbyJump.EditorTools
             rt.pivot = new Vector2(0.5f, 0.5f);
             rt.anchoredPosition = pos; rt.sizeDelta = size;
             EditorUtility.SetDirty(rt);
+        }
+
+        // Uniform button-label sizing: every label in the row shares the largest
+        // font that fits the LONGEST label inside the NARROWEST button (with 26u
+        // end margins). Deterministic + idempotent - mirrors StyleTypography's
+        // horizontal-row FitGroup so re-running either converges to the same size.
+        // Call AFTER the buttons are sized.
+        private static void FitButtonLabels(Transform card, string[] names, float baseSize)
+        {
+            var labels = new System.Collections.Generic.List<TMP_Text>();
+            float ratio = 1f;
+            foreach (var n in names)
+            {
+                var b = Find(card, n) as RectTransform;
+                var lbl = b != null ? b.GetComponentInChildren<TMP_Text>(true) : null;
+                if (lbl == null || b == null) continue;
+                labels.Add(lbl);
+                lbl.enableAutoSizing = false;
+                if (!Mathf.Approximately(lbl.fontSize, baseSize)) lbl.fontSize = baseSize;
+                float avail = b.sizeDelta.x - lbl.margin.x - lbl.margin.z - 4f;
+                float pref;
+                try { pref = lbl.GetPreferredValues(lbl.text, Mathf.Infinity, Mathf.Infinity).x; }
+                catch { pref = 0f; }               // never-awoken TMP: no constraint
+                if (pref > avail && pref > 0f) ratio = Mathf.Min(ratio, avail / pref);
+            }
+            if (labels.Count == 0) return;
+            float shared = Mathf.Max(20f, Mathf.Floor(baseSize * ratio * 2f) / 2f);
+            foreach (var lbl in labels)
+            {
+                if (!Mathf.Approximately(lbl.fontSize, shared)) lbl.fontSize = shared;
+                EditorUtility.SetDirty(lbl);
+            }
         }
 
         private static void PlaceValue(RectTransform rt, float y)
