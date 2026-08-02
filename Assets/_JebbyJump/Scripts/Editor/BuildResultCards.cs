@@ -72,7 +72,12 @@ namespace JebbyJump.EditorTools
                     if (lbl != null)
                     {
                         lbl.color = Cocoa; lbl.fontStyle |= FontStyles.Bold;
-                        lbl.margin = new Vector4(10f, 0f, 10f, 0f); // was 26 -> bold labels overflowed
+                        lbl.margin = new Vector4(10f, 0f, 10f, 0f);
+                        // Auto-size so bold labels never overflow the pill (the two
+                        // panels had different hardcoded sizes -> "Main Menu" spilled).
+                        lbl.enableAutoSizing = true;
+                        lbl.fontSizeMax = 32f; lbl.fontSizeMin = 18f;
+                        lbl.overflowMode = TextOverflowModes.Ellipsis;
                         ApplyBold(lbl);
                     }
                     EditorUtility.SetDirty(btn);
