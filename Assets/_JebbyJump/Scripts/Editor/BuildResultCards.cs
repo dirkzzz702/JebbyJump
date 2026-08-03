@@ -194,6 +194,10 @@ namespace JebbyJump.EditorTools
         // StyleTypography.LabelMargin / AdjustGameUiLayout's >=24 floor so those
         // tools don't change it -> deterministic across generators.
         private const float BtnLabelMargin = 26f;
+        // Level-Complete pills get their OWN, tighter label margin (the GO 26u rule is
+        // unchanged). ~20u = ~10% of the 196u secondary buttons - enough padding while
+        // letting the labels fit near the row-label size instead of collapsing to 20pt.
+        private const float LcBtnLabelMargin = 20f;
 
         // Real bold face (mockup titles/labels are heavier than TMP faux-bold).
         private static Material _boldMat;
@@ -316,8 +320,13 @@ namespace JebbyJump.EditorTools
             Center(letter, new Vector2(0f, 12f), new Vector2(96f, 96f));
             var lt = letter.GetComponent<TextMeshProUGUI>();
             lt.text = "A"; lt.alignment = TextAlignmentOptions.Center; lt.fontStyle = FontStyles.Bold;
-            lt.enableAutoSizing = true; lt.fontSizeMax = 80f; lt.fontSizeMin = 24f; lt.raycastTarget = false;
-            if (refTmp != null) { lt.font = refTmp.font; lt.fontSharedMaterial = refTmp.fontSharedMaterial; }
+            // Deterministic size (one value that safely fits S/A/B/C in the blue disk),
+            // NOT an uninitialised editor autosize result.
+            lt.enableAutoSizing = false; lt.fontSize = 66f; lt.raycastTarget = false;
+            if (refTmp != null) lt.font = refTmp.font;
+            var rankMat = LcRankMat();   // heavy gold face + dark-orange edge
+            if (rankMat != null) lt.fontSharedMaterial = rankMat;
+            else if (refTmp != null) lt.fontSharedMaterial = refTmp.fontSharedMaterial;
             lt.color = MedalLetter; EditorUtility.SetDirty(lt);
             letter.SetAsLastSibling(); // ensure the letter draws over the disc
 
@@ -326,16 +335,18 @@ namespace JebbyJump.EditorTools
             for (int i = 0; i < 3; i++)
                 PlaceIcon(card, "Star" + i, "ui_star_gold_01", new Vector2(-24f + i * 70f, RowY[3]), new Vector2(54f, 54f));
 
-            // buttons row (pixel-mapped: Retry / Next Level / Main Menu). Retry ==
-            // Main Menu rect; Next Level wider (mockup). Height 96 (>=90 accessibility
-            // floor - agrees with BuildGameShellCanvas.EnsureMinHeight). Cropped LC
-            // pills => rect == visible, so these tight ~2.4% gaps DON'T overlap the
-            // hit rects (Retry right -103 < Next left -108).
-            PlaceButton(card, "RetryButton", new Vector2(-229f, -193f), new Vector2(206f, 96f));
-            PlaceButton(card, "NextLevelButton", new Vector2(0f, -193f), new Vector2(217f, 96f));
-            PlaceButton(card, "MainMenuButton", new Vector2(229f, -193f), new Vector2(206f, 96f));
-            FitButtonLabels(card,
-                new[] { "RetryButton", "NextLevelButton", "MainMenuButton" }, 34f);
+            // buttons row (mockup: narrower equal secondaries + a wider primary +
+            // taller/puffier pills). Retry == Main Menu rect; Next Level wider.
+            // Height 110 (~18% of card, >=90 floor). Row dropped to y=-209 (~6.7%
+            // bottom clearance) while GAINING side clearance (~23u/3.3% each) by
+            // narrowing the secondaries. Cropped LC pills => rect == visible, so the
+            // ~8.5u/1.2% gaps DON'T overlap the hit rects (Retry right -131 <
+            // Next left -122.5).
+            PlaceButton(card, "RetryButton", new Vector2(-229f, -209f), new Vector2(196f, 110f));
+            PlaceButton(card, "NextLevelButton", new Vector2(0f, -209f), new Vector2(245f, 110f));
+            PlaceButton(card, "MainMenuButton", new Vector2(229f, -209f), new Vector2(196f, 110f));
+            FitLcButtonLabels(card,
+                new[] { "RetryButton", "NextLevelButton", "MainMenuButton" });
         }
 
         private static void BuildGameOverExtras(Transform card)
@@ -474,6 +485,93 @@ namespace JebbyJump.EditorTools
                 if (!Mathf.Approximately(lbl.fontSize, shared)) lbl.fontSize = shared;
                 EditorUtility.SetDirty(lbl);
             }
+        }
+
+        // LEVEL-COMPLETE-specific button-label fit (distinct from the GO FitButtonLabels
+        // rule). Tighter 20u margin, NO character spacing, NO 4u reserve, and it measures
+        // an INITIALISED TMP (ForceMeshUpdate) so the fit doesn't fall back to the crude
+        // estimate. Yields one uniform size (~32pt) capped at the 34pt row-label size,
+        // NOT the old 20.5pt collapse. Keeps the existing bold face/material (weight is a
+        // separate concern). Deterministic + idempotent.
+        private static void FitLcButtonLabels(Transform card, string[] names)
+        {
+            var lcMat = LcButtonMat();
+            var labels = new System.Collections.Generic.List<TMP_Text>();
+            const float baseSize = 34f;   // never exceed the row-label size
+            float shared = baseSize;
+            foreach (var n in names)
+            {
+                var b = Find(card, n) as RectTransform;
+                var lbl = b != null ? b.GetComponentInChildren<TMP_Text>(true) : null;
+                if (lbl == null || b == null) continue;
+                labels.Add(lbl);
+                // LC label state (overrides the shared skin-loop 26u/spacing-2/bold baking).
+                lbl.color = Cocoa;
+                lbl.fontStyle &= ~FontStyles.Bold;        // weight from the LC material only
+                if (lcMat != null) lbl.fontSharedMaterial = lcMat;
+                lbl.characterSpacing = 0f;
+                lbl.enableAutoSizing = false;
+                lbl.enableWordWrapping = false;
+                lbl.overflowMode = TextOverflowModes.Overflow;
+                lbl.margin = new Vector4(LcBtnLabelMargin, 0f, LcBtnLabelMargin, 0f);
+                lbl.fontSize = baseSize;
+                try { lbl.ForceMeshUpdate(); } catch { }   // initialise for a valid measure
+                float pref;
+                try { pref = lbl.GetPreferredValues(lbl.text, Mathf.Infinity, Mathf.Infinity).x; }
+                catch { pref = 0f; }
+                float est = (lbl.text != null ? lbl.text.Length : 0) * baseSize * 0.55f;
+                pref = Mathf.Max(pref, est);
+                float avail = b.sizeDelta.x - LcBtnLabelMargin * 2f;
+                if (pref > avail && pref > 0f) shared = Mathf.Min(shared, baseSize * avail / pref);
+            }
+            if (labels.Count == 0) return;
+            shared = Mathf.Max(20f, Mathf.Floor(shared * 2f) / 2f);
+            foreach (var lbl in labels)
+            {
+                if (!Mathf.Approximately(lbl.fontSize, shared)) lbl.fontSize = shared;
+                EditorUtility.SetDirty(lbl);
+            }
+        }
+
+        // Dedicated rank-letter material (NOT the shared title/bold material): heavier
+        // face dilation + a crisp dark-orange edge (mockup's outlined gold "S/A/B/C").
+        // Derived from the working Fredoka bold material so glyphs still render; only an
+        // LC asset, so accepted UI is untouched. Idempotent (load-or-create).
+        private static Material _lcRankMat;
+        private static Material LcRankMat() => LcMat(ref _lcRankMat,
+            "Fredoka SDF LC Rank.mat", 0.16f, 0.14f, new Color(0.36f, 0.18f, 0.05f, 1f));
+
+        // LC BUTTON-LABEL material: single controlled face dilation instead of the
+        // faux double-bold (fontStyle.Bold + shared 0.10 material) that over-widened the
+        // Light glyphs and forced 20-23pt. ~0.14 ≈ the old effective weight but WITHOUT
+        // the bold spacing, so the labels are narrower and fit ~30pt. LC-only asset.
+        private static Material _lcBtnMat;
+        private static Material LcButtonMat() => LcMat(ref _lcBtnMat,
+            "Fredoka SDF LC.mat", 0.14f, 0f, default);
+
+        // Load-or-create an LC-only TMP material derived from the working bold material
+        // (keeps shader + atlas), overriding face dilation + optional edge. Idempotent.
+        private static Material LcMat(ref Material cache, string file, float dilate, float outlineW, Color outlineC)
+        {
+            if (cache != null) return cache;
+            var baseMat = BoldMat();
+            if (baseMat == null) return null;
+            string path = "Assets/_JebbyJump/Art/Fonts/" + file;
+            var m = AssetDatabase.LoadAssetAtPath<Material>(path);
+            bool created = m == null;
+            if (created) m = new Material(baseMat);
+            m.CopyPropertiesFromMaterial(baseMat);        // keep shader + atlas in sync
+            m.SetFloat("_FaceDilate", dilate);
+            if (outlineW > 0f)
+            {
+                m.SetFloat("_OutlineWidth", outlineW);
+                m.SetColor("_OutlineColor", outlineC);
+            }
+            else m.SetFloat("_OutlineWidth", 0f);
+            if (created) AssetDatabase.CreateAsset(m, path);
+            EditorUtility.SetDirty(m);
+            cache = m;
+            return m;
         }
 
         private static void PlaceValue(RectTransform rt, float y)

@@ -51,11 +51,11 @@ namespace JebbyJump.EditorTools
             // below (BuildResultCards already sets this; kept as a no-op safety net).
             groups += SetResultTextsNoWrap(scene);
 
-            // Keep the result-button labels single-line with end margins inside the pill
-            // (SIZING owned by BuildResultCards.FitButtonLabels; margin >=24 is a no-op
-            // against the builder's 26). Retired: RespaceResultButtonRow + StyleResultPanel.
-            groups += FitPanelButtonLabels(scene, "LevelCompletePanel");
-            groups += FitPanelButtonLabels(scene, "GameOverPanel");
+            // Keep the result-button labels single-line with end margins inside the pill.
+            // SIZING + margins owned by BuildResultCards; the per-panel floor here is a
+            // no-op safety net (LC pills use a tighter 20u rule, GO keeps 26u).
+            groups += FitPanelButtonLabels(scene, "LevelCompletePanel", 18f);
+            groups += FitPanelButtonLabels(scene, "GameOverPanel", 24f);
 
             // Pause glyph was hairline "||" at 32pt regular in a 96u button
             // (verified 2026-07-17) - underweight next to the ornate arrow
@@ -183,7 +183,7 @@ namespace JebbyJump.EditorTools
         // the text stays inside the 9-slice pill BODY (playtest 2026-07-18).
         // SIZING is owned by StyleTypography.ButtonLabels (uniform per sibling
         // group) - do not enable per-label auto-size here. Idempotent.
-        private static int FitPanelButtonLabels(UnityEngine.SceneManagement.Scene scene, string panelName)
+        private static int FitPanelButtonLabels(UnityEngine.SceneManagement.Scene scene, string panelName, float minMargin)
         {
             var panel = FindByName(scene, panelName);
             if (panel == null) return 0;
@@ -196,12 +196,13 @@ namespace JebbyJump.EditorTools
                 bool dirty = false;
                 if (tmp.enableWordWrapping)
                 { tmp.enableWordWrapping = false; dirty = true; }
-                // Inset past the pill's rounded ends (~45px at rendered size).
+                // Inset past the pill's rounded ends. Floor is per-panel (BuildResultCards
+                // owns the exact value): LC pills use a tighter 20u, GO keeps 26u.
                 var m = tmp.margin;
-                if (m.x < 24f || m.z < 24f)
+                if (m.x < minMargin || m.z < minMargin)
                 {
-                    tmp.margin = new Vector4(Mathf.Max(m.x, 24f), m.y,
-                        Mathf.Max(m.z, 24f), m.w);
+                    tmp.margin = new Vector4(Mathf.Max(m.x, minMargin), m.y,
+                        Mathf.Max(m.z, minMargin), m.w);
                     dirty = true;
                 }
                 if (dirty) changed++;

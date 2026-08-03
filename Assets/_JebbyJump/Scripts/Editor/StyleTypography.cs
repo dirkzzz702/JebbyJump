@@ -136,13 +136,19 @@ namespace JebbyJump.EditorTools
                 {
                     var tmp = btn.GetComponentInChildren<TMP_Text>(true);
                     if (tmp == null) continue;
+                    // Level-Complete pills own their label typography in BuildResultCards
+                    // (tighter margin, ZERO character spacing so the labels fit near the
+                    // row-label size). Don't force the +2 spacing back onto them.
+                    var lcImg = btn.GetComponent<Image>();
+                    bool lcResultBtn = lcImg != null && lcImg.sprite != null
+                        && lcImg.sprite.name.Contains("result_btn_lc");
                     bool dirty = false;
-                    if ((tmp.fontStyle & FontStyles.Bold) == 0)
+                    if (!lcResultBtn && (tmp.fontStyle & FontStyles.Bold) == 0)
                     { tmp.fontStyle |= FontStyles.Bold; dirty = true; }
                     if (!tmp.enableVertexGradient && tmp.color != LabelCream
                         && tmp.color == Color.white)   // keep code-tinted labels
                     { tmp.color = LabelCream; dirty = true; }
-                    if (tmp.characterSpacing < 2f)
+                    if (!lcResultBtn && tmp.characterSpacing < 2f)
                     { tmp.characterSpacing = 2f; dirty = true; }
                     if (tmp.enableWordWrapping)
                     { tmp.enableWordWrapping = false; dirty = true; }
