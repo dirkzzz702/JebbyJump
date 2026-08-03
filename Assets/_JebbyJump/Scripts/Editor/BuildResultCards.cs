@@ -14,7 +14,8 @@ namespace JebbyJump.EditorTools
     {
         private const string Dir = "Assets/_JebbyJump/Art/Sprites/UI/";
         private const string ScenePath = "Assets/_JebbyJump/Scenes/Game.unity";
-        private static readonly Color Cocoa = new Color(0.29f, 0.19f, 0.12f);
+        // Dark cocoa (#49321C) - the mockup's label/value/title ink weight.
+        private static readonly Color Cocoa = new Color(0.286f, 0.196f, 0.110f);
 
         [MenuItem("Jebby Jump/Scaffold/Build Result Cards")]
         public static void Run()
@@ -28,6 +29,17 @@ namespace JebbyJump.EditorTools
             for (int w = 1; w <= 10; w++)
                 EnsureSprite("ui_gameover_mascot_" + w.ToString("00") + ".png");
             EnsureDotSprite("ui_dot_sep.png");   // dotted row separators (Tiled)
+
+            // Level-Complete-specific button pills: the shared ui_result_btn art has
+            // ~13% horizontal transparent padding, so its RECT is wider than the
+            // visible pill - at the mockup's ~2-3% gaps the hit rects would overlap.
+            // These LC derivatives are cropped so pill==rect (border x/z 64->46);
+            // Game Over keeps the un-cropped shared pills (unchanged, not re-verified
+            // here). Plus a white-base ivory rows-panel 9-slice (the old grey
+            // Background.psd tinted beige rendered muddy #CEC1A4).
+            EnsureSlicedSprite("ui_result_btn_lc_9s.png", 46, 0, 46, 0);
+            EnsureSlicedSprite("ui_result_btn_primary_lc_9s.png", 46, 0, 46, 0);
+            EnsureSlicedSprite("ui_rows_panel_9s.png", 44, 44, 44, 44);
 
             var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             int nb = 0;
@@ -56,10 +68,13 @@ namespace JebbyJump.EditorTools
                     // Only Level Complete's "Next Level" is the gold primary; the
                     // mockup's Game Over buttons are BOTH cream.
                     bool primary = btn.name.Contains("Next");
+                    bool lcBtn = panelName == "LevelCompletePanel";
                     var bimg = btn.image != null ? btn.image : btn.GetComponent<Image>();
                     if (bimg != null)
                     {
-                        SkinImage(bimg, primary ? "ui_result_btn_primary_9s" : "ui_result_btn_9s");
+                        SkinImage(bimg, primary
+                            ? (lcBtn ? "ui_result_btn_primary_lc_9s" : "ui_result_btn_primary_9s")
+                            : (lcBtn ? "ui_result_btn_lc_9s" : "ui_result_btn_9s"));
                         btn.targetGraphic = bimg;
                         btn.transition = Selectable.Transition.ColorTint;
                         var cb = btn.colors;
@@ -123,6 +138,25 @@ namespace JebbyJump.EditorTools
             AssetDatabase.ImportAsset(Dir + file, ImportAssetOptions.ForceUpdate);
         }
 
+        // Ensure a Single sliced sprite with a set 9-slice border (for the
+        // procedurally-generated LC pills + ivory rows panel whose default import
+        // has no border). Idempotent.
+        private static void EnsureSlicedSprite(string file, int l, int t, int r, int b)
+        {
+            var imp = AssetImporter.GetAtPath(Dir + file) as TextureImporter;
+            if (imp == null) return;
+            var s = new TextureImporterSettings();
+            imp.ReadTextureSettings(s);
+            bool ch = false;
+            if (s.textureType != TextureImporterType.Sprite) { s.textureType = TextureImporterType.Sprite; ch = true; }
+            if (s.spriteMode != (int)SpriteImportMode.Single) { s.spriteMode = (int)SpriteImportMode.Single; ch = true; }
+            if (!s.alphaIsTransparency) { s.alphaIsTransparency = true; ch = true; }
+            var border = new Vector4(l, b, r, t);   // Unity order: x=left y=bottom z=right w=top
+            if (s.spriteBorder != border) { s.spriteBorder = border; ch = true; }
+            if (ch) { imp.SetTextureSettings(s); imp.SaveAndReimport(); }
+            AssetDatabase.ImportAsset(Dir + file, ImportAssetOptions.ForceUpdate);
+        }
+
         // The dotted-line tile needs a Single sprite with FullRect mesh + Repeat
         // wrap so a UI Image (Tiled) repeats it cleanly across the divider.
         private static void EnsureDotSprite(string file)
@@ -142,10 +176,15 @@ namespace JebbyJump.EditorTools
             AssetDatabase.ImportAsset(Dir + file, ImportAssetOptions.ForceUpdate);
         }
 
-        // ---- mockup layout (pixel-mapped from mockup_ui.png; card = 700x480,
+        // ---- mockup layout (pixel-mapped from mockup_ui.png; LC card = 700x610,
         // centre origin): inset rows panel, 4 icon+label rows, right-column
         // values (Time/Best times, rank medal, 3 stars), Game Over mascot. ----
-        private static readonly float[] RowY = { 101f, 43f, -20f, -82f };
+        // Row centres at 31/42/54/65% down the 610 card: y = (0.5 - pct)*610.
+        private static readonly float[] RowY = { 116f, 49f, -24f, -92f };
+        // One deterministic size for every LC row label AND value (mockup: labels
+        // and values share weight/size). Autosizing is OFF everywhere on the rows
+        // so BuildResultCards / StyleTypography / AdjustGameUiLayout converge.
+        private const float RowTextSize = 34f;
         // Warm GOLD rank letter on the medal's blue centre (matches the mockup's
         // gold "A"). Works on both the interim blue disc and the future medal art
         // whose own blue centre replaces that disc.
@@ -171,27 +210,28 @@ namespace JebbyJump.EditorTools
 
         private static void BuildLevelCompleteExtras(Transform card)
         {
-            // The new ornate frame has a taller gem area; the 480-tall card made the
-            // gem collide with the title. Grow the card so gem + title + rows +
-            // buttons all fit, and render the frame at native scale.
+            // Card grown to 700x610 (aspect ~1.15, matching the mockup - the old
+            // 700x560 read ~1.28 wide). Render the ornate frame at native scale.
             var crt = card as RectTransform;
-            if (crt != null) crt.sizeDelta = new Vector2(700f, 560f);
+            if (crt != null) crt.sizeDelta = new Vector2(700f, 610f);
             var cimg = card.GetComponent<Image>();
             if (cimg != null) { cimg.pixelsPerUnitMultiplier = 1f; EditorUtility.SetDirty(cimg); }
-            // Pin the title just below the gem.
+            // Pin the title just below the gem (~19% down the taller card).
             var lcTitle = Find(card, "TitleText") as RectTransform;
             if (lcTitle != null)
             {
                 lcTitle.anchorMin = lcTitle.anchorMax = new Vector2(0.5f, 0.5f);
                 lcTitle.pivot = new Vector2(0.5f, 0.5f);
-                lcTitle.anchoredPosition = new Vector2(0f, 172f);
-                lcTitle.sizeDelta = new Vector2(540f, 80f);
+                lcTitle.anchoredPosition = new Vector2(0f, 190f);
+                lcTitle.sizeDelta = new Vector2(540f, 82f);
                 var tt = lcTitle.GetComponent<TMP_Text>();
                 if (tt != null)
                 {
                     tt.alignment = TextAlignmentOptions.Center;
                     tt.enableAutoSizing = true; tt.fontSizeMax = 56f; tt.fontSizeMin = 24f;
-                    ApplyBold(tt);
+                    // Cocoa, NO gradient (mockup title is solid cocoa; clears any stale
+                    // cream->gold vertex gradient a prior StyleTypography run baked).
+                    tt.color = Cocoa; tt.enableVertexGradient = false; ApplyBold(tt);
                 }
             }
 
@@ -203,36 +243,45 @@ namespace JebbyJump.EditorTools
                 if (s != null) Object.DestroyImmediate(s.gameObject);
             }
 
-            // inset cream panel (rounded) behind the four rows
+            // inset ivory panel behind the four rows. White-base rounded 9-slice
+            // (ui_rows_panel_9s = ivory #FFF2DE fill + subtle peach border) so the
+            // fill is a clean warm ivory, NOT the muddy grey the old Background.psd
+            // multiplied by a beige tint produced. Bounds ~x8-91% / y25-71% of card.
             var panel = MakeChild(card, "RowsPanel", typeof(RectTransform), typeof(Image));
-            Center(panel, new Vector2(7f, 4f), new Vector2(592f, 263f));
+            Center(panel, new Vector2(-4f, 12f), new Vector2(580f, 282f));
             var pimg = panel.GetComponent<Image>();
-            pimg.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
-            pimg.type = Image.Type.Sliced; pimg.color = new Color(0.96f, 0.90f, 0.77f, 1f);
+            var rowsSprite = Sprite("ui_rows_panel_9s");
+            if (rowsSprite != null) pimg.sprite = rowsSprite;
+            pimg.type = Image.Type.Sliced; pimg.color = Color.white;
+            pimg.pixelsPerUnitMultiplier = 1f; pimg.useSpriteMesh = false;
             pimg.raycastTarget = false; EditorUtility.SetDirty(pimg);
             panel.SetAsFirstSibling();
 
-            // dotted dividers between rows (tiled dot sprite, stop left of the medal)
+            // subtle peach/gold dividers between rows (stop left of the medal)
             var dot = Sprite("ui_dot_sep");
-            float[] divY = { 72f, 11f, -51f };
+            float[] divY = { 82f, 13f, -58f };
             for (int i = 0; i < divY.Length; i++)
             {
                 var d = MakeChild(card, "Divider" + i, typeof(RectTransform), typeof(Image));
-                Center(d, new Vector2(-50f, divY[i]), new Vector2(426f, 3f));
+                Center(d, new Vector2(-60f, divY[i]), new Vector2(340f, 3f));
                 var dimg = d.GetComponent<Image>();
                 if (dot != null) { dimg.sprite = dot; dimg.type = Image.Type.Tiled; }
                 else dimg.sprite = null;
-                dimg.color = new Color(0.42f, 0.32f, 0.22f, 0.55f);
+                dimg.color = new Color(0.86f, 0.73f, 0.52f, 0.5f);   // subtle peach/gold
                 dimg.raycastTarget = false; dimg.SetAllDirty(); EditorUtility.SetDirty(dimg);
             }
 
             var refTmp = Find(card, "TitleText")?.GetComponent<TMP_Text>();
 
-            // row icons (far left)
+            // row icons (far left). Per-icon RectTransform sizes normalise their
+            // VISIBLE alpha area (crown/shield/stopwatch/star differ) to ~feel equal
+            // (~2400u^2, ~70-76% of row height). Left edge clears the panel border.
             var icons = new[] { "ui_row_icon_time_01", "ui_row_icon_best_01",
                 "ui_row_icon_rank_01", "ui_star_gold_01" };
+            var iconSize = new[] { 61f, 66f, 58f, 58f };
             for (int i = 0; i < 4; i++)
-                PlaceIcon(card, "RowIcon" + i, icons[i], new Vector2(-240f, RowY[i]), new Vector2(62f, 62f));
+                PlaceIcon(card, "RowIcon" + i, icons[i],
+                    new Vector2(-256f, RowY[i]), new Vector2(iconSize[i], iconSize[i]));
 
             // left labels: Time/Best are new; Rank/Stars reuse the existing texts
             MakeLabel(card, "TimeLabel", "Time", RowY[0], refTmp);
@@ -240,7 +289,9 @@ namespace JebbyJump.EditorTools
             PlaceLabel(Find(card, "RankText") as RectTransform, RowY[2]);
             PlaceLabel(Find(card, "StarsText") as RectTransform, RowY[3]);
 
-            // right values: the two time strings (right-aligned, clear of the medal)
+            // right values: the two time strings (right-aligned at x=120, clear of
+            // the medal). Best box is WIDE (250) so the runtime "  New!" suffix fits
+            // at the common value size instead of auto-shrinking the numerals.
             PlaceValue(Find(card, "TimeText") as RectTransform, RowY[0]);
             PlaceValue(Find(card, "BestTimeText") as RectTransform, RowY[1]);
 
@@ -252,32 +303,37 @@ namespace JebbyJump.EditorTools
             SetText(card, "StarsText", "Stars");
             SetText(card, "TitleText", "Level Complete!"); // mixed-case, matches mockup
 
-            // rank medal (spans the Best/Rank rows, right edge). The art has its
-            // own blue centre now; the gold letter sits directly on it.
-            var medal = PlaceIcon(card, "RankMedal", "ui_rank_medal_01", new Vector2(232f, 8f), new Vector2(122f, 122f));
+            // rank medal + laurel: enlarged to ~20%W x 24%H visible (centre ~80%,49%).
+            // The 1024 PNG's meaningful alpha is ~70% of its canvas, so a ~196 rect
+            // renders the laurel at the mockup size. The gold letter sits on its
+            // blue centre (colour owned here; HUDController sets only the letter).
+            var medal = PlaceIcon(card, "RankMedal", "ui_rank_medal_01", new Vector2(214f, 6f), new Vector2(196f, 196f));
             // Drop the old interim blue disc a previous build may have added.
             var staleDisc = Find(medal, "MedalDisc");
             if (staleDisc != null) Object.DestroyImmediate(staleDisc.gameObject);
 
             var letter = MakeChild(medal, "RankMedalLetter", typeof(RectTransform), typeof(TextMeshProUGUI));
-            Center(letter, new Vector2(0f, 9f), new Vector2(70f, 70f));
+            Center(letter, new Vector2(0f, 12f), new Vector2(96f, 96f));
             var lt = letter.GetComponent<TextMeshProUGUI>();
             lt.text = "A"; lt.alignment = TextAlignmentOptions.Center; lt.fontStyle = FontStyles.Bold;
-            lt.enableAutoSizing = true; lt.fontSizeMax = 52f; lt.fontSizeMin = 18f; lt.raycastTarget = false;
+            lt.enableAutoSizing = true; lt.fontSizeMax = 80f; lt.fontSizeMin = 24f; lt.raycastTarget = false;
             if (refTmp != null) { lt.font = refTmp.font; lt.fontSharedMaterial = refTmp.fontSharedMaterial; }
             lt.color = MedalLetter; EditorUtility.SetDirty(lt);
             letter.SetAsLastSibling(); // ensure the letter draws over the disc
 
-            // three mastery stars on the Stars row (right of the label)
+            // three mastery stars on the Stars row (right of the label, left of the
+            // medal's lower laurel). HUDController fills/dims them per earned count.
             for (int i = 0; i < 3; i++)
-                PlaceIcon(card, "Star" + i, "ui_star_gold_01", new Vector2(-6f + i * 73f, RowY[3]), new Vector2(52f, 52f));
+                PlaceIcon(card, "Star" + i, "ui_star_gold_01", new Vector2(-24f + i * 70f, RowY[3]), new Vector2(54f, 54f));
 
-            // buttons row (pixel-mapped: Retry / Next Level / Main Menu)
-            // ~42u margin from the card side frames + even gaps (matches mockup).
-            // Widths/height set to the mockup's button aspect (~2.3) + ~42u margins.
-            PlaceButton(card, "RetryButton", new Vector2(-222f, -192f), new Vector2(174f, 78f));
-            PlaceButton(card, "NextLevelButton", new Vector2(0f, -192f), new Vector2(184f, 78f));
-            PlaceButton(card, "MainMenuButton", new Vector2(222f, -192f), new Vector2(174f, 78f));
+            // buttons row (pixel-mapped: Retry / Next Level / Main Menu). Retry ==
+            // Main Menu rect; Next Level wider (mockup). Height 96 (>=90 accessibility
+            // floor - agrees with BuildGameShellCanvas.EnsureMinHeight). Cropped LC
+            // pills => rect == visible, so these tight ~2.4% gaps DON'T overlap the
+            // hit rects (Retry right -103 < Next left -108).
+            PlaceButton(card, "RetryButton", new Vector2(-229f, -193f), new Vector2(206f, 96f));
+            PlaceButton(card, "NextLevelButton", new Vector2(0f, -193f), new Vector2(217f, 96f));
+            PlaceButton(card, "MainMenuButton", new Vector2(229f, -193f), new Vector2(206f, 96f));
             FitButtonLabels(card,
                 new[] { "RetryButton", "NextLevelButton", "MainMenuButton" }, 34f);
         }
@@ -308,7 +364,8 @@ namespace JebbyJump.EditorTools
                 {
                     tt.alignment = TextAlignmentOptions.Center;
                     tt.enableAutoSizing = true; tt.fontSizeMax = 64f; tt.fontSizeMin = 24f;
-                    ApplyBold(tt);
+                    // Solid cocoa (accepted GO look); clear any stale vertex gradient.
+                    tt.color = Cocoa; tt.enableVertexGradient = false; ApplyBold(tt);
                 }
             }
 
@@ -345,10 +402,12 @@ namespace JebbyJump.EditorTools
             var rt = MakeChild(card, name, typeof(RectTransform), typeof(TextMeshProUGUI));
             rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
             rt.pivot = new Vector2(0f, 0.5f);
-            rt.anchoredPosition = new Vector2(-182f, y); rt.sizeDelta = new Vector2(182f, 46f);
+            rt.anchoredPosition = new Vector2(-200f, y); rt.sizeDelta = new Vector2(150f, 46f);
             var t = rt.GetComponent<TextMeshProUGUI>();
             t.text = text; t.alignment = TextAlignmentOptions.MidlineLeft;
-            t.enableAutoSizing = true; t.fontSizeMax = 34f; t.fontSizeMin = 12f; t.raycastTarget = false;
+            t.enableAutoSizing = false; t.fontSize = RowTextSize;
+            t.enableWordWrapping = false; t.overflowMode = TextOverflowModes.Overflow;
+            t.raycastTarget = false;
             if (refTmp != null) t.font = refTmp.font;
             t.color = Cocoa; ApplyBold(t);
         }
@@ -358,13 +417,14 @@ namespace JebbyJump.EditorTools
             if (rt == null) return;
             rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
             rt.pivot = new Vector2(0f, 0.5f);
-            rt.anchoredPosition = new Vector2(-182f, y); rt.sizeDelta = new Vector2(182f, 46f);
+            rt.anchoredPosition = new Vector2(-200f, y); rt.sizeDelta = new Vector2(150f, 46f);
             var t = rt.GetComponent<TMP_Text>();
             if (t != null)
             {
                 t.alignment = TextAlignmentOptions.MidlineLeft;
-                t.enableAutoSizing = true; t.fontSizeMax = 34f; t.fontSizeMin = 12f;
-                ApplyBold(t);
+                t.enableAutoSizing = false; t.fontSize = RowTextSize;
+                t.enableWordWrapping = false; t.overflowMode = TextOverflowModes.Overflow;
+                t.color = Cocoa; ApplyBold(t);
             }
         }
 
@@ -398,7 +458,13 @@ namespace JebbyJump.EditorTools
                 float avail = b.sizeDelta.x - lbl.margin.x - lbl.margin.z - 4f;
                 float pref;
                 try { pref = lbl.GetPreferredValues(lbl.text, Mathf.Infinity, Mathf.Infinity).x; }
-                catch { pref = 0f; }               // never-awoken TMP: no constraint
+                catch { pref = 0f; }
+                // Deterministic fallback: a never-awoken TMP returns 0 in edit mode,
+                // which would leave a too-wide label un-shrunk. Estimate ~0.57em/char
+                // at the base size (Fredoka bold is wide) and use the larger of the
+                // two, so the fit never depends on TMP being initialised.
+                float est = (lbl.text != null ? lbl.text.Length : 0) * baseSize * 0.57f;
+                pref = Mathf.Max(pref, est);
                 if (pref > avail && pref > 0f) ratio = Mathf.Min(ratio, avail / pref);
             }
             if (labels.Count == 0) return;
@@ -415,13 +481,18 @@ namespace JebbyJump.EditorTools
             if (rt == null) return;
             rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
             rt.pivot = new Vector2(1f, 0.5f);
-            rt.anchoredPosition = new Vector2(160f, y); rt.sizeDelta = new Vector2(150f, 46f);
+            // Right edge at x=120 (~67% of card - left of the medal). Box kept narrow
+            // (160) so it doesn't overlap the left label box; autosize is OFF and
+            // overflow is ON, so the runtime "00:23.11  New!" renders at the common 34pt
+            // (overflowing left, ink ends ~-96, clear of the label ink) - NOT shrunk.
+            rt.anchoredPosition = new Vector2(120f, y); rt.sizeDelta = new Vector2(160f, 46f);
             var t = rt.GetComponent<TMP_Text>();
             if (t != null)
             {
                 t.alignment = TextAlignmentOptions.MidlineRight;
-                t.enableAutoSizing = true; t.fontSizeMax = 33f; t.fontSizeMin = 12f;
-                ApplyBold(t);
+                t.enableAutoSizing = false; t.fontSize = RowTextSize;
+                t.enableWordWrapping = false; t.overflowMode = TextOverflowModes.Overflow;
+                t.raycastTarget = false; t.color = Cocoa; ApplyBold(t);
             }
         }
 

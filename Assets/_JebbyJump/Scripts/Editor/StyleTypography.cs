@@ -41,8 +41,9 @@ namespace JebbyJump.EditorTools
             int n = 0;
             n += Display(game, "PausePanel", "Title", 46f);
             n += Display(game, "SettingsPanel", "Title", 40f);
-            n += Display(game, "LevelCompletePanel", "TitleText", 50f);
-            n += DisplayWarm(game, "GameOverPanel", "TitleText", 46f);
+            // Result-card titles ("Level Complete!" / "Game Over") are cocoa, owned by
+            // BuildResultCards to match the mockup - NOT restyled to a gold/amber gradient
+            // here (that fought the builder and flipped the accepted Game Over title).
             n += Display(game, "LevelBadgeRoot", "LevelText", 30f);
             n += SwapImage(game, "LevelBadgeRoot", pill);
             n += SwapImage(game, "TutorialHintRoot", pill);
@@ -103,12 +104,6 @@ namespace JebbyJump.EditorTools
         private static int Display(UnityEngine.SceneManagement.Scene s,
             string parent, string child, float size)
             => ApplyDisplay(FindText(s, parent, child), size, Cream, Gold);
-
-        // Warm red-amber for Game Over (distinct outcome colour).
-        private static int DisplayWarm(UnityEngine.SceneManagement.Scene s,
-            string parent, string child, float size)
-            => ApplyDisplay(FindText(s, parent, child), size,
-                new Color(1f, 0.76f, 0.66f), new Color(0.9f, 0.42f, 0.34f));
 
         private static int Style(UnityEngine.SceneManagement.Scene s,
             string parent, string child, float size, bool bold, Color colour)
