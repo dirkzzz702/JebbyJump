@@ -46,6 +46,9 @@ namespace JebbyJump.UI
         // Mockup result card: the rank LETTER sits on a medal; stars are 3 icons.
         [SerializeField] private TextMeshProUGUI _rankMedalLetter;
         [SerializeField] private UnityEngine.UI.Image[] _starIcons;
+        // Shown only on a new best time (kept separate from the value so it can't
+        // shrink the numerals or collide with the rank medal).
+        [SerializeField] private GameObject _levelCompleteNewBadge;
         // Optional top-right live timer.
         [SerializeField] private TextMeshProUGUI _liveTimerText;
 
@@ -299,20 +302,11 @@ namespace JebbyJump.UI
 
             if (_levelCompleteBestTimeText != null)
             {
-                if (isNewBest)
-                {
-                    _levelCompleteBestTimeText.text =
-                        $"{FormatTime(best)}  New!";
-                }
-                else if (float.IsNaN(best))
-                {
-                    _levelCompleteBestTimeText.text = "--";
-                }
-                else
-                {
-                    _levelCompleteBestTimeText.text = FormatTime(best);
-                }
+                // Numeric only - the "New!" flag is a separate badge so it never shrinks
+                // the value or overlaps the rank medal on the narrow best-time row.
+                _levelCompleteBestTimeText.text = float.IsNaN(best) ? "--" : FormatTime(best);
             }
+            if (_levelCompleteNewBadge != null) _levelCompleteNewBadge.SetActive(isNewBest);
 
             // Per-level rank config takes priority.
             // Fall back to the shared default if the level does not set one.

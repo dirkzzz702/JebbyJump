@@ -309,6 +309,22 @@ namespace JebbyJump.EditorTools
             SetText(card, "TimeText", "--"); SetText(card, "BestTimeText", "--");
             SetText(card, "RankText", "Rank"); SetText(card, "StarsText", "Stars");
 
+            // "New!" badge for a new best time - a separate gold tag in the gap between
+            // the "Best" label and its value (HUDController toggles it), so it never
+            // shrinks the value or reaches the rank medal. Hidden by default.
+            var newBadge = MakeChild(card, "BestNewBadge", typeof(RectTransform), typeof(TextMeshProUGUI));
+            newBadge.anchorMin = newBadge.anchorMax = new Vector2(0.5f, 0.5f);
+            newBadge.pivot = new Vector2(1f, 0.5f);
+            newBadge.anchoredPosition = new Vector2(20f, rowY[1]); newBadge.sizeDelta = new Vector2(70f, 30f);
+            var nb = newBadge.GetComponent<TextMeshProUGUI>();
+            nb.text = "New!"; nb.alignment = TextAlignmentOptions.MidlineRight;
+            nb.enableWordWrapping = false; nb.enableAutoSizing = false; nb.fontSize = 19f;
+            nb.fontStyle = FontStyles.Bold; nb.raycastTarget = false;
+            nb.color = new Color(0.93f, 0.60f, 0.13f);   // warm orange-gold highlight
+            if (refTmp != null) nb.font = refTmp.font; ApplyBold(nb);
+            EditorUtility.SetDirty(nb);
+            newBadge.gameObject.SetActive(false);
+
             // live rank letter on the baked disc (S/A/B/C), styled to the design "A"
             var letter = MakeChild(card, "RankMedalLetter", typeof(RectTransform), typeof(TextMeshProUGUI));
             Center(letter, new Vector2(196.5f, 12f), new Vector2(110f, 110f));
@@ -678,6 +694,9 @@ namespace JebbyJump.EditorTools
             var letter = Find(card, "RankMedalLetter");
             var pl = so.FindProperty("_rankMedalLetter");
             if (pl != null && letter != null) pl.objectReferenceValue = letter.GetComponent<TextMeshProUGUI>();
+            var badge = Find(card, "BestNewBadge");
+            var pb = so.FindProperty("_levelCompleteNewBadge");
+            if (pb != null && badge != null) pb.objectReferenceValue = badge.gameObject;
             var ps = so.FindProperty("_starIcons");
             if (ps != null)
             {
