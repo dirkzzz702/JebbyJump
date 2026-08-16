@@ -53,8 +53,8 @@ namespace JebbyJump.EditorTools
 
             // Keep the result-button labels single-line with end margins inside the pill.
             // SIZING + margins owned by BuildResultCards; the per-panel floor here is a
-            // no-op safety net (LC pills use a tighter 20u rule, GO keeps 26u).
-            groups += FitPanelButtonLabels(scene, "LevelCompletePanel", 18f);
+            // no-op safety net (LC design pills use a tighter 14u rule, GO keeps 26u).
+            groups += FitPanelButtonLabels(scene, "LevelCompletePanel", 14f);
             groups += FitPanelButtonLabels(scene, "GameOverPanel", 24f);
 
             // Pause glyph was hairline "||" at 32pt regular in a 96u button

@@ -41,14 +41,23 @@ namespace JebbyJump.EditorTools
             EnsureSlicedSprite("ui_result_btn_primary_lc_9s.png", 46, 0, 46, 0);
             EnsureSlicedSprite("ui_rows_panel_9s.png", 44, 44, 44, 44);
 
-            // Claude Design plates (assets/unity export): full painted panels used as
-            // Simple, native-size Card backgrounds - frame/cream/gem/inset/dividers/row
-            // icons/medal-laurel + button shapes are all baked, so only live text, the
-            // 3 dynamic stars, the rank letter and (GO) the per-world mascot overlay.
-            // Import per ARTWORK_MANIFEST: Single, FullRect, compression off, mip off,
-            // sRGB, straight alpha, no atlas, clamp, bilinear, PPU100.
+            // Claude Design plates (repaired export): painted panel BACKGROUNDS only,
+            // drawn Simple at native size as the Card image. LC keeps frame/cream/gem/
+            // inset/dividers/row icons/medal-laurel; GO keeps frame/cream/gem + a clean
+            // cream interior. They carry NO buttons, button shadows or ghost outlines:
+            // Retry/Next/Main Menu are independent sliced UI Images (LayoutResultButton),
+            // and the live text / 3 stars / rank letter / (GO) per-world mascot are
+            // overlays. Import per ARTWORK_MANIFEST: Single, FullRect, compression off,
+            // mip off, sRGB, straight alpha, no atlas, clamp, bilinear, PPU100.
             foreach (var s in new[] { "ui_lc_card", "ui_go_card", "ui_result_star" })
                 EnsureSimpleSprite(s + ".png");
+
+            // Level-Complete buttons repainted from the Claude Design mockup art
+            // (btn_retry_s / btn_next_gold / btn_menu_s) so the visible pills + labels
+            // match the reference (the older ui_result_btn_*_lc pills sat inset and read
+            // too small). HQ import + a ~60px horizontal 9-slice for clean caps.
+            foreach (var b in new[] { "ui_lc_btn_retry", "ui_lc_btn_next", "ui_lc_btn_menu" })
+                EnsureSimpleSprite(b + ".png", 60);
 
             var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             int nb = 0;
@@ -169,7 +178,7 @@ namespace JebbyJump.EditorTools
         // Design-plate import (ARTWORK_MANIFEST settings): Single, FullRect, no
         // compression, no mipmaps, sRGB, straight alpha, clamp, bilinear, PPU 100,
         // no border (Simple draw). Idempotent.
-        private static void EnsureSimpleSprite(string file)
+        private static void EnsureSimpleSprite(string file, int hBorder = 0)
         {
             var imp = AssetImporter.GetAtPath(Dir + file) as TextureImporter;
             if (imp == null) return;
@@ -178,7 +187,9 @@ namespace JebbyJump.EditorTools
             s.textureType = TextureImporterType.Sprite;
             s.spriteMode = (int)SpriteImportMode.Single;
             s.spriteMeshType = SpriteMeshType.FullRect;
-            s.spriteBorder = Vector4.zero;
+            // hBorder>0 -> a horizontal 9-slice (rounded button caps stay fixed, the
+            // straight middle flexes); plates use 0 (Simple, no slice).
+            s.spriteBorder = new Vector4(hBorder, 0, hBorder, 0);
             s.spritePixelsPerUnit = 100f;
             s.mipmapEnabled = false;
             s.sRGBTexture = true;
@@ -242,9 +253,10 @@ namespace JebbyJump.EditorTools
         // tools don't change it -> deterministic across generators.
         private const float BtnLabelMargin = 26f;
         // Level-Complete pills get their OWN, tighter label margin (the GO 26u rule is
-        // unchanged). ~20u = ~10% of the 196u secondary buttons - enough padding while
-        // letting the labels fit near the row-label size instead of collapsing to 20pt.
-        private const float LcBtnLabelMargin = 20f;
+        // unchanged). 14u lets the labels sit larger inside the design pills to match the
+        // mockup's chunky labels while still clearing the rounded ends. AdjustGameUiLayout's
+        // LC margin floor is lowered to 14u to match, so that generator stays a no-op.
+        private const float LcBtnLabelMargin = 14f;
 
         // Real bold face (mockup titles/labels are heavier than TMP faux-bold).
         private static Material _boldMat;
@@ -261,12 +273,12 @@ namespace JebbyJump.EditorTools
 
         private static void BuildLevelCompleteExtras(Transform card)
         {
-            // Claude Design plate `ui_lc_card` (667x573, native): frame, cream, gem,
-            // inset, dividers, 4 row icons, medal laurel/disc (letter erased) and the 3
-            // button shapes are all BAKED. Overlay only the live pieces - TMP title /
-            // labels / values, the rank letter on the disc, 3 dynamic stars, and
-            // transparent hit areas over the baked buttons. Positions are the approved
-            // plate-pixel layout mapped to Unity centre-origin: (x-333.5, 286.5-y).
+            // Claude Design plate `ui_lc_card` (repaired, 667x573 native): panel
+            // BACKGROUND only - frame, cream, gem, inset, dividers, 4 row icons, medal
+            // laurel/disc (dynamic rank letter erased). It has NO buttons baked in.
+            // Overlays: TMP title / labels / values, the rank letter on the disc, 3
+            // dynamic stars, and the 3 independent sliced buttons (LayoutResultButton).
+            // Positions map the approved layout to Unity centre-origin: (x-333.5, 286.5-y).
             var crt = card as RectTransform;
             if (crt != null) crt.sizeDelta = new Vector2(667f, 573f);
             var cimg = card.GetComponent<Image>();
@@ -327,10 +339,12 @@ namespace JebbyJump.EditorTools
 
             // live rank letter on the baked disc (S/A/B/C), styled to the design "A"
             var letter = MakeChild(card, "RankMedalLetter", typeof(RectTransform), typeof(TextMeshProUGUI));
-            Center(letter, new Vector2(196.5f, 12f), new Vector2(110f, 110f));
+            // Centre on the disc (plate px ~530,278 -> card 196.5,8.5) and size the glyph
+            // to fill it like the design "A" (cap ~71px on the ~90px disc -> ~100pt).
+            Center(letter, new Vector2(196.5f, 8.5f), new Vector2(120f, 120f));
             var lt = letter.GetComponent<TextMeshProUGUI>();
             lt.text = "A"; lt.alignment = TextAlignmentOptions.Center; lt.fontStyle = FontStyles.Bold;
-            lt.enableAutoSizing = false; lt.fontSize = 88f; lt.raycastTarget = false;
+            lt.enableAutoSizing = false; lt.fontSize = 100f; lt.raycastTarget = false;
             if (refTmp != null) lt.font = refTmp.font;
             var rankMat = LcRankMat();
             if (rankMat != null) lt.fontSharedMaterial = rankMat;
@@ -343,16 +357,21 @@ namespace JebbyJump.EditorTools
                 PlaceIcon(card, "Star" + i, "ui_result_star",
                     new Vector2(-8.5f + i * 63f, -73.5f), new Vector2(54f, 54f));
 
-            // interactive buttons: transparent hit areas over the baked pill shapes +
-            // labels. Hit rects trimmed a few units narrower than the pill art so the
-            // adjacent hit rectangles never overlap (the visible pills are baked).
-            LcHitButton(card, "RetryButton", -203.5f, -169.5f, 178f, 106f);
-            LcHitButton(card, "NextLevelButton", -6.5f, -169.5f, 206f, 110f);
-            LcHitButton(card, "MainMenuButton", 198.5f, -169.5f, 186f, 106f);
+            // interactive buttons: 3 independent sliced UI buttons (Retry = cream, Next
+            // Level = gold primary, Main Menu = cream) with separate TMP labels. Widths
+            // keep a small gap so adjacent rects never overlap. ColorTint (set in the
+            // skin loop) darkens only the pressed button - the clean cream plate behind
+            // has no baked pill to expose.
+            LayoutResultButton(card, "RetryButton", "ui_lc_btn_retry", -203.5f, -169.5f, 180f, 106f);
+            LayoutResultButton(card, "NextLevelButton", "ui_lc_btn_next", -6.5f, -169.5f, 208f, 110f);
+            LayoutResultButton(card, "MainMenuButton", "ui_lc_btn_menu", 198.5f, -169.5f, 192f, 106f);
             FitLcButtonLabels(card, new[] { "RetryButton", "NextLevelButton", "MainMenuButton" });
         }
 
         // LC row label: left-aligned (pivot 0) at x=-170.5; created when `text` is given.
+        // Box width 116 (was 168): the labels are short left-aligned words ("Time".."Stars",
+        // widest ~90u), so 116 fits them AND ends the rect at x-54.5 - clear of the "New!"
+        // badge (x-50..20) on the Best row, so the overlap-regression audit stays at 0.
         private static void LcRowLabel(Transform card, string name, string text, float y, TMP_Text refTmp, bool create)
         {
             var rt = create
@@ -360,7 +379,7 @@ namespace JebbyJump.EditorTools
                 : Find(card, name) as RectTransform;
             if (rt == null) return;
             rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f); rt.pivot = new Vector2(0f, 0.5f);
-            rt.anchoredPosition = new Vector2(-170.5f, y); rt.sizeDelta = new Vector2(168f, 46f);
+            rt.anchoredPosition = new Vector2(-170.5f, y); rt.sizeDelta = new Vector2(116f, 46f);
             var t = rt.GetComponent<TMP_Text>();
             if (t == null) return;
             if (text != null) t.text = text;
@@ -386,9 +405,15 @@ namespace JebbyJump.EditorTools
             t.characterSpacing = 0f; t.color = Cocoa; if (refTmp != null) t.font = refTmp.font; ApplyBold(t);
         }
 
-        // Interactive button = transparent raycast hit area over the plate's baked pill.
-        // Keeps the existing Button/label wiring; the TMP label draws on top.
-        private static void LcHitButton(Transform card, string name, float x, float y, float w, float h)
+        // A result button = an independent, VISIBLE sliced UI Image (Retry / Next Level /
+        // Main Menu). The panel background behind it is clean cream with NO baked pill, so
+        // the button moves and presses as one control: its ColorTint press-darkening (set
+        // in the skin loop, targetGraphic = this Image) is the only thing that changes,
+        // never a shape underneath. Sizes/positions are the approved button-row layout,
+        // kept a gap apart so adjacent rects never overlap. The label is a separate TMP
+        // child (skinned by Fit*ButtonLabels). Keeps the existing Button/onClick wiring.
+        // Idempotent.
+        private static void LayoutResultButton(Transform card, string name, string sprite, float x, float y, float w, float h)
         {
             var rt = Find(card, name) as RectTransform;
             if (rt == null) return;
@@ -397,19 +422,23 @@ namespace JebbyJump.EditorTools
             var img = rt.GetComponent<Image>();
             if (img != null)
             {
-                img.sprite = null; img.color = new Color(1f, 1f, 1f, 0f); img.raycastTarget = true;
-                EditorUtility.SetDirty(img);
+                var sp = Sprite(sprite);
+                if (sp != null) img.sprite = sp;
+                img.type = Image.Type.Sliced; img.fillCenter = true;
+                img.color = Color.white; img.useSpriteMesh = false; img.raycastTarget = true;
+                img.SetAllDirty(); EditorUtility.SetDirty(img);
             }
             EditorUtility.SetDirty(rt);
         }
 
         private static void BuildGameOverExtras(Transform card)
         {
-            // Claude Design plate `ui_go_card` (575x558, native): frame, cream, gem and
-            // the two button shapes are baked; the design cactus is ERASED so the game's
-            // per-world mascot shows instead (WorldThemeApplier swaps GameOverMascot).
-            // Overlay: TMP title, the per-world mascot, transparent hit areas + labels
-            // over the baked buttons. Unity centre-origin = (x-287.5, 279-y).
+            // Claude Design plate `ui_go_card` (repaired, 575x558 native): panel
+            // BACKGROUND only - frame, cream, gem and a clean cream interior. NO buttons
+            // and NO cactus are baked in: the two buttons are independent sliced UI Images
+            // and the per-world mascot is an overlay (WorldThemeApplier swaps GameOverMascot).
+            // Overlay: TMP title, the mascot, the 2 sliced buttons + labels.
+            // Unity centre-origin = (x-287.5, 279-y).
             var crt = card as RectTransform;
             if (crt != null) crt.sizeDelta = new Vector2(575f, 558f);
             var cimg = card.GetComponent<Image>();
@@ -433,10 +462,12 @@ namespace JebbyJump.EditorTools
             // sprite). Sized so W01's visible bounds ~match the design cactus footprint.
             PlaceIcon(card, "GameOverMascot", "ui_gameover_mascot_01", new Vector2(0f, 12f), new Vector2(420f, 420f));
 
-            // interactive buttons: transparent hit areas over the baked pill shapes +
-            // labels. Rects trimmed so the two hit rectangles keep a clear centre gap.
-            LcHitButton(card, "RetryButton", -124.5f, -164f, 230f, 106f);
-            LcHitButton(card, "MainMenuButton", 117.5f, -164f, 228f, 106f);
+            // interactive buttons: 2 independent sliced cream UI buttons (Retry, Main
+            // Menu) with separate TMP labels, kept a clear centre gap apart so the rects
+            // never overlap. ColorTint darkens only the pressed button (clean cream plate
+            // behind, no baked pill).
+            LayoutResultButton(card, "RetryButton", "ui_result_btn_9s", -124.5f, -164f, 230f, 106f);
+            LayoutResultButton(card, "MainMenuButton", "ui_result_btn_9s", 117.5f, -164f, 228f, 106f);
             FitButtonLabels(card, new[] { "RetryButton", "MainMenuButton" }, 34f);
         }
 
@@ -542,7 +573,7 @@ namespace JebbyJump.EditorTools
         {
             var lcMat = LcButtonMat();
             var labels = new System.Collections.Generic.List<TMP_Text>();
-            const float baseSize = 34f;   // never exceed the row-label size
+            const float baseSize = 40f;   // ceiling; shrink-to-fit lands ~34 on the design pills
             float shared = baseSize;
             foreach (var n in names)
             {

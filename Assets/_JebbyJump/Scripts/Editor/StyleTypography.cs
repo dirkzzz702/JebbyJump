@@ -141,7 +141,8 @@ namespace JebbyJump.EditorTools
                     // row-label size). Don't force the +2 spacing back onto them.
                     var lcImg = btn.GetComponent<Image>();
                     bool lcResultBtn = lcImg != null && lcImg.sprite != null
-                        && lcImg.sprite.name.Contains("result_btn_lc");
+                        && (lcImg.sprite.name.Contains("result_btn_lc")   // legacy LC pills
+                            || lcImg.sprite.name.Contains("lc_btn"));      // design LC pills (ui_lc_btn_*)
                     bool dirty = false;
                     if (!lcResultBtn && (tmp.fontStyle & FontStyles.Bold) == 0)
                     { tmp.fontStyle |= FontStyles.Bold; dirty = true; }
