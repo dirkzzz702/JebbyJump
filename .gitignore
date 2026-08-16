@@ -122,3 +122,7 @@ ignore.conf
 
 # Local scratch dir (design audits, temp working files) - root only
 /tmp/
+
+# Local validation-tool output (regenerated on demand)
+/validation_report.json
+/validation_report.md
