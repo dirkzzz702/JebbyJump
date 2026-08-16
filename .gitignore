@@ -119,3 +119,6 @@ ignore.conf
 # Transient performance-test-framework artifacts (regenerated each test run)
 /[Aa]ssets/[Rr]esources/PerformanceTestRun*.json
 /[Aa]ssets/[Rr]esources/PerformanceTestRun*.json.meta
+
+# Local scratch dir (design audits, temp working files) - root only
+/tmp/
