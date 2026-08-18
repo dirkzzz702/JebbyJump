@@ -136,20 +136,22 @@ namespace JebbyJump.EditorTools
                 {
                     var tmp = btn.GetComponentInChildren<TMP_Text>(true);
                     if (tmp == null) continue;
-                    // Level-Complete pills own their label typography in BuildResultCards
-                    // (tighter margin, ZERO character spacing so the labels fit near the
-                    // row-label size). Don't force the +2 spacing back onto them.
-                    var lcImg = btn.GetComponent<Image>();
-                    bool lcResultBtn = lcImg != null && lcImg.sprite != null
-                        && (lcImg.sprite.name.Contains("result_btn_lc")   // legacy LC pills
-                            || lcImg.sprite.name.Contains("lc_btn"));      // design LC pills (ui_lc_btn_*)
+                    // Result-panel buttons (BOTH Level Complete AND Game Over) own their
+                    // label typography in BuildResultCards.UnifyResultButtonLabels - skip
+                    // them ENTIRELY so this pass never re-forces bold/spacing onto them
+                    // (forcing it back onto Game Over was why the two panels diverged).
+                    var resultImg = btn.GetComponent<Image>();
+                    bool resultBtn = resultImg != null && resultImg.sprite != null
+                        && (resultImg.sprite.name.Contains("result_btn")   // GO ui_result_btn_9s (+ legacy)
+                            || resultImg.sprite.name.Contains("lc_btn"));  // LC ui_lc_btn_*
+                    if (resultBtn) continue;
                     bool dirty = false;
-                    if (!lcResultBtn && (tmp.fontStyle & FontStyles.Bold) == 0)
+                    if ((tmp.fontStyle & FontStyles.Bold) == 0)
                     { tmp.fontStyle |= FontStyles.Bold; dirty = true; }
                     if (!tmp.enableVertexGradient && tmp.color != LabelCream
                         && tmp.color == Color.white)   // keep code-tinted labels
                     { tmp.color = LabelCream; dirty = true; }
-                    if (!lcResultBtn && tmp.characterSpacing < 2f)
+                    if (tmp.characterSpacing < 2f)
                     { tmp.characterSpacing = 2f; dirty = true; }
                     if (tmp.enableWordWrapping)
                     { tmp.enableWordWrapping = false; dirty = true; }

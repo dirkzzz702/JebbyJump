@@ -101,21 +101,10 @@ namespace JebbyJump.EditorTools
                         cb.selectedColor = Color.white; cb.disabledColor = new Color(0.7f, 0.7f, 0.7f, 0.6f);
                         cb.colorMultiplier = 1f; cb.fadeDuration = 0.1f; btn.colors = cb;
                     }
-                    var lbl = btn.GetComponentInChildren<TMP_Text>(true);
-                    if (lbl != null)
-                    {
-                        // Bake the FINAL converged label state so AdjustGameUiLayout
-                        // (margin>=24) and StyleTypography (autosize off, uniform fit)
-                        // are no-ops in any order. Font size is set uniformly per
-                        // panel by FitButtonLabels (below), on the LONGEST label.
-                        lbl.color = Cocoa; lbl.fontStyle |= FontStyles.Bold;
-                        lbl.characterSpacing = Mathf.Max(lbl.characterSpacing, 2f);
-                        lbl.enableWordWrapping = false;
-                        lbl.enableAutoSizing = false;
-                        lbl.overflowMode = TextOverflowModes.Overflow;
-                        lbl.margin = new Vector4(BtnLabelMargin, 0f, BtnLabelMargin, 0f);
-                        ApplyBold(lbl);
-                    }
+                    // Button LABELS are intentionally NOT styled here: all five (both
+                    // panels) get ONE identical style + ONE shared size from
+                    // UnifyResultButtonLabels after both panels are built, so no
+                    // per-panel divergence can creep in.
                     EditorUtility.SetDirty(btn);
                     nb++;
                 }
@@ -123,6 +112,7 @@ namespace JebbyJump.EditorTools
                 if (panelName == "LevelCompletePanel") BuildLevelCompleteExtras(card);
                 else BuildGameOverExtras(card);
             }
+            UnifyResultButtonLabels(scene);   // ONE identical label style + size, all 5 buttons
             WireResultRefs(scene);
 
             EditorSceneManager.MarkSceneDirty(scene);
@@ -248,14 +238,10 @@ namespace JebbyJump.EditorTools
         // whose own blue centre replaces that disc.
         private static readonly Color MedalLetter = new Color(0.94f, 0.72f, 0.24f);
 
-        // Button-label end margin (clears the pill's rounded ends). Matches
-        // StyleTypography.LabelMargin / AdjustGameUiLayout's >=24 floor so those
-        // tools don't change it -> deterministic across generators.
-        private const float BtnLabelMargin = 26f;
-        // Level-Complete pills get their OWN, tighter label margin (the GO 26u rule is
-        // unchanged). 14u lets the labels sit larger inside the design pills to match the
-        // mockup's chunky labels while still clearing the rounded ends. AdjustGameUiLayout's
-        // LC margin floor is lowered to 14u to match, so that generator stays a no-op.
+        // Shared result-button label end margin (clears the pill's rounded ends).
+        // UnifyResultButtonLabels applies this to ALL FIVE labels (both panels); 14u lets
+        // them sit large inside the design pills to match the mockup. AdjustGameUiLayout's
+        // per-panel floor is lowered to 14u (both panels) so that generator stays a no-op.
         private const float LcBtnLabelMargin = 14f;
 
         // Real bold face (mockup titles/labels are heavier than TMP faux-bold).
@@ -365,7 +351,7 @@ namespace JebbyJump.EditorTools
             LayoutResultButton(card, "RetryButton", "ui_lc_btn_retry", -203.5f, -169.5f, 180f, 106f);
             LayoutResultButton(card, "NextLevelButton", "ui_lc_btn_next", -6.5f, -169.5f, 208f, 110f);
             LayoutResultButton(card, "MainMenuButton", "ui_lc_btn_menu", 198.5f, -169.5f, 192f, 106f);
-            FitLcButtonLabels(card, new[] { "RetryButton", "NextLevelButton", "MainMenuButton" });
+            // labels styled + sized by UnifyResultButtonLabels (both panels together)
         }
 
         // LC row label: left-aligned (pivot 0) at x=-170.5; created when `text` is given.
@@ -468,7 +454,7 @@ namespace JebbyJump.EditorTools
             // behind, no baked pill).
             LayoutResultButton(card, "RetryButton", "ui_result_btn_9s", -124.5f, -164f, 230f, 106f);
             LayoutResultButton(card, "MainMenuButton", "ui_result_btn_9s", 117.5f, -164f, 228f, 106f);
-            FitButtonLabels(card, new[] { "RetryButton", "MainMenuButton" }, 34f);
+            // labels styled + sized by UnifyResultButtonLabels (both panels together)
         }
 
         private static void SetText(Transform card, string name, string text)
@@ -525,89 +511,90 @@ namespace JebbyJump.EditorTools
             EditorUtility.SetDirty(rt);
         }
 
-        // Uniform button-label sizing: every label in the row shares the largest
-        // font that fits the LONGEST label inside the NARROWEST button (with 26u
-        // end margins). Deterministic + idempotent - mirrors StyleTypography's
-        // horizontal-row FitGroup so re-running either converges to the same size.
-        // Call AFTER the buttons are sized.
-        private static void FitButtonLabels(Transform card, string[] names, float baseSize)
+        // ONE identical label style + ONE shared font size across ALL FIVE result
+        // buttons - Level Complete (Retry / Next Level / Main Menu) AND Game Over
+        // (Retry / Main Menu) - using the Level Complete label style as the reference.
+        // No per-panel/per-label sizing, no TMP autosize, no RectTransform scaling.
+        // The single size is the largest that fits the LONGEST label inside the
+        // NARROWEST button (margin-inset), so "Main Menu"/"Next Level" fit comfortably;
+        // the wider Game Over pills never lower it. Deterministic + idempotent. Run
+        // AFTER both panels are built. Keeps StyleTypography (excludes result_btn/lc_btn)
+        // and AdjustGameUiLayout (14u floor, both panels) as no-ops on these labels.
+        private static void UnifyResultButtonLabels(UnityEngine.SceneManagement.Scene scene)
         {
-            var labels = new System.Collections.Generic.List<TMP_Text>();
-            float ratio = 1f;
-            foreach (var n in names)
+            var mat = LcButtonMat();
+            var font = FredokaFont();
+            var spec = new[]
             {
-                var b = Find(card, n) as RectTransform;
+                ("LevelCompletePanel", "RetryButton"),
+                ("LevelCompletePanel", "NextLevelButton"),
+                ("LevelCompletePanel", "MainMenuButton"),
+                ("GameOverPanel", "RetryButton"),
+                ("GameOverPanel", "MainMenuButton"),
+            };
+            var rects = new System.Collections.Generic.List<RectTransform>();
+            var labels = new System.Collections.Generic.List<TMP_Text>();
+            foreach (var (panelName, btnName) in spec)
+            {
+                var panel = FindDeep(scene, panelName);
+                var card = panel != null ? Find(panel.transform, "Card") : null;
+                var b = card != null ? Find(card, btnName) as RectTransform : null;
                 var lbl = b != null ? b.GetComponentInChildren<TMP_Text>(true) : null;
-                if (lbl == null || b == null) continue;
-                labels.Add(lbl);
-                lbl.enableAutoSizing = false;
-                if (!Mathf.Approximately(lbl.fontSize, baseSize)) lbl.fontSize = baseSize;
-                float avail = b.sizeDelta.x - lbl.margin.x - lbl.margin.z - 4f;
-                float pref;
-                try { pref = lbl.GetPreferredValues(lbl.text, Mathf.Infinity, Mathf.Infinity).x; }
-                catch { pref = 0f; }
-                // Deterministic fallback: a never-awoken TMP returns 0 in edit mode,
-                // which would leave a too-wide label un-shrunk. Estimate ~0.57em/char
-                // at the base size (Fredoka bold is wide) and use the larger of the
-                // two, so the fit never depends on TMP being initialised.
-                float est = (lbl.text != null ? lbl.text.Length : 0) * baseSize * 0.57f;
-                pref = Mathf.Max(pref, est);
-                if (pref > avail && pref > 0f) ratio = Mathf.Min(ratio, avail / pref);
+                if (b == null || lbl == null) continue;
+                rects.Add(b); labels.Add(lbl);
             }
             if (labels.Count == 0) return;
-            float shared = Mathf.Max(20f, Mathf.Floor(baseSize * ratio * 2f) / 2f);
+
+            // Identical style on every label. Weight comes from the LC material (a single
+            // controlled face dilation), NOT fontStyle.Bold, so all five share one weight.
+            const float baseSize = 40f;   // measurement ceiling
             foreach (var lbl in labels)
             {
-                if (!Mathf.Approximately(lbl.fontSize, shared)) lbl.fontSize = shared;
-                EditorUtility.SetDirty(lbl);
-            }
-        }
-
-        // LEVEL-COMPLETE-specific button-label fit (distinct from the GO FitButtonLabels
-        // rule). Tighter 20u margin, NO character spacing, NO 4u reserve, and it measures
-        // an INITIALISED TMP (ForceMeshUpdate) so the fit doesn't fall back to the crude
-        // estimate. Yields one uniform size (~32pt) capped at the 34pt row-label size,
-        // NOT the old 20.5pt collapse. Keeps the existing bold face/material (weight is a
-        // separate concern). Deterministic + idempotent.
-        private static void FitLcButtonLabels(Transform card, string[] names)
-        {
-            var lcMat = LcButtonMat();
-            var labels = new System.Collections.Generic.List<TMP_Text>();
-            const float baseSize = 40f;   // ceiling; shrink-to-fit lands ~34 on the design pills
-            float shared = baseSize;
-            foreach (var n in names)
-            {
-                var b = Find(card, n) as RectTransform;
-                var lbl = b != null ? b.GetComponentInChildren<TMP_Text>(true) : null;
-                if (lbl == null || b == null) continue;
-                labels.Add(lbl);
-                // LC label state (overrides the shared skin-loop 26u/spacing-2/bold baking).
+                if (font != null) lbl.font = font;
+                if (mat != null) lbl.fontSharedMaterial = mat;
                 lbl.color = Cocoa;
-                lbl.fontStyle &= ~FontStyles.Bold;        // weight from the LC material only
-                if (lcMat != null) lbl.fontSharedMaterial = lcMat;
+                lbl.fontStyle &= ~FontStyles.Bold;
                 lbl.characterSpacing = 0f;
-                lbl.enableAutoSizing = false;
+                lbl.wordSpacing = 0f;
+                lbl.lineSpacing = 0f;
+                lbl.alignment = TextAlignmentOptions.Center;
                 lbl.enableWordWrapping = false;
+                lbl.enableAutoSizing = false;
                 lbl.overflowMode = TextOverflowModes.Overflow;
                 lbl.margin = new Vector4(LcBtnLabelMargin, 0f, LcBtnLabelMargin, 0f);
+                lbl.rectTransform.localScale = Vector3.one;
                 lbl.fontSize = baseSize;
                 try { lbl.ForceMeshUpdate(); } catch { }   // initialise for a valid measure
+            }
+
+            // ONE shared size = the tightest fit across all five, measured at baseSize.
+            float shared = baseSize;
+            for (int i = 0; i < labels.Count; i++)
+            {
+                var lbl = labels[i];
                 float pref;
                 try { pref = lbl.GetPreferredValues(lbl.text, Mathf.Infinity, Mathf.Infinity).x; }
                 catch { pref = 0f; }
                 float est = (lbl.text != null ? lbl.text.Length : 0) * baseSize * 0.55f;
                 pref = Mathf.Max(pref, est);
-                float avail = b.sizeDelta.x - LcBtnLabelMargin * 2f;
+                float avail = rects[i].sizeDelta.x - LcBtnLabelMargin * 2f;
                 if (pref > avail && pref > 0f) shared = Mathf.Min(shared, baseSize * avail / pref);
             }
-            if (labels.Count == 0) return;
             shared = Mathf.Max(20f, Mathf.Floor(shared * 2f) / 2f);
             foreach (var lbl in labels)
             {
-                if (!Mathf.Approximately(lbl.fontSize, shared)) lbl.fontSize = shared;
+                lbl.fontSize = shared;
                 EditorUtility.SetDirty(lbl);
+                EditorUtility.SetDirty(lbl.rectTransform);
             }
         }
+
+        // The project's Fredoka SDF font asset - assigned to all five result-button
+        // labels so their font (as well as material) is identical.
+        private static TMP_FontAsset _fredoka;
+        private static TMP_FontAsset FredokaFont() => _fredoka != null ? _fredoka
+            : (_fredoka = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(
+                "Assets/_JebbyJump/Art/Fonts/Fredoka SDF.asset"));
 
         // Dedicated rank-letter material (NOT the shared title/bold material): heavier
         // face dilation + a crisp dark-orange edge (mockup's outlined gold "S/A/B/C").
