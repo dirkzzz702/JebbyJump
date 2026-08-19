@@ -134,7 +134,7 @@ namespace JebbyJump.Sequence
             MemoryPhaseStarted?.Invoke();
             yield return new WaitForSeconds(_sequenceManager.Config.MemoryTimeSeconds);
             _displayUI.Hide();
-            _feedbackUI?.ShowMessage("Go!", 1f);
+            _feedbackUI?.ShowMessage("Go!", 1f, FeedbackTone.Kickoff);
             _phase = Phase.Playing;
             SetAllSkillsUsable(true);
             _playerController?.SetJumpMultiplier(1f);
@@ -157,7 +157,7 @@ namespace JebbyJump.Sequence
             {
                 if (TryShieldAbsorb()) { RespawnAfterShield(); return; }
                 Debug.Log("[Sequence] Skipped to Row " + platform.RowIndex + " — expected Row " + _sequenceManager.CurrentStepIndex + ". Wrong.");
-                _feedbackUI?.ShowMessage("Wrong color!", 0.9f);
+                _feedbackUI?.ShowMessage("Wrong color!", 0.9f, FeedbackTone.Negative);
                 WrongLanding?.Invoke();
                 EmitPlayerDamaged("wrong_color");
                 _progressTracker?.LoseLife();
@@ -167,14 +167,14 @@ namespace JebbyJump.Sequence
             bool correct = platform.Color == _sequenceManager.ExpectedColor;
             if (correct)
             {
-                _feedbackUI?.ShowMessage("Correct!", 0.7f);
+                _feedbackUI?.ShowMessage("Correct!", 0.7f, FeedbackTone.Positive);
                 CorrectLanding?.Invoke();
                 _sequenceManager.AdvanceStep();
             }
             else
             {
                 if (TryShieldAbsorb()) { RespawnAfterShield(); return; }
-                _feedbackUI?.ShowMessage("Wrong color!", 0.9f);
+                _feedbackUI?.ShowMessage("Wrong color!", 0.9f, FeedbackTone.Negative);
                 WrongLanding?.Invoke();
                 EmitPlayerDamaged("wrong_color");
                 _progressTracker?.LoseLife();
@@ -185,7 +185,7 @@ namespace JebbyJump.Sequence
         {
             if (_phase != Phase.Playing) return;
             if (TryShieldAbsorb()) { /* no respawn — Jebby keeps position after cactus block */ return; }
-            _feedbackUI?.ShowMessage("Ouch! Cactus!", 0.9f);
+            _feedbackUI?.ShowMessage("Ouch! Cactus!", 0.9f, FeedbackTone.Negative);
             EmitPlayerDamaged("hazard");
             _progressTracker?.LoseLife();
         }

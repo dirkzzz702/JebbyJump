@@ -26,7 +26,7 @@ namespace JebbyJump.Items
             _isActive = true;
             _remaining = _durationSeconds;
             if (_visual != null) _visual.SetActive(true);
-            _feedbackUI?.ShowMessage("Shield!", 1f);
+            _feedbackUI?.ShowMessage("Shield!", 1f, FeedbackTone.Positive);
             Debug.Log($"[BubbleShield] Activated for {_durationSeconds}s.");
         }
 
@@ -44,7 +44,7 @@ namespace JebbyJump.Items
             _isActive = false;
             _remaining = 0f;
             if (_visual != null) _visual.SetActive(false);
-            _feedbackUI?.ShowMessage("Shield Saved You!", 1f);
+            _feedbackUI?.ShowMessage("Shield Saved You!", 1f, FeedbackTone.Positive);
             Debug.Log("[BubbleShield] Consumed — life loss prevented.");
             return true;
         }

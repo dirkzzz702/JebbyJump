@@ -25,6 +25,7 @@ namespace JebbyJump.EditorTools
         private static readonly Color Gold = new Color(0.94f, 0.78f, 0.41f);
         private static readonly Color SoftBody = new Color(0.95f, 0.93f, 0.88f);
         private static readonly Color LabelCream = new Color(0.97f, 0.95f, 0.91f);
+        private static readonly Color Ink = new Color(0.286f, 0.196f, 0.110f);   // #49321C cocoa
 
         [MenuItem("Jebby Jump/QA/Style Typography")]
         public static void Run()
@@ -48,8 +49,11 @@ namespace JebbyJump.EditorTools
             n += SwapImage(game, "LevelBadgeRoot", pill);
             n += SwapImage(game, "TutorialHintRoot", pill);
             n += Style(game, "TutorialHintRoot", "TutorialHintText", 30f, true, Cream);
-            n += Style(game, "FeedbackRoot", "FeedbackText", 40f, true, Cream);
-            n += Style(game, "HUDCanvas", "LiveTimerText", 0f, true, LabelCream);
+            // FeedbackRoot/FeedbackText typography is owned by BuildGameplayFeedback
+            // (the "Burst Word" popup), so it's intentionally NOT restyled here.
+            // Live timer sits on the CREAM ribbon -> cocoa ink, not light cream (was
+            // invisible: light-on-cream).
+            n += Style(game, "HUDCanvas", "LiveTimerText", 0f, true, Ink);
             n += SoftLabels(game, "SettingsPanel");
             n += ButtonLabels(game, pill);
             if (n > 0) EditorSceneManager.SaveScene(game);
